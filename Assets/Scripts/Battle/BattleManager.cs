@@ -21,6 +21,8 @@ namespace MoveCute
         public List<RelicData> relics = new();
         [Tooltip("IBattlePresenter를 구현한 컴포넌트. 비어 있으면 연출 없음")]
         public MonoBehaviour presenter;
+        [Tooltip("IPlayerInput을 구현한 컴포넌트. 비어 있으면 디버그 GUI로 선택")]
+        public MonoBehaviour input;
         public bool showDebugGui = true;
 
         public RunState Run { get; private set; }
@@ -57,9 +59,12 @@ namespace MoveCute
             var p = presenter as IBattlePresenter;
             if (presenter != null && p == null)
                 Debug.LogError($"{presenter.name}: IBattlePresenter를 구현하지 않았습니다. 연출 없이 진행합니다.", presenter);
+            var i = input as IPlayerInput;
+            if (input != null && i == null)
+                Debug.LogError($"{input.name}: IPlayerInput을 구현하지 않았습니다. 디버그 GUI로 선택합니다.", input);
 
             var e = enemy != null ? enemy : SampleContent.Gravekeeper(SampleContent.Tombstone());
-            Ctx = new BattleContext(Run, config, new[] { e }, p, DebugInput);
+            Ctx = new BattleContext(Run, config, new[] { e }, p, i ?? DebugInput);
             return Ctx.StartBattle();
         }
 
