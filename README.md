@@ -4,7 +4,7 @@
 
 ## 환경
 
-- Unity **6000.3.12f1** (URP 2D)
+- Unity **6000.6.6f1** (URP 2D)
 - DOTween (무료판, `Assets/Plugins/Demigiant`) — 연출용
 - Input System
 
