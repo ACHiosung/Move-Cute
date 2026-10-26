@@ -14,13 +14,17 @@ namespace MoveCute
         public static BattleManager Instance { get; private set; }
 
         public BattleConfig config = new();
-        [Tooltip("비어 있으면 SampleContent의 기본 덱 사용")]
+        [Tooltip("런 시작 덱. 같은 카드를 여러 장 넣으려면 여러 번 넣는다")]
         public List<CardData> startingDeck = new();
-        [Tooltip("비어 있으면 SampleContent의 묘지기 사용")]
+        [Tooltip("전투할 적 에셋 (Assets/Data/Enemies)")]
         public EnemyData enemy;
         public List<RelicData> relics = new();
+        [Tooltip("런 시드. 0 = 매 런 무작위. 같은 값이면 셔플·적 행동·무작위 대상이 재현된다 (시드는 런 시작 때 콘솔에 찍힌다)")]
+        public int seed;
         [Tooltip("IBattlePresenter를 구현한 컴포넌트. 비어 있으면 연출 없음")]
         public MonoBehaviour presenter;
+        [Tooltip("IPlayerInput을 구현한 컴포넌트. 비어 있으면 디버그 GUI로 선택")]
+        public MonoBehaviour input;
         public bool showDebugGui = true;
 
         public RunState Run { get; private set; }
@@ -43,10 +47,11 @@ namespace MoveCute
 
         public void NewRun()
         {
-            Run = new RunState();
-            var deck = startingDeck.Count > 0 ? startingDeck : SampleContent.CreateStarterDeck();
-            foreach (var c in deck) Run.Deck.Add(new CardInstance(c));
-            foreach (var r in relics) Run.Relics.Add(new Relic(r));
+            Run = new RunState(seed == 0 ? null : seed);
+            Debug.Log($"[Run] 시드 {Run.Seed}");
+            if (startingDeck.Count == 0) Debug.LogError("BattleManager.startingDeck가 비어 있습니다. 카드 에셋을 넣어 주세요.", this);
+            foreach (var c in startingDeck.Where(c => c != null)) Run.Deck.Add(new CardInstance(c));
+            foreach (var r in relics.Where(r => r != null)) Run.Relics.Add(r.CreateRelic());
         }
 
         public Awaitable StartBattle()
@@ -57,9 +62,16 @@ namespace MoveCute
             var p = presenter as IBattlePresenter;
             if (presenter != null && p == null)
                 Debug.LogError($"{presenter.name}: IBattlePresenter를 구현하지 않았습니다. 연출 없이 진행합니다.", presenter);
+            var i = input as IPlayerInput;
+            if (input != null && i == null)
+                Debug.LogError($"{input.name}: IPlayerInput을 구현하지 않았습니다. 디버그 GUI로 선택합니다.", input);
 
-            var e = enemy != null ? enemy : SampleContent.Gravekeeper(SampleContent.Tombstone());
-            Ctx = new BattleContext(Run, config, new[] { e }, p, DebugInput);
+            if (enemy == null)
+            {
+                Debug.LogError("BattleManager.enemy가 비어 있습니다. 적 에셋을 넣어 주세요.", this);
+                return AwaitableUtil.Completed();
+            }
+            Ctx = new BattleContext(Run, config, new[] { enemy }, p, i ?? DebugInput);
             return Ctx.StartBattle();
         }
 
