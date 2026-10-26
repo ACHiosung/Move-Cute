@@ -15,8 +15,8 @@
 - 카드 클릭: 사용 / 보드 칸 클릭: 순간이동 (HP 지불) / 턴 종료 버튼
 - 선택이 필요하면 후보가 초록색으로 표시된다. 클릭해서 고르거나 취소
 - `BattleManager`의 `presenter`·`input`을 비우고 `showDebugGui`를 켜면 예전 OnGUI 디버그 패널로 돌아간다
-- 테스트 데이터는 `SampleContent`가 메모리에서 만든다. 실제 에셋을 `BattleManager` 인스펙터에 넣으면 대체된다.
-- 메뉴 `MoveCute > Create Sample Assets`: 샘플 데이터를 에셋으로 저장 (작성 예시)
+- 기본 덱은 `BattleManager.startingDeck`에 넣은 카드 에셋(`Assets/Data/Cards`), 적은 `BattleManager.enemy`에 넣은 적 에셋(`Assets/Data/Enemies`)이다. 데이터는 전부 `Assets/Data` 아래에 있다.
+- 메뉴 `MoveCute > Language`: 한국어/영어 전환 (플레이 중에도 반영). 텍스트는 `Assets/Resources/Localization/Strings.csv`
 
 ## 코드 구조
 
@@ -25,13 +25,14 @@ Assets/Scripts/
   Battle/        BattleManager(씬 진입점), BattleContext(전투 상태·계약·사이클), BattleEvents
   Board/         보드, 타일, 타일 효과
   Cards/         CardData(원본) / CardInstance(덱의 카드) / CardPiles
-  Units/         Unit, PlayerUnit, Enemy, Obstacle
+  Units/         Unit, PlayerUnit, Enemy / EnemyData(적 기반), Obstacle / ObstacleData
+  Enemies/       적별 코드 (적 하나 = 파일 하나)
   Effects/       Effect(모든 효과의 기반) + 예시 효과
   Relics/        유물
   Run/           RunState(런 전체 상태)
   Presentation/  연출·입력 계약(IBattlePresenter, IPlayerInput), DOTween 연결
   UI/            임시 전투 UI (TempBattleUI — 연출·선택을 한 파일에서 구현)
-  Core/          enum, Awaitable 유틸
+  Core/          enum, Awaitable 유틸, Loc(다국어)
   Editor/        에디터 도구
 Assets/Prefabs/UI/  BattleUI(캔버스 배치), TileView, CardView, EnemyView
 ```

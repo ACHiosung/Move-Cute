@@ -1,25 +1,10 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MoveCute
 {
-    public enum RelicTrigger { BattleStart, TurnStart, TurnEnd, CardPlayed, PlayerMoved }
-
-    [CreateAssetMenu(menuName = "MoveCute/Relic", fileName = "Relic_")]
-    public class RelicData : ScriptableObject
-    {
-        public string id;
-        public string nameKey;
-        public string descKey;
-        public Sprite icon;
-
-        public RelicTrigger trigger;
-        [SerializeReference, SubclassPicker] public List<Effect> effects = new();
-    }
-
     /// <summary>
-    /// 유물: 전투 이벤트를 구독해 효과를 실행한다.
-    /// 조건이 복잡한 유물은 이 클래스를 상속해 Bind를 재정의한다.
+    /// 유물: 전투 이벤트를 구독해 효과를 실행한다. 런 동안 유지되고, 전투마다 Bind가 다시 호출된다.
+    /// 조건이 복잡한 유물은 이 클래스를 상속해 Bind를 재정의한다 (RelicData.CreateRelic 참고).
     /// </summary>
     public class Relic
     {
@@ -42,6 +27,6 @@ namespace MoveCute
         protected Awaitable Fire(BattleContext ctx) =>
             ctx.RunEffects(Data.effects, new EffectSource(this), EffectTarget.None);
 
-        public override string ToString() => Data != null ? Data.name : "Relic";
+        public override string ToString() => Data != null ? Data.DisplayName : "Relic";
     }
 }

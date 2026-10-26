@@ -364,15 +364,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ComponentVersion: 2
+  m_ComponentVersion: 4
   m_LightType: 4
   m_BlendStyleIndex: 0
+  m_Light2DProvider:
+    rid: -2
+  m_SelectionSources:
+    rid: 3200383178888970240
   m_FalloffIntensity: 0.5
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000
+  m_ApplyToSortingLayers: 00000000i
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -387,6 +391,9 @@ MonoBehaviour:
   m_ShadowSoftnessFalloffIntensity: 0.5
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
   m_LocalBounds:
     m_Center: {x: 0, y: -0.00000011920929, z: 0}
     m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
@@ -404,6 +411,19 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3200383178888970240
+      type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_SelectedHashCode: 4
+        m_SelectedSource:
+          rid: -2
+        m_Provider2DCache:
+          rid: -2
 --- !u!4 &619394802
 Transform:
   m_ObjectHideFlags: 0
@@ -561,9 +581,20 @@ MonoBehaviour:
     turnLimit: 3
     teleportHpCost: 3
     teleportLimitPerTurn: -1
-  startingDeck: []
-  enemy: {fileID: 0}
+  startingDeck:
+  - {fileID: 11400000, guid: 0f95ea24bf884eb439015611dced2738, type: 2}
+  - {fileID: 11400000, guid: 0f95ea24bf884eb439015611dced2738, type: 2}
+  - {fileID: 11400000, guid: 0f95ea24bf884eb439015611dced2738, type: 2}
+  - {fileID: 11400000, guid: 92d8e3123648b5d4aa090065d7c2b41d, type: 2}
+  - {fileID: 11400000, guid: 92d8e3123648b5d4aa090065d7c2b41d, type: 2}
+  - {fileID: 11400000, guid: 92d8e3123648b5d4aa090065d7c2b41d, type: 2}
+  - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
+  - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
+  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
+  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
+  enemy: {fileID: 11400000, guid: 62603c5a72f95fb4bafa372b83847bdf, type: 2}
   relics: []
+  seed: 0
   presenter: {fileID: 878703352}
   input: {fileID: 878703352}
   showDebugGui: 0

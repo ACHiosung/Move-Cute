@@ -43,7 +43,10 @@ namespace MoveCute
         public readonly PlayerUnit Player = new();
         public readonly List<Enemy> Enemies = new();
         public readonly List<Obstacle> Obstacles = new();
-        public readonly CardPiles Piles = new();
+        public readonly CardPiles Piles;
+
+        /// <summary>런 시드 RNG. 무작위는 UnityEngine.Random 대신 이걸 쓴다 (같은 시드 = 같은 런). 보조 함수: RandomExtensions.</summary>
+        public System.Random Rng => Run.Rng;
 
         public int Energy;
         public int MaxEnergy;
@@ -65,8 +68,9 @@ namespace MoveCute
             Config = config;
             Presenter = presenter ?? new NullBattlePresenter();
             Input = input ?? new AutoPlayerInput();
-            Board = new Board(run.BoardSize);
-            foreach (var e in enemies) Enemies.Add(new Enemy(e));
+            Board = new Board(run.BoardSize, run.Rng);
+            Piles = new CardPiles(run.Rng);
+            foreach (var e in enemies) Enemies.Add(e.CreateEnemy());
         }
 
         // ════════════════════ 조회 ════════════════════
@@ -77,7 +81,7 @@ namespace MoveCute
         {
             var alive = Enemies.Where(e => e.Hp > 0).ToList();
             if (alive.Count == 0) alive = Enemies;
-            return alive.Count == 0 ? null : alive[UnityEngine.Random.Range(0, alive.Count)];
+            return Rng.Pick(alive);
         }
 
         // ════════════════════ 사이클 ════════════════════
@@ -99,6 +103,7 @@ namespace MoveCute
                 Piles.Shuffle(Piles.Draw);
 
                 foreach (var relic in Run.Relics) relic.Bind(this);
+                foreach (var enemy in Enemies) enemy.Bind(this);
 
                 Log($"전투 시작: 보드 {Board.Size}x{Board.Size}, 적 {string.Join(", ", Enemies)}");
                 await Presenter.BattleStarted(this);

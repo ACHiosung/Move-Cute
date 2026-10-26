@@ -68,7 +68,10 @@ namespace MoveCute
             promptRoot.SetActive(false);
             resultPanel.SetActive(false);
             banner.gameObject.SetActive(false);
+            Loc.LanguageChanged += RefreshAll;
         }
+
+        void OnDestroy() => Loc.LanguageChanged -= RefreshAll;
 
         float D(float seconds) => seconds / Mathf.Max(0.01f, speed);
 
@@ -383,7 +386,10 @@ namespace MoveCute
             var color = card.IsGrayed ? Grayed : CardBase;
             if (pickable != null && pickable.Contains(card)) color = Pickable;
             Paint(view, color);
-            Label(view).text = $"{card}\n\n코스트 {card.EffectiveCost}";
+            Label(view).text =
+                $"<color=#2f5fb3><b>{card.EffectiveCost}</b></color>  <b>{card.Data.DisplayName}</b>\n" +
+                $"<size=36>{string.Concat(card.Moves.Select(m => m.ToArrow()))}</size>\n" +
+                $"<size=17>{card.Data.Description}</size>";
         }
 
         // ════════════ 연출 헬퍼 ════════════

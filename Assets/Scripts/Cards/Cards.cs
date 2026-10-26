@@ -23,6 +23,12 @@ namespace MoveCute
 
         [Tooltip("모든 이동이 성공했을 때 발동하는 부가 효과")]
         [SerializeReference, SubclassPicker] public List<Effect> effects = new();
+
+        /// <summary>현재 언어의 카드 이름. 다국어 표에 없으면 에셋 이름.</summary>
+        public string DisplayName => Loc.Get(nameKey, name);
+
+        /// <summary>현재 언어의 설명. {damage}처럼 중괄호 안 이름은 effects의 같은 이름 필드 값으로 바뀐다.</summary>
+        public string Description => Loc.Format(descKey, effects, "");
     }
 
     /// <summary>
@@ -58,7 +64,7 @@ namespace MoveCute
         public int EffectiveCost => Has(Keyword.Free) ? 0 : Cost;
 
         public override string ToString() =>
-            $"{(Data != null ? Data.name : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
+            $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
     }
 
     public class CardPiles
@@ -68,14 +74,12 @@ namespace MoveCute
         public readonly List<CardInstance> Discard = new();   // 사용한 카드 더미(묘지)
         public readonly List<CardInstance> Trash = new();     // 휴지통(삭제)
 
-        public void Shuffle(List<CardInstance> list)
-        {
-            for (int i = list.Count - 1; i > 0; i--)
-            {
-                int j = Random.Range(0, i + 1);
-                (list[i], list[j]) = (list[j], list[i]);
-            }
-        }
+        readonly System.Random rng;
+
+        /// <param name="rng">셔플에 쓸 시드 RNG (보통 run.Rng). 생략하면 재현 불가능한 무작위.</param>
+        public CardPiles(System.Random rng = null) { this.rng = rng ?? new System.Random(); }
+
+        public void Shuffle(List<CardInstance> list) => rng.Shuffle(list);
 
         /// <summary>한 장 뽑기. 드로우 더미가 비면 묘지를 섞어 보충. 둘 다 비면 null.</summary>
         public CardInstance DrawOne()

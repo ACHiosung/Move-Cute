@@ -7,9 +7,12 @@ namespace MoveCute
     {
         public readonly int Size;
         readonly Tile[,] tiles;
+        readonly System.Random rng;
 
-        public Board(int size)
+        /// <param name="rng">무작위 칸 선택에 쓸 시드 RNG (보통 run.Rng). 생략하면 재현 불가능한 무작위.</param>
+        public Board(int size, System.Random rng = null)
         {
+            this.rng = rng ?? new System.Random();
             Size = size;
             tiles = new Tile[size, size];
             for (int x = 0; x < size; x++)
@@ -34,7 +37,7 @@ namespace MoveCute
             var list = new List<Vector2Int>();
             foreach (var t in tiles)
                 if (t.Passable && t.Pos != exclude) list.Add(t.Pos);
-            return list.Count == 0 ? null : list[Random.Range(0, list.Count)];
+            return list.Count == 0 ? null : rng.Pick(list);
         }
     }
 
