@@ -14,6 +14,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 ```
 
 - 게임 상태는 **`BattleContext`의 public 함수로만** 바꾼다. 효과·적·유물·장애물은 필드를 직접 수정하지 않는다.
+- 효과는 **그 효과를 가진 쪽이 직접 발동한다.** 카드(`CardInstance.Play`)·타일(`TileEffect.Fire`)·유물(`Relic.Fire`)·적(`Enemy.OnTurnEnd`)·장애물(`Obstacle.OnDestroyed` / `OnLastTurnEnd`)이 `effects.ExecuteAll(ctx, src, target)`로 실행하고, `BattleContext`는 언제 발동할지(이동·턴 종료·파괴 등)만 알린다.
 - 무작위는 `UnityEngine.Random` 대신 **`ctx.Rng`**(런 시드 RNG)를 쓴다 → 같은 시드면 같은 런이 재현된다. 보조 함수는 `ctx.Rng.Pick(list)` / `.Shuffled(list)` / `.Range(a, b)` (`Core/RandomExtensions.cs`). 시드 고정은 `BattleManager.seed`(0 = 무작위)
 - `*Data`(ScriptableObject)는 원본이다. 런타임에 수정하지 않는다.
 - ScriptableObject 클래스는 **이름이 같은 파일**에 둔다 (`RelicData` → `RelicData.cs`). 다르면 Unity가 스크립트를 못 찾아 에셋이 깨진다.
@@ -45,7 +46,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 1. **ctx 함수는 반드시 `await`한다.** 빠뜨리면 컴파일 에러(CS4014)가 난다 (`Assets/csc.rsp`).
 2. **`async void` 금지.** 예외: UI 버튼처럼 최상위에서 기다릴 곳이 없으면 `.Forget()`을 쓴다 (예외를 콘솔에 남겨 줌). 로직 코드 안에서는 `.Forget()`도 쓰지 않는다.
 3. **같은 `Awaitable`을 두 번 await하지 않는다.** Unity가 객체를 재사용한다. 변수에 담아 두지 말고 바로 await한다.
-4. **전투 종료 체크는 신경 쓰지 않는다.** 전투가 끝난 뒤의 ctx 상태 변경 함수는 아무것도 하지 않는다. 효과 목록은 `ctx.RunEffects`로 실행하면 종료 시 알아서 멈춘다.
+4. **전투 종료 체크는 신경 쓰지 않는다.** 전투가 끝난 뒤의 ctx 상태 변경 함수는 아무것도 하지 않는다. 효과 목록은 `effects.ExecuteAll(ctx, src, target)`로 실행하면 종료 시 알아서 멈춘다.
 5. **상태를 바꾸는 계약 함수는 전부 `Awaitable`을 반환한다.** 지금 기다릴 게 없어도 그렇게 둔다 (나중에 연출이 붙어도 시그니처가 안 바뀌게). 판정·계산만 하는 함수(`CanFullyMove`, `ModifyDamage`, 조회)는 동기.
 6. **연출은 ctx만 호출한다.** 효과·적이 `Presenter`를 직접 부르지 않는다. 필요한 연출 시점이 있으면 ctx 함수에 추가해 달라고 요청한다.
 7. **이벤트 구독은 `BattleEvents`의 `Add`로 한다.** 반응은 `Awaitable`을 반환하고, 등록 순서대로 하나씩 끝까지 기다린다.
@@ -70,6 +71,8 @@ BattleManager (씬 진입점, MonoBehaviour)
    - 쉼표가 들어간 칸은 `"..."`로 감싼다. 엑셀로 저장할 때는 반드시 `CSV UTF-8(쉼표로 분리)` 형식으로 저장한다. 그냥 `CSV`로 저장하면 한글이 깨진다 (콘솔에 에러가 뜬다)
    - 표에 없는 키는 콘솔에 경고가 뜨고, 이름은 에셋 이름으로 대신 보인다
 4. 코드에서는 `card.Data.DisplayName` / `card.Data.Description`으로 현재 언어 텍스트를 얻는다. 언어 전환은 메뉴 `MoveCute > Language`.
+
+카드를 낼 때 하는 일(에너지 지불·이동·부가 효과·묘지/휴지통)은 **`CardInstance.Play`**(`Cards/Cards.cs`)에 있다. `BattleContext.PlayCard`는 낼 수 있는지 확인하고 입력을 잠근 뒤 이걸 호출한다. 키워드의 사용 시 동작(질주·잠금 등)은 `Play`에 넣는다.
 
 ### 새 효과
 ```csharp

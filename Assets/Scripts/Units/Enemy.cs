@@ -77,7 +77,7 @@ namespace MoveCute
         public virtual async Awaitable OnTurnEnd(BattleContext ctx)
         {
             if (CurrentIntent == null) return;
-            await ctx.RunEffects(CurrentIntent.turnEndActions, new EffectSource(this), EffectTarget.None);
+            await CurrentIntent.turnEndActions.ExecuteAll(ctx, new EffectSource(this), EffectTarget.None);
         }
     }
 }
