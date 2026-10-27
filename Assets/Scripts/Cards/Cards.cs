@@ -63,6 +63,29 @@ namespace MoveCute
         public bool Has(Keyword k) => Keywords.Contains(k);
         public int EffectiveCost => Has(Keyword.Free) ? 0 : Cost;
 
+        /// <summary>지금 낼 때 드는 에너지. 흑백(전체 이동 불가)이면 0.</summary>
+        public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;
+
+        /// <summary>
+        /// 카드 해결: 에너지 지불 → 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
+        /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음, 에너지 소모 없음.
+        /// BattleContext.PlayCard가 낼 수 있는지 확인하고 입력을 잠근 뒤 호출한다. 상태는 ctx 함수로만 바꾼다.
+        /// </summary>
+        public async Awaitable Play(BattleContext ctx, EffectTarget target)
+        {
+            bool full = ctx.CanFullyMove(this);
+            var src = new EffectSource(this);
+
+            await ctx.SpendEnergy(PlayCost(ctx));
+            await ctx.BeginCardPlay(this, full);
+            await ctx.MovePlayerAlong(src, Moves);
+            if (full) await Data.effects.ExecuteAll(ctx, src, target);
+
+            // TODO(카드/덱): 질주 재사용, 잠금 이동 큐 등 키워드 처리
+            if (Has(Keyword.Delete)) await ctx.TrashCard(this);
+            else await ctx.SendToDiscard(this);
+        }
+
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
     }

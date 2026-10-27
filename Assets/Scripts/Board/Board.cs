@@ -69,6 +69,10 @@ namespace MoveCute
             Duration = duration;
         }
 
+        /// <summary>이 타일 효과 발동. 대상은 효과가 걸린 칸.</summary>
+        public Awaitable Fire(BattleContext ctx, Vector2Int pos) =>
+            Effects.ExecuteAll(ctx, new EffectSource(this), EffectTarget.OfTile(pos));
+
         public override string ToString() => $"{Trigger}({Source})";
     }
 }

@@ -25,7 +25,7 @@ namespace MoveCute
         }
 
         protected Awaitable Fire(BattleContext ctx) =>
-            ctx.RunEffects(Data.effects, new EffectSource(this), EffectTarget.None);
+            Data.effects.ExecuteAll(ctx, new EffectSource(this), EffectTarget.None);
 
         public override string ToString() => Data != null ? Data.DisplayName : "Relic";
     }
