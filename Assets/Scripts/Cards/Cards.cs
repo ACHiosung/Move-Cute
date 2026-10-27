@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -37,6 +37,7 @@ namespace MoveCute
     /// </summary>
     public class CardInstance
     {
+        //수정 가능
         public readonly CardData Data;
         public int Cost;
         public List<Direction> Moves;

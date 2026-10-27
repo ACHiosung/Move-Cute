@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +15,7 @@ namespace MoveCute
         public readonly BattleEvent TurnStart = new();
         public readonly BattleEvent TurnEnd = new();
         public readonly BattleEvent<CardInstance> CardPlayed = new();
+        public readonly BattleEvent<CardInstance, int> CardReused = new();
         public readonly BattleEvent<Vector2Int, Vector2Int> PlayerMoved = new();   // from, to
         public readonly BattleEvent<Unit, int> Damaged = new();
         public readonly BattleEvent<Obstacle> ObstacleDestroyed = new();

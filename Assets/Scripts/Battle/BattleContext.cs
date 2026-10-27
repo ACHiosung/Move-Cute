@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -44,6 +44,7 @@ namespace MoveCute
         public readonly List<Enemy> Enemies = new();
         public readonly List<Obstacle> Obstacles = new();
         public readonly CardPiles Piles;
+        public CardInstance PlayingCard { get; private set; }
 
         /// <summary>런 시드 RNG. 무작위는 UnityEngine.Random 대신 이걸 쓴다 (같은 시드 = 같은 런). 보조 함수: RandomExtensions.</summary>
         public System.Random Rng => Run.Rng;
@@ -143,6 +144,7 @@ namespace MoveCute
             if (Energy < card.PlayCost(this)) { Log($"에너지 부족: {card}"); return false; }
 
             Phase = BattlePhase.Resolving;
+            PlayingCard = card;
             try
             {
                 await card.Play(this, target);
@@ -151,7 +153,7 @@ namespace MoveCute
                 await Events.CardPlayed.Raise(card);
                 return true;
             }
-            finally { await FinishAction(); }
+            finally { PlayingCard = null; await FinishAction(); }
         }
 
         /// <summary>HP를 지불하는 순간이동. 에너지는 쓰지 않는다.</summary>
