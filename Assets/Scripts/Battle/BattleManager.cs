@@ -50,7 +50,7 @@ namespace MoveCute
             Run = new RunState(seed == 0 ? null : seed);
             Debug.Log($"[Run] 시드 {Run.Seed}");
             if (startingDeck.Count == 0) Debug.LogError("BattleManager.startingDeck가 비어 있습니다. 카드 에셋을 넣어 주세요.", this);
-            foreach (var c in startingDeck.Where(c => c != null)) Run.Deck.Add(new CardInstance(c));
+            foreach (var c in startingDeck.Where(c => c != null)) Run.Deck.Add(c.CreateCard());
             foreach (var r in relics.Where(r => r != null)) Run.Relics.Add(r.CreateRelic());
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -27,54 +28,82 @@ namespace MoveCute
         /// <summary>현재 언어의 카드 이름. 다국어 표에 없으면 에셋 이름.</summary>
         public string DisplayName => Loc.Get(nameKey, name);
 
-        /// <summary>현재 언어의 설명. {damage}처럼 중괄호 안 이름은 effects의 같은 이름 필드 값으로 바뀐다.</summary>
-        public string Description => Loc.Format(descKey, effects, "");
+        [Tooltip("특수 카드만 고른다. 고른 클래스의 Play가 카드 해결을 맡는다. (없음) = 기본 카드 (이동 → 부가 효과)")]
+        [SerializeReference, SubclassPicker] public CardInstance behavior;
+
+        /// <summary>현재 언어의 설명. {damage}처럼 중괄호 안 이름은 behavior와 effects의 같은 이름 필드 값으로 바뀐다.</summary>
+        public string Description => Loc.Format(descKey, new object[] { behavior }.Concat(effects), "");
+
+        /// <summary>런 덱에 넣을 카드를 만든다. behavior를 골랐으면 그 하위 클래스로 만든다.</summary>
+        public CardInstance CreateCard() => CardInstance.Create(this);
     }
 
     /// <summary>
     /// 실제로 덱/손패에 있는 카드. 바뀔 수 있는 값(코스트, 이동, 키워드)을 복사해 들고 있다.
     /// 런 덱의 인스턴스를 전투 시작 때 한 번 더 복사 → 전투 중 변경은 런에 남지 않음.
+    ///
+    /// 특수 카드는 이 클래스를 상속해 Play를 재정의하고, 카드 에셋의 behavior에서 고른다 (예: Cards/ExampleComplicateCard.cs).
+    /// 하위 클래스의 public 필드는 카드 에셋에 저장된다. 전투 중 상태 필드에는 [NonSerialized]를 붙인다.
     /// </summary>
+    [Serializable]
     public class CardInstance
     {
-        //수정 가능
-        public readonly CardData Data;
-        public int Cost;
-        public List<Direction> Moves;
-        public List<Keyword> Keywords;
+        // 런타임 값. 에셋에는 저장하지 않고 Create에서 CardData 값을 복사해 온다
+        public CardData Data { get; private set; }
+        [NonSerialized] public int Cost;
+        [NonSerialized] public List<Direction> Moves;
+        [NonSerialized] public List<Keyword> Keywords;
 
         /// <summary>패에서 흑백(효과 미발동) 상태인지. 카드 사용이 끝날 때마다 갱신.</summary>
-        public bool IsGrayed;
+        [NonSerialized] public bool IsGrayed;
 
-        public CardInstance(CardData data)
+        /// <summary>
+        /// data로 카드 한 장을 만든다. data.behavior를 골랐으면 그 객체를 복사해 하위 클래스와 조정 값을 그대로 가져간다.
+        /// 보통은 CardData.CreateCard()로 부른다.
+        /// </summary>
+        public static CardInstance Create(CardData data)
         {
-            Data = data;
-            Cost = data.cost;
-            Moves = new List<Direction>(data.moves);
-            Keywords = new List<Keyword>(data.keywords);
+            var card = data.behavior != null ? (CardInstance)data.behavior.MemberwiseClone() : new CardInstance();
+            card.Data = data;
+            card.Cost = data.cost;
+            card.Moves = new List<Direction>(data.moves);
+            card.Keywords = new List<Keyword>(data.keywords);
+            return card;
         }
 
-        public CardInstance Clone() => new(Data)
+        /// <summary>
+        /// 하위 클래스 타입과 필드 값까지 그대로 복사한다. 목록(Moves, Keywords)은 새로 만든다.
+        /// 얕은 복사라서 하위 클래스의 참조 필드(효과 등)는 복사본끼리 공유한다.
+        /// </summary>
+        public CardInstance Clone()
         {
-            Cost = Cost,
-            Moves = new List<Direction>(Moves),
-            Keywords = new List<Keyword>(Keywords),
-        };
+            var card = (CardInstance)MemberwiseClone();
+            card.Moves = new List<Direction>(Moves);
+            card.Keywords = new List<Keyword>(Keywords);
+            return card;
+        }
 
         public bool Has(Keyword k) => Keywords.Contains(k);
         public int EffectiveCost => Has(Keyword.Free) ? 0 : Cost;
 
-        /// <summary>지금 낼 때 드는 에너지. 흑백(전체 이동 불가)이면 0.</summary>
-        public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;
+        /// <summary>
+        /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능한지.
+        /// 이동을 쓰지 않는 특수 카드는 재정의한다.
+        /// </summary>
+        public virtual bool CanPlayFully(BattleContext ctx) => ctx.CanFullyMove(this);
+
+        /// <summary>지금 낼 때 드는 에너지. 흑백이면 0.</summary>
+        public int PlayCost(BattleContext ctx) => CanPlayFully(ctx) ? EffectiveCost : 0;
 
         /// <summary>
         /// 카드 해결: 에너지 지불 → 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
         /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음, 에너지 소모 없음.
         /// BattleContext.PlayCard가 낼 수 있는지 확인하고 입력을 잠근 뒤 호출한다. 상태는 ctx 함수로만 바꾼다.
+        /// 특수 카드는 재정의한다. 에너지 지불 → BeginCardPlay → (카드가 하는 일) → Finish 순서는 지킨다.
         /// </summary>
-        public async Awaitable Play(BattleContext ctx, EffectTarget target)
+        public virtual async Awaitable Play(BattleContext ctx, EffectTarget target)
         {
-            bool full = ctx.CanFullyMove(this);
+            bool full = CanPlayFully(ctx);
             var src = new EffectSource(this);
 
             await ctx.SpendEnergy(PlayCost(ctx));
@@ -83,9 +112,12 @@ namespace MoveCute
             if (full) await Data.effects.ExecuteAll(ctx, src, target);
 
             // TODO(카드/덱): 질주 재사용, 잠금 이동 큐 등 키워드 처리
-            if (Has(Keyword.Delete)) await ctx.TrashCard(this);
-            else await ctx.SendToDiscard(this);
+            await Finish(ctx);
         }
+
+        /// <summary>해결이 끝난 카드를 보낸다: 삭제 키워드면 휴지통, 아니면 묘지.</summary>
+        protected Awaitable Finish(BattleContext ctx) =>
+            Has(Keyword.Delete) ? ctx.TrashCard(this) : ctx.SendToDiscard(this);
 
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";

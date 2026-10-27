@@ -74,6 +74,14 @@ BattleManager (씬 진입점, MonoBehaviour)
 
 카드를 낼 때 하는 일(에너지 지불·이동·부가 효과·묘지/휴지통)은 **`CardInstance.Play`**(`Cards/Cards.cs`)에 있다. `BattleContext.PlayCard`는 낼 수 있는지 확인하고 입력을 잠근 뒤 이걸 호출한다. 키워드의 사용 시 동작(질주·잠금 등)은 `Play`에 넣는다.
 
+#### 특수 카드 (이동·효과 순서가 기본과 다른 카드)
+`CardInstance`를 상속한 `[Serializable]` 클래스를 만들고, 카드 에셋의 `behavior` 드롭다운에서 고른다. 에셋은 그대로 `Create > MoveCute > Card > Basic`으로 만든다 (`[CreateAssetMenu]` 필요 없음). 참고용 예시: **`Cards/ExampleComplicateCard.cs`** (이중 충격파: 이동 없이 충격파 2번) + 에셋 `Assets/Data/Cards/Card_ExampleComplicate.asset`.
+- `Play` 재정의: 에너지 지불(`ctx.SpendEnergy(PlayCost(ctx))`) → `ctx.BeginCardPlay` → 카드가 하는 일 → `Finish(ctx)` 순서는 지킨다
+- 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
+- public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
+- 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
+- 카드는 `new CardInstance`로 만들지 않고 `cardData.CreateCard()`로 만든다 (behavior 하위 클래스로 만들어진다)
+
 ### 새 효과
 ```csharp
 [Serializable]

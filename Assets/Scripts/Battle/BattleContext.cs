@@ -253,7 +253,7 @@ namespace MoveCute
         /// <summary>패의 모든 카드 흑백 여부 갱신.</summary>
         void RefreshPlayable()
         {
-            foreach (var c in Piles.Hand) c.IsGrayed = !CanFullyMove(c);
+            foreach (var c in Piles.Hand) c.IsGrayed = !c.CanPlayFully(this);
         }
 
         async Awaitable TriggerTile(Vector2Int pos, TileTrigger trigger)
