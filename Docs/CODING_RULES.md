@@ -56,7 +56,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 ### 새 카드
 카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
 
-1. Project 창 `Assets/Data/Cards`에서 우클릭 → `Create > MoveCute > Card`. 파일 이름은 `Card_<Id>`.
+1. Project 창 `Assets/Data/Cards`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
 2. 인스펙터 입력
    - `id`: 소문자 영문 (`sit`). `nameKey` = `card.<id>.name`, `descKey` = `card.<id>.desc`
    - `moves`: 이동 방향 (순서대로 한 칸씩). 카드에는 화살표로 표시되므로 설명문에 쓰지 않는다
@@ -97,9 +97,9 @@ public class HealEffect : Effect
 - **효과 필드에 전투 중 상태를 저장하지 않는다.** 효과 객체는 에셋에 하나뿐이라 모든 복사본·전투가 공유한다
 
 ### 새 유물
-- **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic` 에셋에서 `trigger`와 `effects`만 고른다.
+- **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic > Basic` 에셋에서 `trigger`와 `effects`만 고른다.
 - **조건·누적 상태가 필요한 유물**: `RelicData`와 `Relic`을 함께 상속한다. 참고용 예시: **`Relics/PedometerRelicData.cs`** (만보기: 한 턴에 N칸 이동하면 발동)
-  - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의
+  - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의. 메뉴는 `[CreateAssetMenu(menuName = "MoveCute/Relic/<이름>")]`로 `Relic` 아래에 둔다
   - `Relic` 하위 클래스: `Bind`에서 `ctx.Events` 구독, 상태 보관. Relic은 런 내내 유지되므로 전투마다 초기화할 값은 `Bind`에서 초기화
   - 발동 시 할 일은 에셋의 `effects`를 `Fire(ctx)`로 실행 → 기획자가 조정 가능
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
@@ -134,7 +134,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
 - `Assets/Data/Obstacles/Obstacle_Tombstone.asset` (묘비: 효과 없이 칸만 막는 가장 단순한 형태)
 - `Assets/Data/Obstacles/Obstacle_Bomb.asset` (폭탄: 파괴될 때와 마지막 턴에 남아 있을 때 효과가 나간다)
 
-1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle`. 파일 이름은 `Obstacle_<Id>`.
+1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle > Basic`. 파일 이름은 `Obstacle_<Id>`.
 2. 인스펙터 입력
    - `id`: 소문자 영문 (`bomb`). `nameKey` = `obstacle.<id>.name`
    - `hp`: 이 값만큼 피해를 받으면 부서진다

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace MoveCute
 {
     /// <summary>카드 원본. 카드 목록 시트를 보고 에셋으로 만든다. 런타임에 수정하지 않는다.</summary>
-    [CreateAssetMenu(menuName = "MoveCute/Card", fileName = "Card_")]
+    [CreateAssetMenu(menuName = "MoveCute/Card/Basic", fileName = "Card_")]
     public class CardData : ScriptableObject
     {
         public string id;

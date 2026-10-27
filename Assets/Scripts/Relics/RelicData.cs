@@ -11,7 +11,7 @@ namespace MoveCute
     /// 조건·누적 상태가 필요한 유물은 이 클래스와 Relic을 함께 상속한다 (예: Relics/PedometerRelicData.cs).
     /// ScriptableObject라서 클래스 이름과 파일 이름이 같아야 한다.
     /// </summary>
-    [CreateAssetMenu(menuName = "MoveCute/Relic", fileName = "Relic_")]
+    [CreateAssetMenu(menuName = "MoveCute/Relic/Basic", fileName = "Relic_")]
     public class RelicData : ScriptableObject
     {
         public string id;
