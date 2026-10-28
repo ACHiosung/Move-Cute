@@ -144,7 +144,7 @@ namespace MoveCute
             if (Energy < card.PlayCost(this)) { Log($"에너지 부족: {card}"); return false; }
 
             Phase = BattlePhase.Resolving;
-            await SpendEnergy(card.EffectiveCost);
+            await SpendEnergy(card.PlayCost(this));
             Piles.Hand.Remove(card);
             PlayingCard = card;
             try

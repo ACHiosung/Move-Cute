@@ -116,7 +116,7 @@ namespace MoveCute
         public virtual bool CanPlayFully(BattleContext ctx) => ctx.CanFullyMove(this);
 
         /// <summary>지금 낼 때 드는 에너지.</summary>
-        public int PlayCost(BattleContext ctx) =>  EffectiveCost;
+        public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;
 
         /// <summary>
         /// 카드 해결: 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
