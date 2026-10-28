@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_Dash(2)
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: dash_2
+  nameKey: card.dash.name
+  descKey: card.dash.desc
+  art: {fileID: 0}
+  moves: 
+  cost: 1
+  type: 1
+  rarity: 0
+  target: 1
+  keywords: 01000000
+  effects:
+  - rid: 3200383178888970374
+  behavior:
+    rid: 3200383199153488030
+  references:
+    version: 2
+    RefIds:
+    - rid: 3200383178888970374
+      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        damage: 4
+    - rid: 3200383199153488030
+      type: {class: DashCard, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        maxReuseCount: 5
