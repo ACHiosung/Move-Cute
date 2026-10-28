@@ -20,7 +20,7 @@ namespace MoveCute
         public CardType type;
         public Rarity rarity;
         public TargetType target = TargetType.None;
-        public List<Keyword> keywords = new();
+        [SerializeReference, SubclassPicker] public List<CardKeyword> keywords = new();
 
         [Tooltip("모든 이동이 성공했을 때 발동하는 부가 효과")]
         [SerializeReference, SubclassPicker] public List<Effect> effects = new();
@@ -31,8 +31,8 @@ namespace MoveCute
         [Tooltip("특수 카드만 고른다. 고른 클래스의 Play가 카드 해결을 맡는다. (없음) = 기본 카드 (이동 → 부가 효과)")]
         [SerializeReference, SubclassPicker] public CardInstance behavior;
 
-        /// <summary>현재 언어의 설명. {damage}처럼 중괄호 안 이름은 behavior와 effects의 같은 이름 필드 값으로 바뀐다.</summary>
-        public string Description => Loc.Format(descKey, new object[] { behavior }.Concat(effects), "");
+        /// <summary>현재 언어의 설명. {damage}처럼 중괄호 안 이름은 behavior, keywords, effects의 같은 이름 필드 값으로 바뀐다.</summary>
+        public string Description => Loc.Format(descKey, new object[] { behavior, keywords }.Concat(effects), "");
 
         /// <summary>런 덱에 넣을 카드를 만든다. behavior를 골랐으면 그 하위 클래스로 만든다.</summary>
         public CardInstance CreateCard() => CardInstance.Create(this);
@@ -52,7 +52,7 @@ namespace MoveCute
         public CardData Data { get; private set; }
         [NonSerialized] public int Cost;
         [NonSerialized] public List<Direction> Moves;
-        [NonSerialized] public List<Keyword> Keywords;
+        [NonSerialized] public List<CardKeyword> Keywords;
 
         /// <summary>패에서 흑백(효과 미발동) 상태인지. 카드 사용이 끝날 때마다 갱신.</summary>
         [NonSerialized] public bool IsGrayed;
@@ -67,7 +67,7 @@ namespace MoveCute
             card.Data = data;
             card.Cost = data.cost;
             card.Moves = new List<Direction>(data.moves);
-            card.Keywords = new List<Keyword>(data.keywords);
+            card.Keywords = new List<CardKeyword>(data.keywords);
             return card;
         }
 
@@ -79,12 +79,35 @@ namespace MoveCute
         {
             var card = (CardInstance)MemberwiseClone();
             card.Moves = new List<Direction>(Moves);
-            card.Keywords = new List<Keyword>(Keywords);
+            card.Keywords = new List<CardKeyword>(Keywords);
             return card;
         }
 
-        public bool Has(Keyword k) => Keywords.Contains(k);
-        public int EffectiveCost => Has(Keyword.Free) ? 0 : Cost;
+        public bool Has<T>() where T : CardKeyword
+        {
+            for (int i = 0; i < Keywords.Count; i++)
+            {
+                if (Keywords[i] is T) return true;
+            }
+            return false;
+        }
+        public bool Has(CardKeyword T)
+        {
+            for (int i = 0; i < Keywords.Count; i++)
+            {
+                if (Keywords[i].GetType() == T.GetType()) return true;
+            }
+            return false;
+        }
+        public T GetKeyword<T>() where T : CardKeyword
+        {
+            for (int i = 0; i < Keywords.Count; i++)
+            {
+                if (Keywords[i] is T) return Keywords[i] as T;
+            }
+            return null;
+        }
+        public int EffectiveCost => Has<Keyword_Free>() ? 0 : Cost;
 
         /// <summary>
         /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능한지.
@@ -92,24 +115,22 @@ namespace MoveCute
         /// </summary>
         public virtual bool CanPlayFully(BattleContext ctx) => ctx.CanFullyMove(this);
 
-        /// <summary>지금 낼 때 드는 에너지. 흑백이면 0.</summary>
-        public int PlayCost(BattleContext ctx) => CanPlayFully(ctx) ? EffectiveCost : 0;
+        /// <summary>지금 낼 때 드는 에너지.</summary>
+        public int PlayCost(BattleContext ctx) =>  EffectiveCost;
 
         /// <summary>
-        /// 카드 해결: 에너지 지불 → 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
-        /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음, 에너지 소모 없음.
+        /// 카드 해결: 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
+        /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음
         /// BattleContext.PlayCard가 낼 수 있는지 확인하고 입력을 잠근 뒤 호출한다. 상태는 ctx 함수로만 바꾼다.
         /// 특수 카드는 재정의한다. 에너지 지불 → BeginCardPlay → (카드가 하는 일) → Finish 순서는 지킨다.
         /// </summary>
         public virtual async Awaitable Play(BattleContext ctx, EffectTarget target)
         {
-            bool full = CanPlayFully(ctx);
-            var src = new EffectSource(this);
+            bool full = CanPlayFully(ctx);//이동이 전부 가능한지 나타내는 값
+            var src = new EffectSource(this);//효과 주체(여기선 카드)
 
-            await ctx.SpendEnergy(PlayCost(ctx));
-            await ctx.BeginCardPlay(this, full);
-            await ctx.MovePlayerAlong(src, Moves);
-            if (full) await Data.effects.ExecuteAll(ctx, src, target);
+            await ctx.MovePlayerAlong(src, Moves);//이동 시도, 실패하면 중간에서 멈춤
+            if (full) await Data.effects.ExecuteAll(ctx, src, target);//효과 발동
 
             // TODO(카드/덱): 질주 재사용, 잠금 이동 큐 등 키워드 처리
             await Finish(ctx);
@@ -117,7 +138,7 @@ namespace MoveCute
 
         /// <summary>해결이 끝난 카드를 보낸다: 삭제 키워드면 휴지통, 아니면 묘지.</summary>
         protected Awaitable Finish(BattleContext ctx) =>
-            Has(Keyword.Delete) ? ctx.TrashCard(this) : ctx.SendToDiscard(this);
+            Has<Keyword_Delete>() ? ctx.TrashCard(this) : ctx.SendToDiscard(this);
 
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
