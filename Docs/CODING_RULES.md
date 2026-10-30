@@ -152,7 +152,11 @@ protected override IntentData PlanIntent(BattleContext ctx)
    ```
    obstacle.bomb.name,폭탄,Bomb
    ```
-4. 장애물은 적이 배치한다. 적 코드에서 `PlaceObstacleEffect`로 놓고, 적 Data 에셋의 장애물 필드에 이 에셋을 끌어다 놓는다 (묘지기의 `tombstone`). 장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다.
+4. 장애물은 `PlaceObstacleEffect`로 놓는다.
+   - 적: 적 코드에서 `PlaceObstacleEffect`로 놓고, 적 Data 에셋의 장애물 필드에 이 에셋을 끌어다 놓는다 (묘지기의 `tombstone`)
+   - 카드: 카드 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다 (`Assets/Data/Cards/Card_Bomb.asset`: 고른 칸에 폭탄 설치)
+
+   장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다. 폭탄의 효과는 `DamageEffect`라서 대상 유닛이 없으면 무작위 적에게 피해를 준다.
 
 ### 효과 도중 플레이어 선택
 ```csharp
