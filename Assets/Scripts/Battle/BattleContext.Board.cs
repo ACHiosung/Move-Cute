@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -26,13 +27,23 @@ namespace MoveCute
         /// 카드 이동: 방향대로 한 칸씩 MovePlayer, 막히면 거기서 멈춘다.
         /// 한 칸이라도 움직였으면 멈춘 칸의 Arrive 타일 효과까지 끝내고 돌아온다.
         /// </summary>
-        public async Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves)
+        public Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves) =>
+            MovePlayerAlong(src, moves, null);
+
+        /// <summary>
+        /// MovePlayerAlong + 한 칸 이동할 때마다 onStep(떠난 칸, 도착한 칸)을 기다린다 (Pass 타일 효과 다음).
+        /// 지나온 칸에 폭탄을 남기는 카드 등. 마지막 칸의 onStep이 끝난 뒤 Arrive 타일 효과가 발동한다.
+        /// </summary>
+        public async Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves,
+                                               Func<Vector2Int, Vector2Int, Awaitable> onStep)
         {
             bool moved = false;
             foreach (var dir in moves.ToList())
             {
+                var from = Player.Pos;
                 if (IsOver || !await MovePlayer(src, dir)) break;
                 moved = true;
+                if (onStep != null) await onStep(from, Player.Pos);
             }
             if (moved) await TriggerTile(Player.Pos, TileTrigger.Arrive);
         }
