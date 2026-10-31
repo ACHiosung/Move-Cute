@@ -82,7 +82,7 @@ namespace MoveCute
 
         async Awaitable OnObstacleDestroyed(BattleContext ctx, Obstacle o)
         {
-            if (o.Data != data.tombstone) return;
+            if (o.Data != data.tombstone || data.tombBreakMoraleLoss == 0) return;
             ctx.Log($"{this}: 묘비가 부서져 사기 저하");
             await ctx.ChangeMorale(new EffectSource(this), this, -data.tombBreakMoraleLoss);
         }

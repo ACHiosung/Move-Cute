@@ -22,4 +22,4 @@ MonoBehaviour:
   desperateExtraCurses: 1
   tombstone: {fileID: 11400000, guid: 3d853c2c30a94b84187b7ecf12e14d16, type: 2}
   tombstoneEvery: 2
-  tombBreakMoraleLoss: 3
+  tombBreakMoraleLoss: 0
