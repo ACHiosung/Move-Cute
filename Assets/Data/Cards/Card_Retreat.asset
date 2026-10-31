@@ -24,9 +24,13 @@ MonoBehaviour:
   keywords: 
   effects:
   - rid: 3200383178888970373
+  behavior:
+    rid: -2
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 3200383178888970373
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:

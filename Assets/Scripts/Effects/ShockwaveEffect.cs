@@ -55,9 +55,9 @@ namespace MoveCute
                 if (o.Hp <= 0) broken++;
             }
 
-            // 부순 개수만큼 하위 효과 실행. 전투가 끝나면 RunEffects가 알아서 멈춘다
+            // 부순 개수만큼 하위 효과 실행. 전투가 끝나면 ExecuteAll이 알아서 멈춘다
             for (int i = 0; i < broken; i++)
-                await ctx.RunEffects(onBreak, src, target);
+                await onBreak.ExecuteAll(ctx, src, target);
         }
 
         static int Distance(Vector2Int a, Vector2Int b) => Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);

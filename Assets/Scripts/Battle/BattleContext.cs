@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -45,6 +45,7 @@ namespace MoveCute
         public readonly List<Enemy> Enemies = new();
         public readonly List<Obstacle> Obstacles = new();
         public readonly CardPiles Piles;
+        public CardInstance PlayingCard { get; private set; }
 
         /// <summary>런 시드 RNG. 무작위는 UnityEngine.Random 대신 이걸 쓴다 (같은 시드 = 같은 런). 보조 함수: RandomExtensions.</summary>
         public System.Random Rng => Run.Rng;
@@ -136,50 +137,35 @@ namespace MoveCute
 
         /// <summary>
         /// 카드 사용. 반환되면 이동·타일·부가 효과·연쇄 반응이 모두 끝난 상태.
-        /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음, 에너지 소모 없음.
+        /// 여기서는 낼 수 있는지 확인하고 입력을 잠그기만 한다. 카드가 하는 일은 CardInstance.Play가 정한다.
         /// </summary>
         public async Awaitable<bool> PlayCard(CardInstance card, EffectTarget target)
         {
             if (!CanAct || !Piles.Hand.Contains(card)) return false;
-
-            bool full = CanFullyMove(card);
-            int cost = full ? card.EffectiveCost : 0;
-            if (Energy < cost) { Log($"에너지 부족: {card}"); return false; }
+            if (Energy < card.PlayCost(this)) { Log($"에너지 부족: {card}"); return false; }
 
             Phase = BattlePhase.Resolving;
+            await SpendEnergy(card.PlayCost(this));
+            Piles.Hand.Remove(card);
+            PlayingCard = card;
             try
             {
-                Energy -= cost;
-                Piles.Hand.Remove(card);
-                var src = new EffectSource(card);
-                Log($"카드 사용: {card}{(full ? "" : " (흑백)")}");
-                await Presenter.CardPlayed(card, full);
-                if (cost > 0) await Presenter.EnergyChanged(Energy);
-
-                // 1~5. 한 칸씩 이동 + 지나가는 타일 효과
-                bool moved = false;
-                foreach (var dir in card.Moves.ToList())
+                var playCount = 1;
+                if (card.Has<Keyword_Dash>()) playCount += card.GetKeyword<Keyword_Dash>().maxReuseCount;
+                for (int i = 0; i < playCount; i++)
                 {
-                    if (IsOver || !await MovePlayer(src, dir)) break;
-                    moved = true;
+                    await Presenter.CardPlayed(card, CanFullyMove(card));
+                    await card.Play(this, target);
+                    if (i > 0) await Events.CardReused.Raise(card, i);
+                    if (!CanFullyMove(card)) break;
+                    if (IsOver) return true;
                 }
-                if (moved) await TriggerTile(Player.Pos, TileTrigger.Arrive);
-                if (IsOver) return true;
-
-                // 6. 모든 이동 성공 시 부가 효과
-                if (full) await RunEffects(card.Data.effects, src, target);
-                if (IsOver) return true;
-
-                // TODO(카드/덱): 질주 재사용, 잠금 이동 큐 등 키워드 처리
-                if (card.Has(Keyword.Delete)) { Piles.Trash.Add(card); await Presenter.CardTrashed(card); }
-                else { Piles.Discard.Add(card); await Presenter.CardDiscarded(card); }
-
                 await Events.CardPlayed.Raise(card);
                 // Judge after the full card and its reactions, so later effects may restore morale.
                 if (!IsOver && Enemies.All(e => e.Hp <= 0)) await EndBattle(true);
                 return true;
             }
-            finally { await FinishAction(); }
+            finally { PlayingCard = null; await FinishAction(); }
         }
 
         /// <summary>에너지 1과 HP를 지불하는 순간이동.</summary>
@@ -230,6 +216,14 @@ namespace MoveCute
                 await TickTileEffects();
                 if (IsOver) return;
 
+                // 2. 사기 0 판정
+                bool allBroken = Enemies.All(e => e.Hp <= 0);
+
+                // 3. 손패 버림 (보존 제외)
+                foreach (var card in Piles.Hand.Where(c => !c.Has<Keyword_Retain>()).ToList())
+                    await DiscardCard(card);
+
+                // 4. 턴 종료 이벤트 (마지막)
                 // Finish all end-turn reactions before deciding whether a new turn is needed.
                 await Presenter.TurnEnded(Turn);
                 await Events.TurnEnd.Raise();
@@ -269,21 +263,6 @@ namespace MoveCute
             await Events.BattleEnd.Raise(won);
         }
 
-        // ════════════════════ 공용 실행 ════════════════════
-
-        /// <summary>
-        /// 효과 목록을 순서대로 끝까지 실행. 전투가 끝나면 남은 효과는 건너뛴다.
-        /// 카드·타일·적·유물·장애물이 효과 목록을 실행할 때는 모두 이걸 쓴다.
-        /// </summary>
-        public async Awaitable RunEffects(IEnumerable<Effect> effects, EffectSource src, EffectTarget target)
-        {
-            foreach (var e in effects.ToList())
-            {
-                if (IsOver) return;
-                if (e != null) await e.Execute(this, src, target);
-            }
-        }
-
         // ════════════════════ 사이클 내부 헬퍼 ════════════════════
 
         /// <summary>행동 하나가 끝남: 전투가 안 끝났으면 다시 조작 가능 상태로 연다.</summary>
@@ -298,7 +277,7 @@ namespace MoveCute
         /// <summary>패의 모든 카드 흑백 여부 갱신.</summary>
         void RefreshPlayable()
         {
-            foreach (var c in Piles.Hand) c.IsGrayed = !CanFullyMove(c);
+            foreach (var c in Piles.Hand) c.IsGrayed = !c.CanPlayFully(this);
         }
 
         async Awaitable TriggerTile(Vector2Int pos, TileTrigger trigger)
@@ -309,14 +288,14 @@ namespace MoveCute
             {
                 if (IsOver) return;
                 await Presenter.TileTriggered(pos, te);
-                await RunEffects(te.Effects, new EffectSource(te), EffectTarget.OfTile(pos));
+                await te.Fire(this, pos);
             }
         }
 
         async Awaitable RunLastTurnObstacleEffects()
         {
             foreach (var o in Obstacles.ToList())
-                await RunEffects(o.Data.onLastTurnEnd, new EffectSource(o), EffectTarget.OfTile(o.Pos));
+                await o.OnLastTurnEnd(this);
         }
 
         async Awaitable TickTileEffects()

@@ -21,7 +21,7 @@ namespace MoveCute
     /// 설명문 예 (Strings.csv): 한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다.
     ///   {steps} = 이 에셋의 필드, {count} = effects 안 DrawCardsEffect의 필드
     /// </summary>
-    [CreateAssetMenu(menuName = "MoveCute/Relic (Pedometer)", fileName = "Relic_Pedometer")]
+    [CreateAssetMenu(menuName = "MoveCute/Relic/Pedometer", fileName = "Relic_Pedometer")]
     public class PedometerRelicData : RelicData
     {
         [Tooltip("한 턴에 이만큼 이동하면 발동. 순간이동도 1칸으로 센다")]

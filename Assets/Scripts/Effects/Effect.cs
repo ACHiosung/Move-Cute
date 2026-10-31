@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MoveCute
@@ -16,6 +18,23 @@ namespace MoveCute
         /// ctx 함수는 반드시 await한다. 전투 종료 체크는 ctx가 하므로 신경 쓰지 않아도 된다.
         /// </summary>
         public abstract Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target);
+    }
+
+    public static class EffectListExtensions
+    {
+        /// <summary>
+        /// 효과 목록을 순서대로 끝까지 실행. 전투가 끝나면 남은 효과는 건너뛴다.
+        /// 카드·타일·유물·적·장애물은 자기 효과를 이걸로 발동한다 (BattleContext는 언제 발동할지만 알린다).
+        /// </summary>
+        public static async Awaitable ExecuteAll(this IEnumerable<Effect> effects, BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            if (effects == null) return;
+            foreach (var e in effects.ToList())
+            {
+                if (ctx.IsOver) return;
+                if (e != null) await e.Execute(ctx, src, target);
+            }
+        }
     }
 
     /// <summary>효과를 발생시킨 주체. CardInstance / Relic / TileEffect / Enemy / Obstacle / Status 중 하나.</summary>

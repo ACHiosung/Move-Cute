@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -19,6 +20,21 @@ namespace MoveCute
             await Events.PlayerMoved.Raise(from, next);
             await TriggerTile(next, TileTrigger.Pass);
             return true;
+        }
+
+        /// <summary>
+        /// 카드 이동: 방향대로 한 칸씩 MovePlayer, 막히면 거기서 멈춘다.
+        /// 한 칸이라도 움직였으면 멈춘 칸의 Arrive 타일 효과까지 끝내고 돌아온다.
+        /// </summary>
+        public async Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves)
+        {
+            bool moved = false;
+            foreach (var dir in moves.ToList())
+            {
+                if (IsOver || !await MovePlayer(src, dir)) break;
+                moved = true;
+            }
+            if (moved) await TriggerTile(Player.Pos, TileTrigger.Arrive);
         }
 
         /// <summary>
@@ -58,7 +74,7 @@ namespace MoveCute
             Log($"{o} 파괴 {o.Pos}");
             await Presenter.ObstacleDestroyed(o);
             await Events.ObstacleDestroyed.Raise(o);
-            await RunEffects(o.Data.onDestroyed, new EffectSource(o), EffectTarget.OfTile(o.Pos));
+            await o.OnDestroyed(this);
         }
 
         public async Awaitable AddTileEffect(Vector2Int pos, TileEffect effect)

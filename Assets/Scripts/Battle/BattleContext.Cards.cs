@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MoveCute
 {
@@ -35,7 +35,7 @@ namespace MoveCute
             await Presenter.CardTrashed(card);
         }
 
-        public async Awaitable AddKeyword(CardInstance card, Keyword kw)
+        public async Awaitable AddKeyword(CardInstance card, CardKeyword kw)
         {
             if (IsOver || card.Has(kw)) return;
             card.Keywords.Add(kw);
@@ -47,6 +47,25 @@ namespace MoveCute
             if (IsOver) return;
             Energy += n;
             await Presenter.EnergyChanged(Energy);
+        }
+
+        /// <summary>에너지 지불. 0 이하면 아무것도 하지 않는다. 부족한지는 호출하는 쪽에서 확인한다.</summary>
+        public async Awaitable SpendEnergy(int n)
+        {
+            if (IsOver || n <= 0) return;
+            Energy -= n;
+            await Presenter.EnergyChanged(Energy);
+        }
+
+        /// <summary>어디에 있든 묘지로 (사용이 끝난 카드 등). 손패의 카드를 버릴 때는 DiscardCard.</summary>
+        public async Awaitable SendToDiscard(CardInstance card)
+        {
+            if (IsOver) return;
+            Piles.Hand.Remove(card);
+            Piles.Draw.Remove(card);
+            Piles.Discard.Remove(card);
+            Piles.Discard.Add(card);
+            await Presenter.CardDiscarded(card);
         }
     }
 }

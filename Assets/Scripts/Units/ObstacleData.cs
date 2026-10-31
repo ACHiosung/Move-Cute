@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MoveCute
 {
-    [CreateAssetMenu(menuName = "MoveCute/Obstacle", fileName = "Obstacle_")]
+    [CreateAssetMenu(menuName = "MoveCute/Obstacle/Basic", fileName = "Obstacle_")]
     public class ObstacleData : ScriptableObject
     {
         public string id;

@@ -14,6 +14,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 ```
 
 - 게임 상태는 **`BattleContext`의 public 함수로만** 바꾼다. 효과·적·유물·장애물은 필드를 직접 수정하지 않는다.
+- 효과는 **그 효과를 가진 쪽이 직접 발동한다.** 카드(`CardInstance.Play`)·타일(`TileEffect.Fire`)·유물(`Relic.Fire`)·적(`Enemy.OnTurnEnd`)·장애물(`Obstacle.OnDestroyed` / `OnLastTurnEnd`)이 `effects.ExecuteAll(ctx, src, target)`로 실행하고, `BattleContext`는 언제 발동할지(이동·턴 종료·파괴 등)만 알린다.
 - 무작위는 `UnityEngine.Random` 대신 **`ctx.Rng`**(런 시드 RNG)를 쓴다 → 같은 시드면 같은 런이 재현된다. 보조 함수는 `ctx.Rng.Pick(list)` / `.Shuffled(list)` / `.Range(a, b)` (`Core/RandomExtensions.cs`). 시드 고정은 `BattleManager.seed`(0 = 무작위)
 - `*Data`(ScriptableObject)는 원본이다. 런타임에 수정하지 않는다.
 - ScriptableObject 클래스는 **이름이 같은 파일**에 둔다 (`RelicData` → `RelicData.cs`). 다르면 Unity가 스크립트를 못 찾아 에셋이 깨진다.
@@ -45,7 +46,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 1. **ctx 함수는 반드시 `await`한다.** 빠뜨리면 컴파일 에러(CS4014)가 난다 (`Assets/csc.rsp`).
 2. **`async void` 금지.** 예외: UI 버튼처럼 최상위에서 기다릴 곳이 없으면 `.Forget()`을 쓴다 (예외를 콘솔에 남겨 줌). 로직 코드 안에서는 `.Forget()`도 쓰지 않는다.
 3. **같은 `Awaitable`을 두 번 await하지 않는다.** Unity가 객체를 재사용한다. 변수에 담아 두지 말고 바로 await한다.
-4. **전투 종료 체크는 신경 쓰지 않는다.** 전투가 끝난 뒤의 ctx 상태 변경 함수는 아무것도 하지 않는다. 효과 목록은 `ctx.RunEffects`로 실행하면 종료 시 알아서 멈춘다.
+4. **전투 종료 체크는 신경 쓰지 않는다.** 전투가 끝난 뒤의 ctx 상태 변경 함수는 아무것도 하지 않는다. 효과 목록은 `effects.ExecuteAll(ctx, src, target)`로 실행하면 종료 시 알아서 멈춘다.
 5. **상태를 바꾸는 계약 함수는 전부 `Awaitable`을 반환한다.** 지금 기다릴 게 없어도 그렇게 둔다 (나중에 연출이 붙어도 시그니처가 안 바뀌게). 판정·계산만 하는 함수(`CanFullyMove`, `ModifyDamage`, 조회)는 동기.
 6. **연출은 ctx만 호출한다.** 효과·적이 `Presenter`를 직접 부르지 않는다. 필요한 연출 시점이 있으면 ctx 함수에 추가해 달라고 요청한다.
 7. **이벤트 구독은 `BattleEvents`의 `Add`로 한다.** 반응은 `Awaitable`을 반환하고, 등록 순서대로 하나씩 끝까지 기다린다.
@@ -55,7 +56,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 ### 새 카드
 카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
 
-1. Project 창 `Assets/Data/Cards`에서 우클릭 → `Create > MoveCute > Card`. 파일 이름은 `Card_<Id>`.
+1. Project 창 `Assets/Data/Cards`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
 2. 인스펙터 입력
    - `id`: 소문자 영문 (`sit`). `nameKey` = `card.<id>.name`, `descKey` = `card.<id>.desc`
    - `moves`: 이동 방향 (순서대로 한 칸씩). 카드에는 화살표로 표시되므로 설명문에 쓰지 않는다
@@ -70,6 +71,16 @@ BattleManager (씬 진입점, MonoBehaviour)
    - 쉼표가 들어간 칸은 `"..."`로 감싼다. 엑셀로 저장할 때는 반드시 `CSV UTF-8(쉼표로 분리)` 형식으로 저장한다. 그냥 `CSV`로 저장하면 한글이 깨진다 (콘솔에 에러가 뜬다)
    - 표에 없는 키는 콘솔에 경고가 뜨고, 이름은 에셋 이름으로 대신 보인다
 4. 코드에서는 `card.Data.DisplayName` / `card.Data.Description`으로 현재 언어 텍스트를 얻는다. 언어 전환은 메뉴 `MoveCute > Language`.
+
+카드를 낼 때 하는 일(에너지 지불·이동·부가 효과·묘지/휴지통)은 **`CardInstance.Play`**(`Cards/Cards.cs`)에 있다. `BattleContext.PlayCard`는 낼 수 있는지 확인하고 입력을 잠근 뒤 이걸 호출한다. 키워드의 사용 시 동작(질주·잠금 등)은 `Play`에 넣는다.
+
+#### 특수 카드 (이동·효과 순서가 기본과 다른 카드)
+`CardInstance`를 상속한 `[Serializable]` 클래스를 만들고, 카드 에셋의 `behavior` 드롭다운에서 고른다. 에셋은 그대로 `Create > MoveCute > Card > Basic`으로 만든다 (`[CreateAssetMenu]` 필요 없음). 참고용 예시: **`Cards/ExampleComplicateCard.cs`** (이중 충격파: 이동 없이 충격파 2번) + 에셋 `Assets/Data/Cards/Card_ExampleComplicate.asset`.
+- `Play` 재정의: 에너지 지불(`ctx.SpendEnergy(PlayCost(ctx))`) → `ctx.BeginCardPlay` → 카드가 하는 일 → `Finish(ctx)` 순서는 지킨다
+- 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
+- public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
+- 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
+- 카드는 `new CardInstance`로 만들지 않고 `cardData.CreateCard()`로 만든다 (behavior 하위 클래스로 만들어진다)
 
 ### 새 효과
 ```csharp
@@ -94,9 +105,9 @@ public class HealEffect : Effect
 - **효과 필드에 전투 중 상태를 저장하지 않는다.** 효과 객체는 에셋에 하나뿐이라 모든 복사본·전투가 공유한다
 
 ### 새 유물
-- **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic` 에셋에서 `trigger`와 `effects`만 고른다.
+- **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic > Basic` 에셋에서 `trigger`와 `effects`만 고른다.
 - **조건·누적 상태가 필요한 유물**: `RelicData`와 `Relic`을 함께 상속한다. 참고용 예시: **`Relics/PedometerRelicData.cs`** (만보기: 한 턴에 N칸 이동하면 발동)
-  - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의
+  - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의. 메뉴는 `[CreateAssetMenu(menuName = "MoveCute/Relic/<이름>")]`로 `Relic` 아래에 둔다
   - `Relic` 하위 클래스: `Bind`에서 `ctx.Events` 구독, 상태 보관. Relic은 런 내내 유지되므로 전투마다 초기화할 값은 `Bind`에서 초기화
   - 발동 시 할 일은 에셋의 `effects`를 `Fire(ctx)`로 실행 → 기획자가 조정 가능
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
@@ -131,7 +142,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
 - `Assets/Data/Obstacles/Obstacle_Tombstone.asset` (묘비: 효과 없이 칸만 막는 가장 단순한 형태)
 - `Assets/Data/Obstacles/Obstacle_Bomb.asset` (폭탄: 파괴될 때와 마지막 턴에 남아 있을 때 효과가 나간다)
 
-1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle`. 파일 이름은 `Obstacle_<Id>`.
+1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle > Basic`. 파일 이름은 `Obstacle_<Id>`.
 2. 인스펙터 입력
    - `id`: 소문자 영문 (`bomb`). `nameKey` = `obstacle.<id>.name`
    - `hp`: 이 값만큼 피해를 받으면 부서진다
