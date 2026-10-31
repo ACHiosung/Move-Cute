@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b3ee762023d74890b281b6d540e0a27, type: 3}
+  m_Name: Relic_ReuseDamage
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.ReuseDamageRelicData
+  id: reusedamage3
+  nameKey: relic.reuse_damage.name
+  descKey: relic.reuse_damage.desc
+  icon: {fileID: 0}
+  trigger: 0
+  effects:
+  - rid: 1415127154514985076
+  references:
+    version: 2
+    RefIds:
+    - rid: 1415127154514985076
+      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        damage: 3
