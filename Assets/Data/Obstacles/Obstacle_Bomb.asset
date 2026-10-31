@@ -18,8 +18,8 @@ MonoBehaviour:
   sprite: {fileID: 0}
   onDestroyed:
   - rid: 3200383178888970480
-  onLastTurnEnd:
-  - rid: 3200383178888970481
+  onLastTurnEnd: []
+  destroyOnLastTurnEnd: 1
   references:
     version: 2
     RefIds:
@@ -27,7 +27,3 @@ MonoBehaviour:
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
         damage: 2
-    - rid: 3200383178888970481
-      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
-      data:
-        damage: 5

@@ -140,7 +140,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
 ### 새 장애물
 장애물 한 종류 = `ObstacleData` 에셋 한 개. 예시 두 개:
 - `Assets/Data/Obstacles/Obstacle_Tombstone.asset` (묘비: 효과 없이 칸만 막는 가장 단순한 형태)
-- `Assets/Data/Obstacles/Obstacle_Bomb.asset` (폭탄: 파괴될 때와 마지막 턴에 남아 있을 때 효과가 나간다)
+- `Assets/Data/Obstacles/Obstacle_Bomb.asset` (폭탄: HP가 0이 되거나 마지막 턴이 끝나면 파괴되고, 파괴될 때 효과가 나간다)
 
 1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle > Basic`. 파일 이름은 `Obstacle_<Id>`.
 2. 인스펙터 입력
@@ -148,6 +148,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
    - `hp`: 이 값만큼 피해를 받으면 부서진다
    - `onDestroyed`: 부서질 때 실행할 효과. 효과의 대상 타일은 장애물이 있던 칸이다
    - `onLastTurnEnd`: 제한 턴의 마지막 턴이 끝났을 때 아직 남아 있으면 실행할 효과
+   - `destroyOnLastTurnEnd`: 켜면 마지막 턴이 끝날 때(`onLastTurnEnd` 다음) 파괴된다. 파괴이므로 `onDestroyed`가 발동하고 칸에서 사라진다 (폭탄). 장애물은 놓인 순서대로 처리되고, 앞의 폭발로 이미 부서진 장애물은 건너뛴다
 3. `Strings.csv`에 이름 줄 추가
    ```
    obstacle.bomb.name,폭탄,Bomb

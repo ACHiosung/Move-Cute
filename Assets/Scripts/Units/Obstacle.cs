@@ -20,9 +20,16 @@ namespace MoveCute
         public Awaitable OnDestroyed(BattleContext ctx) =>
             Data.onDestroyed.ExecuteAll(ctx, new EffectSource(this), EffectTarget.OfTile(Pos));
 
-        /// <summary>제한 턴의 마지막 턴이 끝났을 때 아직 남아 있으면 실행하는 효과.</summary>
-        public Awaitable OnLastTurnEnd(BattleContext ctx) =>
-            Data.onLastTurnEnd.ExecuteAll(ctx, new EffectSource(this), EffectTarget.OfTile(Pos));
+        /// <summary>
+        /// 제한 턴의 마지막 턴이 끝났을 때. 아직 남아 있으면 onLastTurnEnd 효과를 실행하고,
+        /// destroyOnLastTurnEnd면 파괴한다 (파괴 시 효과까지). 앞선 장애물의 폭발로 이미 부서졌으면 아무것도 안 한다.
+        /// </summary>
+        public async Awaitable OnLastTurnEnd(BattleContext ctx)
+        {
+            if (!ctx.Obstacles.Contains(this)) return;
+            await Data.onLastTurnEnd.ExecuteAll(ctx, new EffectSource(this), EffectTarget.OfTile(Pos));
+            if (Data.destroyOnLastTurnEnd) await ctx.DestroyObstacle(new EffectSource(this), this);
+        }
 
         public override string DisplayName => Data != null ? Data.DisplayName : "Obstacle";
     }
