@@ -245,7 +245,7 @@ namespace MoveCute
                 }
 
                 // Only continuing battles discard their hand and begin another turn.
-                foreach (var card in Piles.Hand.Where(c => !c.Has(Keyword.Retain)).ToList())
+                foreach (var card in Piles.Hand.Where(c => !c.Has<Keyword_Retain>()).ToList())
                     await DiscardCard(card);
                 await StartTurn();
             }

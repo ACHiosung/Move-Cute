@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -130,7 +130,7 @@ namespace MoveCute
             if (displayedRewards != ctx.Rewards)
             {
                 rewardDisplayCards.Clear();
-                foreach (var data in ctx.Rewards.Cards) rewardDisplayCards.Add(new CardInstance(data));
+                foreach (var data in ctx.Rewards.Cards) rewardDisplayCards.Add(CardInstance.Create(data));
                 displayedRewards = ctx.Rewards;
             }
             rewardChoicesView.Render(rewardDisplayCards, cardPrefab, BindRewardCard);

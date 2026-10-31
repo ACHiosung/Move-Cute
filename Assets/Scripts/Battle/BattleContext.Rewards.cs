@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -80,7 +80,7 @@ namespace MoveCute
             if (!CanClaimReward || Rewards.CardResolved || !Rewards.Cards.Contains(card))
                 return AwaitableUtil.FromResult(false);
             Rewards.CardResolved = true;
-            Run.Deck.Add(new CardInstance(card));
+            Run.Deck.Add(CardInstance.Create(card));
             return AwaitableUtil.FromResult(true);
         }
 

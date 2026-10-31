@@ -32,7 +32,7 @@ namespace MoveCute.UIEditor
                 var source = AssetDatabase.LoadAssetAtPath<GameObject>(BattleScreenSceneBuilder.PrefabPath).GetComponent<BattleScreenUI>();
                 var collection = Rect("Collection", root.transform, 600, 300).gameObject.AddComponent<BattleCardCollectionView>();
                 data = ScriptableObject.CreateInstance<CardData>();
-                var cards = new[] { new CardInstance(data), new CardInstance(data) };
+                var cards = new[] { CardInstance.Create(data), CardInstance.Create(data) };
                 Action<Button, CardInstance> bind = (button, card) => button.GetComponent<BattleCardView>().Bind(card, null, null, null, null);
                 collection.Render(cards, source.cardPrefab, bind);
                 var slot = collection.transform.GetChild(0);
@@ -105,7 +105,7 @@ namespace MoveCute.UIEditor
         static BattleContext BattleFixture(CardData card, EnemyData enemy, int turnLimit = 3)
         {
             var run = new RunState(123);
-            for (int i = 0; i < 12; i++) run.Deck.Add(new CardInstance(card));
+            for (int i = 0; i < 12; i++) run.Deck.Add(CardInstance.Create(card));
             var battle = new BattleContext(run, new BattleConfig { turnLimit = turnLimit }, new[] { enemy });
             battle.StartBattle().GetAwaiter().GetResult();
             return battle;

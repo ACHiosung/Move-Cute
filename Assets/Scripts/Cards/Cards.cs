@@ -67,19 +67,19 @@ namespace MoveCute
             card.Data = data;
             card.Cost = data.cost;
             card.Moves = new List<Direction>(data.moves);
-            card.Keywords = new List<CardKeyword>(data.keywords);
+            card.Keywords = data.keywords.Where(k => k != null).Select(k => k.Clone()).ToList();
             return card;
         }
 
         /// <summary>
-        /// 하위 클래스 타입과 필드 값까지 그대로 복사한다. 목록(Moves, Keywords)은 새로 만든다.
+        /// 하위 클래스 타입과 필드 값까지 그대로 복사한다. 목록(Moves, Keywords)과 키워드 객체는 새로 만든다.
         /// 얕은 복사라서 하위 클래스의 참조 필드(효과 등)는 복사본끼리 공유한다.
         /// </summary>
         public CardInstance Clone()
         {
             var card = (CardInstance)MemberwiseClone();
             card.Moves = new List<Direction>(Moves);
-            card.Keywords = new List<CardKeyword>(Keywords);
+            card.Keywords = Keywords.Select(k => k.Clone()).ToList();
             return card;
         }
 

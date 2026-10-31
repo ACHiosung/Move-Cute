@@ -37,8 +37,8 @@ namespace MoveCute
 
         public async Awaitable AddKeyword(CardInstance card, CardKeyword kw)
         {
-            if (IsOver || card.Has(kw)) return;
-            card.Keywords.Add(kw);
+            if (IsOver || kw == null || card.Has(kw)) return;
+            card.Keywords.Add(kw.Clone());   // 효과 에셋이 들고 있는 객체를 카드와 공유하지 않게
             await Presenter.CardChanged(card);
         }
 
