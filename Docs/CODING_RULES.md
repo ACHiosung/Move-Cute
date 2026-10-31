@@ -131,7 +131,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
 - `PlanIntent`는 턴 시작에 이번 턴 예고를 정한다. 보드·플레이어 위치·사기·턴 수를 읽어 판단만 하고 상태는 바꾸지 않는다. 타일 배치·UI 공개·턴 종료 실행은 `Enemy` 기본 구현이 한다
 - 좌표를 박아 두지 말고 `ctx.Board`, `ctx.Player.Pos`에서 계산한다 (보드 크기가 막마다 다르다). 보드 좌표는 (0,0)이 왼쪽 아래, y가 위로 증가
 - 타일 `trigger`: `Pass` 지나갈 때(도착 포함) / `Arrive` 이동이 끝나 도착할 때 / `TurnEndStanding` 그 칸에 서 있는 채로 턴이 끝날 때
-- 예고와 별개로 전투 상황에 반응하려면 `Bind`에서 `ctx.Events`를 구독한다 (묘지기: 묘비가 부서지면 사기 저하)
+- 예고와 별개로 전투 상황에 반응하려면 `Bind`에서 `ctx.Events`를 구독한다 (예: `ctx.Events.ObstacleDestroyed.Add(o => ...)`. 유물 `Relics/PedometerRelicData.cs`의 Bind와 같은 방식)
 - 예고로 표현이 안 되는 행동은 `DeclareIntent` / `OnTurnEnd`를 재정의한다. 단, 플레이어가 미리 볼 수 있게 가능하면 예고(`IntentData`)에 담는다
 - 효과가 부족하면 [새 효과](#새-효과)를 만든다
 
