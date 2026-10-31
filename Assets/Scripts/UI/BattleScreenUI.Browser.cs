@@ -13,7 +13,7 @@ namespace MoveCute
             ClearSelection();
             viewedCards = hideOrder ? pile.OrderBy(c => c.Data.id, System.StringComparer.Ordinal)
                 .ThenBy(c => string.Join(",", c.Moves.Select(d => (int)d)), System.StringComparer.Ordinal)
-                .ThenBy(c => string.Join(",", c.Keywords.OrderBy(k => (int)k).Select(k => (int)k)), System.StringComparer.Ordinal)
+                .ThenBy(c => string.Join(",", c.Keywords.Select(k => k.ToString()).OrderBy(n => n, System.StringComparer.Ordinal)), System.StringComparer.Ordinal)
                 .ThenBy(c => c.Cost).ThenBy(c => c.IsGrayed).ToList() : pile.ToList();
             modalTitle.text = title;
             modal.gameObject.SetActive(true);
