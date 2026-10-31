@@ -138,9 +138,10 @@ protected override IntentData PlanIntent(BattleContext ctx)
 에셋 만들기: `Assets/Data/Enemies`에서 우클릭 → `Create > MoveCute > Enemy > (적 이름)`. 파일 이름은 `Enemy_<Id>`. `id`는 소문자 영문, `nameKey` = `enemy.<id>.name`, `startMorale`은 시작 사기 (카드 피해로 깎고, 제한 턴이 끝나면 남은 사기만큼 플레이어가 피해를 입는다). `Strings.csv`에 이름 줄을 추가하고, 전투에 넣는 곳은 씬의 `BattleManager.enemy`.
 
 ### 새 장애물
-장애물 한 종류 = `ObstacleData` 에셋 한 개. 예시 두 개:
+장애물 한 종류 = `ObstacleData` 에셋 한 개. 예시:
 - `Assets/Data/Obstacles/Obstacle_Tombstone.asset` (묘비: 효과 없이 칸만 막는 가장 단순한 형태)
 - `Assets/Data/Obstacles/Obstacle_Bomb.asset` (폭탄: HP가 0이 되거나 마지막 턴이 끝나면 파괴되고, 파괴될 때 효과가 나간다)
+- `Assets/Data/Obstacles/Obstacle_ChainBomb.asset` (연계 폭탄: 폭탄과 같고, 폭발 피해를 `RepeatPerObstacleEffect`로 감싸 남은 다른 장애물 하나마다 한 번 더 준다. `lastTurnPriority` 1이라 폭탄보다 먼저 터진다)
 
 1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle > Basic`. 파일 이름은 `Obstacle_<Id>`.
 2. 인스펙터 입력
@@ -148,14 +149,15 @@ protected override IntentData PlanIntent(BattleContext ctx)
    - `hp`: 이 값만큼 피해를 받으면 부서진다
    - `onDestroyed`: 부서질 때 실행할 효과. 효과의 대상 타일은 장애물이 있던 칸이다
    - `onLastTurnEnd`: 제한 턴의 마지막 턴이 끝났을 때 아직 남아 있으면 실행할 효과
-   - `destroyOnLastTurnEnd`: 켜면 마지막 턴이 끝날 때(`onLastTurnEnd` 다음) 파괴된다. 파괴이므로 `onDestroyed`가 발동하고 칸에서 사라진다 (폭탄). 장애물은 놓인 순서대로 처리되고, 앞의 폭발로 이미 부서진 장애물은 건너뛴다
+   - `destroyOnLastTurnEnd`: 켜면 마지막 턴이 끝날 때(`onLastTurnEnd` 다음) 파괴된다. 파괴이므로 `onDestroyed`가 발동하고 칸에서 사라진다 (폭탄). 앞의 폭발로 이미 부서진 장애물은 건너뛴다
+   - `lastTurnPriority`: 마지막 턴 종료 시 처리 순서. 높을수록 먼저 (연계 폭탄 1, 폭탄·묘비 0). 같으면 보드 읽는 순서 — 위쪽 줄부터, 줄 안에서는 왼쪽부터 (3x3 넘패드 기준 7 8 9 4 5 6 1 2 3, `Board.ReadingOrderKey`). 보드 크기가 바뀌어도 같은 규칙
 3. `Strings.csv`에 이름 줄 추가
    ```
    obstacle.bomb.name,폭탄,Bomb
    ```
 4. 장애물은 `PlaceObstacleEffect`로 놓는다.
    - 적: 적 코드에서 `PlaceObstacleEffect`로 놓고, 적 Data 에셋의 장애물 필드에 이 에셋을 끌어다 놓는다 (묘지기의 `tombstone`)
-   - 카드: 이동하며 떠난 칸마다 남기려면 `behavior`에서 `ObstacleTrailCard`(`Cards/ObstacleTrailCard.cs`)를 고르고 `obstacle`에 에셋을 넣는다 (`Assets/Data/Cards/Card_Bomb.asset`: ←← 이동, 넘패드 9 → 7이면 9·8에 폭탄). 고른 칸에 놓으려면 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다
+   - 카드: 이동하며 떠난 칸마다 남기려면 `behavior`에서 `ObstacleTrailCard`(`Cards/ObstacleTrailCard.cs`)를 고르고 `obstacle`에 에셋을 넣는다 (`Assets/Data/Cards/Card_Bomb.asset`: ←← 이동, 넘패드 9 → 7이면 9·8에 폭탄 / `Card_ChainBomb.asset`: ↓ 이동, 떠난 칸에 연계 폭탄). 고른 칸에 놓으려면 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다
    - 이동 중 칸마다 무언가 하려면 `ctx.MovePlayerAlong(src, moves, onStep)`의 `onStep(떠난 칸, 도착한 칸)`을 쓴다
 
    장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다. 폭탄의 효과는 `DamageEffect`라서 대상 유닛이 없으면 무작위 적에게 피해를 준다.

@@ -32,6 +32,12 @@ namespace MoveCute
         /// <summary>3x3, 5x5는 정중앙. 4x4는 중앙 4칸 중 하나(기본 왼쪽 아래) — 선택 UI는 추후.</summary>
         public Vector2Int Center => new((Size - 1) / 2, (Size - 1) / 2);
 
+        /// <summary>
+        /// 읽는 순서: 위쪽 줄부터, 줄 안에서는 왼쪽부터 (3x3 넘패드 기준 7 8 9 4 5 6 1 2 3). 보드 크기와 무관.
+        /// OrderBy(ReadingOrderKey)로 정렬한다.
+        /// </summary>
+        public int ReadingOrderKey(Vector2Int p) => (Size - 1 - p.y) * Size + p.x;
+
         public Vector2Int? GetRandomEmptyTile(Vector2Int exclude)
         {
             var list = new List<Vector2Int>();

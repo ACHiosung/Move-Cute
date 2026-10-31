@@ -268,9 +268,14 @@ namespace MoveCute
             }
         }
 
+        /// <summary>처리 순서: lastTurnPriority 높은 것부터 (연계 폭탄 먼저), 같으면 보드 읽는 순서 (위쪽 줄 → 왼쪽부터).</summary>
         async Awaitable RunLastTurnObstacleEffects()
         {
-            foreach (var o in Obstacles.ToList())
+            var order = Obstacles
+                .OrderByDescending(o => o.Data.lastTurnPriority)
+                .ThenBy(o => Board.ReadingOrderKey(o.Pos))
+                .ToList();
+            foreach (var o in order)
                 await o.OnLastTurnEnd(this);
         }
 
