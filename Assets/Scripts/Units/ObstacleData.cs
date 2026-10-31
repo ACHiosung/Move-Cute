@@ -14,8 +14,14 @@ namespace MoveCute
         [Tooltip("HP가 0이 되어 파괴될 때 (폭탄 폭발 등)")]
         [SerializeReference, SubclassPicker] public List<Effect> onDestroyed = new();
 
-        [Tooltip("마지막 턴 종료 시 (폭탄은 남아 있으면 터짐)")]
+        [Tooltip("마지막 턴 종료 시 아직 남아 있으면 실행")]
         [SerializeReference, SubclassPicker] public List<Effect> onLastTurnEnd = new();
+
+        [Tooltip("마지막 턴 종료 시 (onLastTurnEnd 다음에) 파괴한다. 파괴되므로 onDestroyed도 발동 (폭탄: 남아 있으면 터짐)")]
+        public bool destroyOnLastTurnEnd;
+
+        [Tooltip("마지막 턴 종료 시 처리 순서. 높을수록 먼저 (연계 폭탄 1, 폭탄 0). 같으면 보드 위쪽 줄부터, 줄 안에서는 왼쪽부터")]
+        public int lastTurnPriority;
 
         /// <summary>현재 언어의 이름. 다국어 표에 없으면 에셋 이름.</summary>
         public string DisplayName => Loc.Get(nameKey, name);

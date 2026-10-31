@@ -8,8 +8,7 @@ namespace MoveCute
     /// [참고용 예시] 묘지기.
     ///   기도 — 플레이어가 지금 선 칸. 그 칸에서 턴을 끝내면 사기 회복 → 플레이어를 움직이게 만든다
     ///   저주 — 무작위 빈 칸. 지나가면 피해. 사기가 절반 이하로 떨어지면 더 많아진다
-    ///   묘비 — 몇 턴마다 턴 종료 시 빈 칸에 묘비를 세운다
-    ///   반응 — 묘비가 부서지면 사기가 떨어진다
+    ///   묘비 — 몇 턴마다 턴 종료 시 빈 칸에 묘비를 세운다 (칸만 막는 장애물)
     ///
     /// 적 하나 = 이 파일 하나. 두 클래스로 나눈다:
     ///   GravekeeperData — 에셋에 저장되는 숫자. 기획자가 인스펙터에서 조정한다 (파일 이름과 같아야 함)
@@ -20,8 +19,7 @@ namespace MoveCute
     ///   2. 상태(사기, 턴 수)에 따라 행동이 바뀐다
     ///   3. 무작위 선택은 ctx.Rng (시드 RNG → 같은 시드면 같은 예고. UnityEngine.Random 금지)
     ///   4. 예고는 IntentData로 만들어 돌려주기만 한다 → UI 공개·타일 배치·턴 종료 실행은 Enemy 기본 구현이 처리
-    ///   5. Bind에서 이벤트 구독 → 예고와 별개로 전투 상황에 반응
-    ///   6. 효과는 그때그때 new로 만들고, 숫자는 Data에서 가져온다
+    ///   5. 효과는 그때그때 new로 만들고, 숫자는 Data에서 가져온다
     /// </summary>
     [CreateAssetMenu(menuName = "MoveCute/Enemy/Gravekeeper", fileName = "Enemy_Gravekeeper")]
     public class GravekeeperData : EnemyData
@@ -41,8 +39,6 @@ namespace MoveCute
         public ObstacleData tombstone;
         [Tooltip("몇 턴마다 턴 종료 시 묘비를 세우는지 (1턴부터)")]
         [Min(1)] public int tombstoneEvery = 2;
-        [Tooltip("묘비가 부서질 때 떨어지는 사기")]
-        public int tombBreakMoraleLoss = 3;
 
         public override Enemy CreateEnemy() => new Gravekeeper(this);
     }
@@ -73,18 +69,6 @@ namespace MoveCute
                 intent.AddTurnEnd(new PlaceObstacleEffect { obstacle = data.tombstone });
 
             return intent;
-        }
-
-        public override void Bind(BattleContext ctx)
-        {
-            ctx.Events.ObstacleDestroyed.Add(o => OnObstacleDestroyed(ctx, o));
-        }
-
-        async Awaitable OnObstacleDestroyed(BattleContext ctx, Obstacle o)
-        {
-            if (o.Data != data.tombstone) return;
-            ctx.Log($"{this}: 묘비가 부서져 사기 저하");
-            await ctx.ChangeMorale(new EffectSource(this), this, -data.tombBreakMoraleLoss);
         }
 
         /// <summary>장애물이 없는 칸 중 무작위로 count개 (except 칸 제외).</summary>
