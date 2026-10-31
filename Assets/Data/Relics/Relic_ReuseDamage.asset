@@ -9,25 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
-  m_Name: Card_Dash
-  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
-  id: dash
-  nameKey: card.dash.name
-  descKey: card.dash.desc
-  art: {fileID: 0}
-  moves: 02000000i
-  cost: 1
-  type: 1
-  rarity: 0
-  target: 1
-  keywords: 
+  m_Script: {fileID: 11500000, guid: 4b3ee762023d74890b281b6d540e0a27, type: 3}
+  m_Name: Relic_ReuseDamage
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.ReuseDamageRelicData
+  id: reusedamage3
+  nameKey: relic.reuse_damage.name
+  descKey: relic.reuse_damage.desc
+  icon: {fileID: 0}
+  trigger: 0
   effects:
-  - rid: 3200383178888970374
+  - rid: 1415127154514985076
   references:
     version: 2
     RefIds:
-    - rid: 3200383178888970374
+    - rid: 1415127154514985076
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        damage: 5
+        damage: 3

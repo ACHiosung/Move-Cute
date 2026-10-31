@@ -590,8 +590,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 92d8e3123648b5d4aa090065d7c2b41d, type: 2}
   - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
   - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
-  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
-  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
+  - {fileID: 11400000, guid: c3306ecf07bd4432bd50c05a22798380, type: 2}
+  - {fileID: 11400000, guid: a4d6d8d23c7c4089a237e925874352a3, type: 2}
   enemy: {fileID: 11400000, guid: 62603c5a72f95fb4bafa372b83847bdf, type: 2}
   relics: []
   seed: 0

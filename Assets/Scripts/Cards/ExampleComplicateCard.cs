@@ -34,9 +34,6 @@ namespace MoveCute
         {
             var src = new EffectSource(this);
 
-            await ctx.SpendEnergy(PlayCost(ctx));//애너지 지불
-            await ctx.BeginCardPlay(this, true);//카드 패에서 제거, 카드 발동 연출 재생
-
             for (int i = 0; i < repeat; i++)
             {
                 if (ctx.IsOver) break; // 게임이 끝났으면 반복 중단

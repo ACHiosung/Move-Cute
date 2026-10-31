@@ -7,10 +7,12 @@ card.jump.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to a
 card.retreat.name,후퇴,Retreat
 card.retreat.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
 card.dash.name,돌진,Dash
-card.dash.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.dash.desc,적에게 피해를 {damage} 줍니다. 최초 사용 후 최대 {maxReuseCount}번 재사용합니다.,Deal {damage} damage to an enemy. Reuse up to {maxReuseCount} times after the initial use.
 # 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
 relic.pedometer.name,만보기,Pedometer
 relic.pedometer.desc,한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다. (턴당 1번),"After moving {steps} tiles in a turn, draw {count} card. (Once per turn)"
+relic.reuse_damage.name,재사용,Reuse
+relic.reuse_damage.desc,카드가 재사용될 때마다 적에게 피해를 {damage} 줍니다.,"After reusing card, deal {damage} to an enemy."
 # 적: enemy.<id>.name,,
 enemy.gravekeeper.name,묘지기,Gravekeeper
 # 장애물: obstacle.<id>.name,,
