@@ -23,3 +23,25 @@ obstacle.bomb.name,폭탄,Bomb
 obstacle.chainbomb.name,연계 폭탄,Chain Bomb
 card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
 card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd
+﻿key,ko,en
+# 카드: card.<id>.name / card.<id>.desc — {이름}은 카드 효과의 같은 이름 필드 값으로 바뀐다,,
+card.sit.name,앉기,Sit
+card.sit.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.jump.name,점프,Jump
+card.jump.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.retreat.name,후퇴,Retreat
+card.retreat.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.dash.name,돌진,Dash
+card.dash.desc,적에게 피해를 {damage} 줍니다. 최초 사용 후 최대 {maxReuseCount}번 재사용합니다.,Deal {damage} damage to an enemy. Reuse up to {maxReuseCount} times after the initial use.
+# 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
+relic.pedometer.name,만보기,Pedometer
+relic.pedometer.desc,한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다. (턴당 1번),"After moving {steps} tiles in a turn, draw {count} card. (Once per turn)"
+relic.reuse_damage.name,재사용,Reuse
+relic.reuse_damage.desc,카드가 재사용될 때마다 적에게 피해를 {damage} 줍니다.,"After reusing card, deal {damage} to an enemy."
+# 적: enemy.<id>.name,,
+enemy.gravekeeper.name,묘지기,Gravekeeper
+# 장애물: obstacle.<id>.name,,
+obstacle.tombstone.name,묘비,Tombstone
+obstacle.bomb.name,폭탄,Bomb
+card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
+card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd

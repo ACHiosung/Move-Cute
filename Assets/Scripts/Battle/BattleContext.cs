@@ -14,6 +14,7 @@ namespace MoveCute
         public int teleportHpCost = 3;
         [Tooltip("턴당 순간이동 횟수. -1 = 무제한 (미정)")]
         public int teleportLimitPerTurn = -1;
+        public BattleRewardPolicy rewards = new();
     }
 
     /// <summary>
@@ -144,22 +145,33 @@ namespace MoveCute
             if (Energy < card.PlayCost(this)) { Log($"에너지 부족: {card}"); return false; }
 
             Phase = BattlePhase.Resolving;
+            await SpendEnergy(card.PlayCost(this));
+            Piles.Hand.Remove(card);
             PlayingCard = card;
             try
             {
-                await card.Play(this, target);
-                if (IsOver) return true;
-
+                var playCount = 1;
+                if (card.Has<Keyword_Dash>()) playCount += card.GetKeyword<Keyword_Dash>().maxReuseCount;
+                for (int i = 0; i < playCount; i++)
+                {
+                    await Presenter.CardPlayed(card, CanFullyMove(card));
+                    await card.Play(this, target);
+                    if (i > 0) await Events.CardReused.Raise(card, i);
+                    if (!CanFullyMove(card)) break;
+                    if (IsOver) return true;
+                }
                 await Events.CardPlayed.Raise(card);
+                // Judge after the full card and its reactions, so later effects may restore morale.
+                if (!IsOver && Enemies.All(e => e.Hp <= 0)) await EndBattle(true);
                 return true;
             }
             finally { PlayingCard = null; await FinishAction(); }
         }
 
-        /// <summary>HP를 지불하는 순간이동. 에너지는 쓰지 않는다.</summary>
+        /// <summary>에너지 1과 HP를 지불하는 순간이동.</summary>
         public async Awaitable<bool> Teleport(Vector2Int pos)
         {
-            if (!CanAct) return false;
+            if (!CanAct || Energy < 1) return false;
             if (!Board.IsPassable(pos) || pos == Player.Pos) return false;
             if (Config.teleportLimitPerTurn >= 0 && TeleportsThisTurn >= Config.teleportLimitPerTurn) return false;
 
@@ -167,6 +179,8 @@ namespace MoveCute
             try
             {
                 TeleportsThisTurn++;
+                Energy--;
+                await Presenter.EnergyChanged(Energy);
                 int cost = Config.teleportHpCost;
                 Player.Hp -= cost;
                 Log($"순간이동 → {pos} (HP -{cost})");
@@ -182,7 +196,7 @@ namespace MoveCute
             finally { await FinishAction(); }
         }
 
-        /// <summary>턴 종료: 효과 정산 → 사기 0 판정 → 손패 버림 → 턴 종료 이벤트 → 다음 진행.</summary>
+        /// <summary>턴 종료: 효과·반응 정산 → 전투 종료 판단 → 계속되는 전투만 손패 버림·다음 턴.</summary>
         public async Awaitable EndTurn()
         {
             if (!CanAct) return;
@@ -206,24 +220,34 @@ namespace MoveCute
                 bool allBroken = Enemies.All(e => e.Hp <= 0);
 
                 // 3. 손패 버림 (보존 제외)
-                foreach (var card in Piles.Hand.Where(c => !c.Has(Keyword.Retain)).ToList())
+                foreach (var card in Piles.Hand.Where(c => !c.Has<Keyword_Retain>()).ToList())
                     await DiscardCard(card);
 
                 // 4. 턴 종료 이벤트 (마지막)
+                // Finish all end-turn reactions before deciding whether a new turn is needed.
                 await Presenter.TurnEnded(Turn);
                 await Events.TurnEnd.Raise();
                 if (IsOver) return;
 
-                // 5. 다음 진행
-                if (allBroken) { Log("적의 사기 0!"); await EndBattle(true); }
-                else if (lastTurn)
+                if (Enemies.All(e => e.Hp <= 0))
+                {
+                    Log("적의 사기 0!");
+                    await EndBattle(true);
+                    return;
+                }
+                if (lastTurn)
                 {
                     int remain = Enemies.Sum(e => e.Hp);
                     Log($"제한 턴 종료: 남은 사기 {remain}만큼 피해");
                     await DamagePlayer(EffectSource.System, remain);
                     if (!IsOver) await EndBattle(true);
+                    return;
                 }
-                else await StartTurn();
+
+                // Only continuing battles discard their hand and begin another turn.
+                foreach (var card in Piles.Hand.Where(c => !c.Has<Keyword_Retain>()).ToList())
+                    await DiscardCard(card);
+                await StartTurn();
             }
             finally { await FinishAction(); }
         }
@@ -234,9 +258,9 @@ namespace MoveCute
             Phase = won ? BattlePhase.Won : BattlePhase.Lost;
             Run.Hp = Player.Hp;
             Log(won ? $"전투 승리 (HP {Player.Hp})" : "패배");
+            if (won) await PrepareConfiguredRewards();
             await Presenter.BattleEnded(won);
             await Events.BattleEnd.Raise(won);
-            // TODO(보상): 화폐 + 카드 3중1 + 엘리트면 유물 → 보상 화면으로
         }
 
         // ════════════════════ 사이클 내부 헬퍼 ════════════════════
