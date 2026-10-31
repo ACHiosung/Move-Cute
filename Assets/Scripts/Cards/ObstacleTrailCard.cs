@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,8 +35,6 @@ namespace MoveCute
             bool full = CanPlayFully(ctx);
             var src = new EffectSource(this);
 
-            await ctx.SpendEnergy(PlayCost(ctx));
-            await ctx.BeginCardPlay(this, full);
             if (full) await ctx.MovePlayerAlong(src, Moves, (from, to) => LeaveObstacle(ctx, src, from));
             else await ctx.MovePlayerAlong(src, Moves);
             if (full) await Data.effects.ExecuteAll(ctx, src, target);
