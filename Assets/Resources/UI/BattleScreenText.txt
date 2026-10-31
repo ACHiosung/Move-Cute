@@ -1,0 +1,65 @@
+energy|에너지|Energy
+rewards|전투 보상|Battle rewards
+rewardHelp|적이 선물을 남겼습니다. 상자를 열어 보상을 확인하세요.|Your opponent left a gift. Open the chest to collect rewards.
+gold|골드|Gold
+healing|HP 회복|Heal HP
+cardReward|카드 1장 선택|Choose one card
+chooseReward|덱에 추가할 카드를 선택하세요|Choose a card to add to your deck
+chooseRewardHelp|카드에 마우스를 올려 정보를 확인하고, 한 장을 클릭해 덱에 추가하세요.|Hover to inspect a card, then click one to add it to your deck.
+openGift|선물 열기|Open gift
+back|돌아가기|Back
+leaveCard|두고 가기|Skip card
+leaveRewardsConfirm|아직 받지 않은 보상이 있습니다.\n남은 보상을 포기하고 진행할까요?|Some rewards remain.\nLeave them behind and continue?
+energyHelp|카드 사용에 필요한 에너지입니다. 길게 누르면 에너지 1과 HP를 지불하고 순간이동합니다.|Energy pays for cards. Hold to teleport, spending 1 energy and HP.
+turnHelp|현재 턴을 종료합니다. 칸은 현재 턴을 포함한 남은 턴 수입니다.|End this turn. Cells show remaining turns including the current turn.
+drawHelp|앞으로 뽑을 카드입니다. 클릭하면 목록을 봅니다. 실제 순서는 공개하지 않습니다.|Cards available to draw. Click to inspect without revealing draw order.
+discardHelp|사용하거나 버린 카드입니다. 뽑을 카드가 비면 다시 섞입니다.|Played or discarded cards. Reshuffled when the draw pile is empty.
+deckHelp|이번 도전의 전체 덱을 확인합니다.|Inspect your full deck for this run.
+enemyHelp|사기를 낮춰 전투를 끝내세요. 제한 턴이 끝나면 남은 사기만큼 HP 피해를 받습니다.|Reduce morale to end the battle. Remaining morale deals HP damage after the final turn.
+turn|턴|Turn
+turnEnd|턴 종료|End turn
+player|플레이어|Player
+deck|덱|Deck
+draw|뽑을 카드|Draw pile
+discard|버린 카드|Discard pile
+cancel|취소|Cancel
+close|닫기|Close
+previous|이전|Previous
+next|다음|Next
+won|전투 승리|Victory
+lost|패배|Defeat
+nextBattle|다음 전투|Next battle
+newRun|다시 시작|New run
+inspectTitle|카드 정보|Card details
+help|마우스 올리기  정보와 이동 미리보기\n카드 클릭  선택\n\n다른 카드 클릭  선택 변경\n빈 곳 클릭  선택 취소\n우클릭  취소 / 뒤로 가기\n\n에너지를 길게 눌러\n순간이동 목적지 선택|Hover: details and movement\nClick: select card\n\nAnother card: switch selection\nEmpty space: cancel\nRight click: cancel / back\n\nHold Energy to choose\na teleport destination.
+teleport|순간이동할 타일을 선택하세요|Choose a teleport destination
+pass|지나갈 때|On pass
+arrive|도착 시|On arrival
+intent|적 행동 예고|Enemy intent
+morale|사기|Morale
+damage|피해|Damage
+place|설치|Place
+destroyed|파괴|Destroyed
+None|기본|Basic
+Attack|공격|Attack
+Skill|기술|Skill
+Basic|기본|Basic
+Common|일반|Common
+Uncommon|고급|Uncommon
+Rare|희귀|Rare
+Retain|보존|Retain
+Dash|질주|Dash
+Lock|잠금|Lock
+Unlock|해금|Unlock
+AutoLock|자동 잠금|Auto lock
+Delete|삭제|Delete
+Free|무료|Free
+RetainDesc|턴 종료 시 손패에 남습니다.|Remains in hand at the end of the turn.
+DashDesc|가능하다면 반복 사용하는 카드입니다.|Replays when possible.
+LockDesc|이동 조건을 충족하면 해금되는 카드입니다.|Unlocks after matching its movement sequence.
+UnlockDesc|이동과 에너지 소모 없이 사용합니다.|Plays without movement or energy cost.
+AutoLockDesc|사용 후 잠금이 부여됩니다.|Locks after use.
+DeleteDesc|사용 후 휴지통으로 이동합니다.|Moves to trash after use.
+FreeDesc|사용 시 에너지를 소모하지 않습니다.|Costs no energy to play.
+bomb|폭탄|Bomb
+bombDesc|폭탄: HP가 0이 되거나 마지막 턴 종료 시 파괴되며 적에게 피해를 줍니다.|Bomb: explodes at zero HP or at the end of the final turn and damages an enemy.
