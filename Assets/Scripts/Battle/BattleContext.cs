@@ -144,12 +144,21 @@ namespace MoveCute
             if (Energy < card.PlayCost(this)) { Log($"에너지 부족: {card}"); return false; }
 
             Phase = BattlePhase.Resolving;
+            await SpendEnergy(card.PlayCost(this));
+            Piles.Hand.Remove(card);
             PlayingCard = card;
             try
             {
-                await card.Play(this, target);
-                if (IsOver) return true;
-
+                var playCount = 1;
+                if (card.Has<Keyword_Dash>()) playCount += card.GetKeyword<Keyword_Dash>().maxReuseCount;
+                for (int i = 0; i < playCount; i++)
+                {
+                    await Presenter.CardPlayed(card, CanFullyMove(card));
+                    await card.Play(this, target);
+                    if (i > 0) await Events.CardReused.Raise(card, i);
+                    if (!CanFullyMove(card)) break;
+                    if (IsOver) return true;
+                }
                 await Events.CardPlayed.Raise(card);
                 return true;
             }
@@ -206,7 +215,7 @@ namespace MoveCute
                 bool allBroken = Enemies.All(e => e.Hp <= 0);
 
                 // 3. 손패 버림 (보존 제외)
-                foreach (var card in Piles.Hand.Where(c => !c.Has(Keyword.Retain)).ToList())
+                foreach (var card in Piles.Hand.Where(c => !c.Has<Keyword_Retain>()).ToList())
                     await DiscardCard(card);
 
                 // 4. 턴 종료 이벤트 (마지막)

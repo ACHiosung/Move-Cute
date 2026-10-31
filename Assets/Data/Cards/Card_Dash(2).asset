@@ -21,7 +21,8 @@ MonoBehaviour:
   type: 1
   rarity: 0
   target: 1
-  keywords: 01000000
+  keywords:
+  - rid: 1415127154514985050
   effects:
   - rid: 3200383178888970374
   behavior:
@@ -29,6 +30,12 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1415127154514985050
+      type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        maxReuseCount: 5
     - rid: 3200383178888970374
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
