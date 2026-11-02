@@ -11,6 +11,9 @@ namespace MoveCute
         public readonly RelicData Data;
         public Relic(RelicData data) { Data = data; }
 
+        /// <summary>꺼져 있으면 Fire가 아무것도 하지 않는다. 효과를 읽기만 하는 유물은 읽는 쪽이 확인한다 (예: BombDamageRelic).</summary>
+        public bool Enabled = true;
+
         public virtual void Bind(BattleContext ctx)
         {
             var ev = ctx.Events;
@@ -26,7 +29,7 @@ namespace MoveCute
         }
 
         protected Awaitable Fire(BattleContext ctx) =>
-            Data.effects.ExecuteAll(ctx, new EffectSource(this), EffectTarget.None);
+            Enabled ? Data.effects.ExecuteAll(ctx, new EffectSource(this), EffectTarget.None) : AwaitableUtil.Completed();
 
         public override string ToString() => Data != null ? Data.DisplayName : "Relic";
     }
