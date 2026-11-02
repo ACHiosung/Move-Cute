@@ -212,7 +212,12 @@ namespace MoveCute
                     if (IsOver) return;
                     await enemy.OnTurnEnd(this);
                 }
-                if (lastTurn) await RunLastTurnObstacleEffects();
+                if (lastTurn)
+                {
+                    // 유물이 폭탄을 놓으면 같이 터지도록 장애물 처리 전에 알린다
+                    await Events.LastTurnEnd.Raise();
+                    await RunLastTurnObstacleEffects();
+                }
                 await TickTileEffects();
                 if (IsOver) return;
 

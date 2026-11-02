@@ -21,6 +21,7 @@ namespace MoveCute
                 case RelicTrigger.TurnEnd: ev.TurnEnd.Add(() => Fire(ctx)); break;
                 case RelicTrigger.CardPlayed: ev.CardPlayed.Add(_ => Fire(ctx)); break;
                 case RelicTrigger.PlayerMoved: ev.PlayerMoved.Add((_, _) => Fire(ctx)); break;
+                case RelicTrigger.LastTurnEnd: ev.LastTurnEnd.Add(() => Fire(ctx)); break;
             }
         }
 
