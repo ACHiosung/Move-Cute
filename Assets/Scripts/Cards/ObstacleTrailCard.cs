@@ -20,6 +20,8 @@ namespace MoveCute
 
         public override bool CanPlayFully(BattleContext ctx)
         {
+            if (IsLocked) return false;
+            if (IsUnlocked) return true;
             var pos = ctx.Player.Pos;
             var visited = new HashSet<Vector2Int> { pos };
             foreach (var dir in Moves)

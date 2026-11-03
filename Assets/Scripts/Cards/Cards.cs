@@ -68,6 +68,7 @@ namespace MoveCute
             card.Cost = data.cost;
             card.Moves = new List<Direction>(data.moves);
             card.Keywords = data.keywords.Where(k => k != null).Select(k => k.Clone()).ToList();
+            card.GetKeyword<Keyword_Lock>()?.ResetProgress(card.Moves.Count);
             return card;
         }
 
@@ -80,6 +81,7 @@ namespace MoveCute
             var card = (CardInstance)MemberwiseClone();
             card.Moves = new List<Direction>(Moves);
             card.Keywords = Keywords.Select(k => k.Clone()).ToList();
+            card.GetKeyword<Keyword_Lock>()?.ResetProgress(card.Moves.Count);
             return card;
         }
 
@@ -107,7 +109,11 @@ namespace MoveCute
             }
             return null;
         }
-        public int EffectiveCost => Has<Keyword_Free>() ? 0 : Cost;
+        public bool IsLocked => GetKeyword<Keyword_Lock>() is { isUnlocked: false };
+        public bool IsUnlocked => GetKeyword<Keyword_Lock>() is { isUnlocked: true };
+
+        // 원래 Cost는 보존하고, 해금 상태일 때 실제 비용만 0으로 계산한다.
+        public int EffectiveCost => Has<Keyword_Free>() || IsUnlocked ? 0 : Cost;
 
         /// <summary>
         /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능한지.
@@ -132,7 +138,7 @@ namespace MoveCute
             await ctx.MovePlayerAlong(src, Moves);//이동 시도, 실패하면 중간에서 멈춤
             if (full) await Data.effects.ExecuteAll(ctx, src, target);//효과 발동
 
-            // TODO(카드/덱): 질주 재사용, 잠금 이동 큐 등 키워드 처리
+            // TODO(카드/덱): 잠금 이동 비교 및 자동 재잠금 처리
             await Finish(ctx);
         }
 

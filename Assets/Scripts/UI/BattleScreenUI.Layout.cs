@@ -308,7 +308,7 @@ namespace MoveCute
 
         void RefreshCardView(Button view, CardInstance card)
         {
-            bool gray = !rewardScreenActive && (card.IsGrayed || card.Has<Keyword_Lock>() || ctx != null && ctx.Energy <= 0);
+            bool gray = !rewardScreenActive && (card.IsGrayed || card.IsLocked || ctx != null && ctx.Energy < card.PlayCost(ctx));
             CachedCard(view).Render(ArtFor(card), gray ? grayscaleMaterial : null,
                 gray ? Grayed : CardBase, card.Moves, directionIcons,
                 selectedCard == card || pickable != null && pickable.Contains(card));

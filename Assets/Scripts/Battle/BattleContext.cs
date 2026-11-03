@@ -142,6 +142,7 @@ namespace MoveCute
         public async Awaitable<bool> PlayCard(CardInstance card, EffectTarget target)
         {
             if (!CanAct || !Piles.Hand.Contains(card)) return false;
+            if (card.IsLocked) { Log($"잠금 카드 사용 불가: {card}"); return false; }
             if (Energy < card.PlayCost(this)) { Log($"에너지 부족: {card}"); return false; }
 
             Phase = BattlePhase.Resolving;
@@ -277,7 +278,7 @@ namespace MoveCute
         /// <summary>패의 모든 카드 흑백 여부 갱신.</summary>
         void RefreshPlayable()
         {
-            foreach (var c in Piles.Hand) c.IsGrayed = !c.CanPlayFully(this);
+            foreach (var c in Piles.Hand) c.IsGrayed = c.IsLocked || !c.CanPlayFully(this);
         }
 
         async Awaitable TriggerTile(Vector2Int pos, TileTrigger trigger)

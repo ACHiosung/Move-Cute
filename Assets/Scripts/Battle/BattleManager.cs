@@ -79,6 +79,7 @@ namespace MoveCute
         public async Awaitable PlayCard(CardInstance card)
         {
             if (!CanInput) return;
+            if (card.IsLocked) return; // 대상 선택 전에 차단한다.
             var ctx = Ctx;
 
             EffectTarget? target;

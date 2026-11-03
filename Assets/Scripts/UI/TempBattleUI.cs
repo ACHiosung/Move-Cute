@@ -383,7 +383,7 @@ namespace MoveCute
         void RefreshCard(CardInstance card)
         {
             var view = cards[card];
-            var color = card.IsGrayed ? Grayed : CardBase;
+            var color = card.IsGrayed || card.IsLocked ? Grayed : CardBase;
             if (pickable != null && pickable.Contains(card)) color = Pickable;
             Paint(view, color);
             Label(view).text =
