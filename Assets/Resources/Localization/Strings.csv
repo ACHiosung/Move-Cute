@@ -47,5 +47,5 @@ card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
 card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd
 card.givetrash.name,삭제 부여,Add Delete
 card.givetrash.desc,패에 있는 카드 중 최대 {count}장에 [삭제 키워드]를 부여합니다,"Assign [delete keyword] to the maximum number of cards in the hand, {count}"
-card.trashattack.name,쓰래기통 공격,Trash Bin Attack
-card.trashattack.desc,쓰래기통에 들어있는 카드 수 만큼 피해를 줍니다.,Damage equal to the number of cards in the trash.
+card.trashattack.name,휴지통 공격,Trash Bin Attack
+card.trashattack.desc,휴지통에 들어있는 카드 수 만큼 피해를 줍니다.,Damage equal to the number of cards in the trash.

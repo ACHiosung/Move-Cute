@@ -118,13 +118,19 @@ namespace MoveCute
         {
             //ctx.Piles.Hand에서 count만큼 무작위 카드 선택
             var temp = ctx.Piles.Hand.ToList();
-            for (int i = 0; i < count; i++)
+            int keywordCount = 0;
+            for (int i = 0; i < temp.Count; i++)
             {
-                if (temp.Count == 0) break;
+                if (temp[i].Has(keyword)) keywordCount++;
+            }
+            for (int i = 0; i < count; )
+            {
+                if (temp.Count == 0 || keywordCount >= temp.Count) break;
                 var card = temp[UnityEngine.Random.Range(0, temp.Count)];
                 if (card.Has(keyword)) continue;
                 await ctx.AddKeyword(card, keyword.Clone());
                 temp.Remove(card);
+                i++;
             }
         }
     }
