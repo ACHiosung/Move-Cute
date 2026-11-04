@@ -113,7 +113,7 @@ namespace MoveCute
     {
         [SerializeReference, SubclassPicker]
         public CardKeyword keyword;
-        public int count;
+        public int count = 3;
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
         {
             //ctx.Piles.Hand에서 count만큼 무작위 카드 선택

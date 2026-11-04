@@ -7,10 +7,11 @@ namespace MoveCute
     [Serializable]
     public class TrashDamageEffect : Effect
     {
+        public float scale = 1f;
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
         {
             var unit = target.Unit ?? ctx.GetRandomEnemy();
-            if (unit != null) await ctx.DealDamage(src, unit,ctx.Piles.Trash.Count);
+            if (unit != null) await ctx.DealDamage(src, unit, (int)(ctx.Piles.Trash.Count * scale));
         }
     }
 }
