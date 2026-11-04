@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -104,6 +105,26 @@ namespace MoveCute
                 var card = await ctx.ChooseCard(ctx.Piles.Hand.ToList(), "버릴 카드 선택");
                 if (card == null) return;
                 await ctx.DiscardCard(card);
+            }
+        }
+    }
+    [Serializable]
+    public class RandomAddCardKeyword : Effect
+    {
+        [SerializeReference, SubclassPicker]
+        public CardKeyword keyword;
+        public int count;
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            //ctx.Piles.Hand에서 count만큼 무작위 카드 선택
+            var temp = ctx.Piles.Hand.ToList();
+            for (int i = 0; i < count; i++)
+            {
+                if (temp.Count == 0) break;
+                var card = temp[UnityEngine.Random.Range(0, temp.Count)];
+                if (card.Has(keyword)) continue;
+                await ctx.AddKeyword(card, keyword.Clone());
+                temp.Remove(card);
             }
         }
     }
