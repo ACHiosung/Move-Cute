@@ -70,6 +70,136 @@ namespace MoveCute.Tests
 
         void Step(Direction direction) => Assert.That(Complete(ctx.MovePlayer(EffectSource.System, direction)), Is.True);
 
+        void AddLockMoveRelic(bool ignoreFirst, int moveCount)
+        {
+            RelicData data;
+            if (ignoreFirst)
+            {
+                var first = ScriptableObject.CreateInstance<IgnoreFirstLockMovesRelicData>();
+                first.moveCount = moveCount;
+                data = first;
+            }
+            else
+            {
+                var last = ScriptableObject.CreateInstance<IgnoreLastLockMovesRelicData>();
+                last.moveCount = moveCount;
+                data = last;
+            }
+            assets.Add(data);
+            var relic = data.CreateRelic();
+            ctx.Run.Relics.Add(relic);
+            relic.Bind(ctx);
+        }
+
+        [TestCase(true, 1)]
+        [TestCase(false, 1)]
+        [TestCase(true, 2)]
+        [TestCase(false, 2)]
+        public void RelicSkipsConfiguredEndWithoutChangingCardData(bool ignoreFirst, int moveCount)
+        {
+            var card = Card(Direction.Left, Direction.Down, Direction.Up, Direction.Down);
+            Complete(ctx.LockCard(card));
+            AddLockMoveRelic(ignoreFirst, moveCount);
+            var required = ignoreFirst
+                ? card.Moves.GetRange(moveCount, card.Moves.Count - moveCount)
+                : card.Moves.GetRange(0, card.Moves.Count - moveCount);
+            for (int i = 0; i < required.Count; i++)
+            {
+                Step(required[i]);
+                Assert.That(card.IsUnlocked, Is.EqualTo(i == required.Count - 1));
+            }
+            Assert.That(card.Moves, Is.EqualTo(new[] { Direction.Left, Direction.Down, Direction.Up, Direction.Down }));
+            Assert.That(card.Data.moves, Is.EqualTo(card.Moves));
+            Assert.That(card.Cost, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void BothRelicsShortenTheMiddleSequenceAcrossTurns()
+        {
+            var card = Card(Direction.Left, Direction.Down, Direction.Up, Direction.Down);
+            Complete(ctx.LockCard(card));
+            AddLockMoveRelic(true, 1);
+            AddLockMoveRelic(false, 1);
+            Step(Direction.Down);
+            Assert.That(card.IsLocked, Is.True);
+            Complete(ctx.EndTurn());
+            Step(Direction.Up);
+            Assert.That(card.IsUnlocked, Is.True);
+        }
+
+        [TestCase(true, 0)]
+        [TestCase(false, 0)]
+        [TestCase(true, -3)]
+        [TestCase(false, -3)]
+        public void NonPositiveSkipDoesNotShortenTheSequence(bool ignoreFirst, int moveCount)
+        {
+            var card = Card(Direction.Left, Direction.Down);
+            Complete(ctx.LockCard(card));
+            AddLockMoveRelic(ignoreFirst, moveCount);
+            Step(Direction.Left);
+            Assert.That(card.IsLocked, Is.True);
+            Step(Direction.Down);
+            Assert.That(card.IsUnlocked, Is.True);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void OversizedSkipStillRequiresOneMovement(bool ignoreFirst)
+        {
+            var card = Card(Direction.Left, Direction.Down);
+            Complete(ctx.LockCard(card));
+            AddLockMoveRelic(ignoreFirst, int.MaxValue);
+            Assert.That(card.IsLocked, Is.True);
+            Step(ignoreFirst ? Direction.Down : Direction.Left);
+            Assert.That(card.IsUnlocked, Is.True);
+        }
+
+        [Test]
+        public void SingleMoveAndEmptyCardsDoNotUnlockWithoutMatchingMovement()
+        {
+            var single = Card(Direction.Left);
+            var empty = Card();
+            Complete(ctx.LockCard(single));
+            Complete(ctx.LockCard(empty));
+            AddLockMoveRelic(true, 100);
+            AddLockMoveRelic(false, 100);
+            Step(Direction.Down);
+            Assert.That(single.IsLocked, Is.True);
+            Assert.That(empty.IsLocked, Is.True);
+            Step(Direction.Left);
+            Assert.That(single.IsUnlocked, Is.True);
+            Assert.That(empty.IsLocked, Is.True);
+        }
+
+        [Test]
+        public void MultipleCopiesAddTheirSkipCounts()
+        {
+            var card = Card(Direction.Left, Direction.Down, Direction.Up, Direction.Down);
+            Complete(ctx.LockCard(card));
+            AddLockMoveRelic(true, 1);
+            AddLockMoveRelic(true, 1);
+            Step(Direction.Up);
+            Assert.That(card.IsLocked, Is.True);
+            Step(Direction.Down);
+            Assert.That(card.IsUnlocked, Is.True);
+        }
+
+        [Test]
+        public void AutomaticallyRelockedCardUsesShortenedSequenceAgain()
+        {
+            var card = Card(Direction.Left, Direction.Right);
+            Complete(ctx.AddKeyword(card, new Keyword_Lock { autoLock = true }));
+            AddLockMoveRelic(true, 1);
+            Step(Direction.Right);
+            Assert.That(card.IsUnlocked, Is.True);
+            Assert.That(Complete(ctx.PlayCard(card, EffectTarget.None)), Is.True);
+            Assert.That(card.IsLocked, Is.True);
+            Step(Direction.Left);
+            Assert.That(card.IsLocked, Is.True);
+            Step(Direction.Right);
+            Assert.That(card.IsUnlocked, Is.True);
+        }
+
         [Test]
         [TestCase(typeof(BattleScreenUI))]
         [TestCase(typeof(TempBattleUI))]

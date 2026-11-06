@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be9ccfc88a414f3dba74bbbe026d27ba, type: 3}
+  m_Name: Relic_IgnoreLastLockMoves
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.IgnoreLastLockMovesRelicData
+  id: ignore_last_lock_moves
+  nameKey: relic.ignore_last_lock_moves.name
+  descKey: relic.ignore_last_lock_moves.desc
+  icon: {fileID: 0}
+  trigger: 0
+  effects: []
+  moveCount: 1

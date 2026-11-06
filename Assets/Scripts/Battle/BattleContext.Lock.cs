@@ -53,15 +53,26 @@ namespace MoveCute
                 if (IsOver) return;
                 // 이동이 없는 잠금 카드는 이동으로 해금하지 않는다. 명시적인 해금 부여는 가능하다.
                 if (card.Moves.Count == 0) continue;
+                GetLockMoveRange(card, out int start, out int count);
                 if (!lockMovements.TryGetValue(card, out var history))
                     lockMovements[card] = history = new List<Direction>();
                 history.Add(direction);
-                if (history.Count > card.Moves.Count)
-                    history.RemoveRange(0, history.Count - card.Moves.Count);
+                if (history.Count > count)
+                    history.RemoveRange(0, history.Count - count);
                 // 최근 N칸을 비교하므로 불일치 뒤 겹치는 접두사도 놓치지 않는다 (←←→ 등).
-                if (history.Count == card.Moves.Count && history.SequenceEqual(card.Moves))
+                if (history.Count == count && history.SequenceEqual(card.Moves.Skip(start).Take(count)))
                     await UnlockCard(card);
             }
+        }
+
+        // 카드 원본은 유지하고 해금에 필요한 연속 구간만 줄인다. 최소 한 칸은 남긴다.
+        void GetLockMoveRange(CardInstance card, out int start, out int count)
+        {
+            long first = Run.Relics.OfType<IgnoreFirstLockMovesRelic>().Sum(r => (long)r.MoveCount);
+            long last = Run.Relics.OfType<IgnoreLastLockMovesRelic>().Sum(r => (long)r.MoveCount);
+            start = (int)System.Math.Min(first, card.Moves.Count - 1);
+            int endSkip = (int)System.Math.Min(last, card.Moves.Count - start - 1);
+            count = card.Moves.Count - start - endSkip;
         }
     }
 }
