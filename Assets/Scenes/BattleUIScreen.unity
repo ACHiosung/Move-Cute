@@ -497,11 +497,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
   - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
   - {fileID: 11400000, guid: 13b5410e62755a949a8ca38d228975a5, type: 2}
-  - {fileID: 11400000, guid: 3f364a396a5374e70a9232808df163e1, type: 2}
-  - {fileID: 11400000, guid: 3f364a396a5374e70a9232808df163e1, type: 2}
-  - {fileID: 11400000, guid: 3f364a396a5374e70a9232808df163e1, type: 2}
-  - {fileID: 11400000, guid: a8f323c192ac74f62a3b46b0211b80b7, type: 2}
-  - {fileID: 11400000, guid: a8f323c192ac74f62a3b46b0211b80b7, type: 2}
+  - {fileID: 11400000, guid: 77be55d9ca99e48848a9cb59b76f8404, type: 2}
+  - {fileID: 11400000, guid: 77be55d9ca99e48848a9cb59b76f8404, type: 2}
+  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
+  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
+  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
   enemy: {fileID: 11400000, guid: 62603c5a72f95fb4bafa372b83847bdf, type: 2}
   relics: []
   seed: 0

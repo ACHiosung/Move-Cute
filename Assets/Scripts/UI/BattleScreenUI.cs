@@ -450,7 +450,8 @@ namespace MoveCute
 
         void RefreshCard(CardInstance card)
         {
-            var view = cards[card];
+            // 뽑기 더미·묘지의 카드도 해금될 수 있지만 손패 뷰는 없다.
+            if (!cards.TryGetValue(card, out var view)) return;
             RefreshCardView(view, card);
         }
 

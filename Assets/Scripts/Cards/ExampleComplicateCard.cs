@@ -28,7 +28,7 @@ namespace MoveCute
         [Tooltip("발동할 충격파. 범위·피해·장애물을 부술 때 효과를 여기서 조정한다")]
         public ShockwaveEffect shockwave = new();//효과를 기존에 쓰던 List에 추가한 것이 아닌 별도 필드에 둔 사례, 기존 List에 넣어도 될 것
 
-        public override bool CanPlayFully(BattleContext ctx) => true;
+        public override bool CanPlayFully(BattleContext ctx) => !IsLocked;
 
         public override async Awaitable Play(BattleContext ctx, EffectTarget target)
         {

@@ -37,25 +37,13 @@ namespace MoveCute
 
         public async Awaitable AddKeyword(CardInstance card, CardKeyword kw)
         {
+            if (kw is Keyword_Lock lockKeyword)
+            {
+                await SetLockState(card, lockKeyword.isUnlocked, lockKeyword.autoLock);
+                return;
+            }
             if (IsOver || card == null || kw == null || card.Has(kw)) return;
-
-
-            var copy = kw.Clone(); // 에셋과 카드 사이에 키워드 객체를 공유하지 않는다.
-            if (copy is Keyword_Lock locked) locked.ResetProgress(card.Moves.Count);
-            card.Keywords.Add(copy);
-            card.IsGrayed = card.IsLocked || !card.CanPlayFully(this);
-            await Presenter.CardChanged(card);
-        }
-
-        /// <summary>기존 잠금 키워드 상태를 전환하고 UI를 갱신한다. 키워드와 원래 이동·비용은 보존한다.</summary>
-        public async Awaitable SetLockState(CardInstance card, bool isUnlocked)
-        {
-            if (IsOver || card == null) return;
-            var state = card.GetKeyword<Keyword_Lock>();
-            if (state == null || state.isUnlocked == isUnlocked) return;
-
-            state.isUnlocked = isUnlocked;
-            if (!isUnlocked) state.ResetProgress(card.Moves.Count);
+            card.Keywords.Add(kw.Clone());   // 효과 에셋이 들고 있는 객체를 카드와 공유하지 않게
             card.IsGrayed = card.IsLocked || !card.CanPlayFully(this);
             await Presenter.CardChanged(card);
         }

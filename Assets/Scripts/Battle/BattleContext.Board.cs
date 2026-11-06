@@ -19,6 +19,7 @@ namespace MoveCute
             var from = Player.Pos;
             Player.Pos = next;
             await Presenter.PlayerStepped(from, next);
+            await TrackLockMovement(dir);
             await Events.PlayerMoved.Raise(from, next);
             await TriggerTile(next, TileTrigger.Pass);
             return true;
@@ -38,7 +39,6 @@ namespace MoveCute
         public async Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves,
                                                Func<Vector2Int, Vector2Int, Awaitable> onStep)
         {
-            // 해금 카드의 이동·이동 시 콜백·도착 타일 효과를 모두 생략한다.
             if (src.Owner is CardInstance card && card.IsUnlocked) return;
             bool moved = false;
             foreach (var dir in moves.ToList())

@@ -367,6 +367,7 @@ namespace MoveCute
         void Preview(CardInstance card)
         {
             ClearPreview();
+            if (card.IsUnlocked) return;
             var pos = ctx.Player.Pos;
             foreach (var direction in card.Moves)
             {

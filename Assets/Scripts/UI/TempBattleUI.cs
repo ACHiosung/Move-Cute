@@ -382,8 +382,9 @@ namespace MoveCute
 
         void RefreshCard(CardInstance card)
         {
-            var view = cards[card];
-            var color = card.IsGrayed || card.IsLocked ? Grayed : CardBase;
+            // 손패 밖 카드의 키워드 변경은 손패 뷰를 갱신하지 않는다.
+            if (!cards.TryGetValue(card, out var view)) return;
+            var color = card.IsGrayed ? Grayed : CardBase;
             if (pickable != null && pickable.Contains(card)) color = Pickable;
             Paint(view, color);
             Label(view).text =
