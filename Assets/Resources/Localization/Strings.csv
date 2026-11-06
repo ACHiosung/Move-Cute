@@ -9,13 +9,15 @@ card.retreat.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage t
 card.dash.name,돌진,Dash
 card.dash.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
 card.bomb.name,폭탄 설치,Plant Bomb
-card.bomb.desc,"이동하면서 떠난 칸마다 폭탄을 설치합니다. 폭탄은 부서지거나, 마지막 턴이 끝날 때 남아 있으면 적에게 피해를 줍니다.","Plant a bomb on each tile you leave while moving. A bomb damages an enemy when destroyed, or if it is still there when the last turn ends."
-card.chainbomb.name,연계 폭탄 설치,Plant Chain Bomb
-card.chainbomb.desc,"이동하면서 떠난 칸에 연계 폭탄을 설치합니다. 연계 폭탄은 다른 폭탄보다 먼저 터지고, 터질 때 남아 있는 다른 장애물 하나마다 피해를 한 번 더 줍니다.","Plant a chain bomb on the tile you leave while moving. Chain bombs explode before other bombs, and deal damage once more for each other obstacle still on the board."
-card.artbomb.name,예술 폭탄 설치,Plant Art Bomb
-card.artbomb.desc,"이동하면서 떠난 칸에 예술 폭탄을 설치합니다. 예술 폭탄은 가장 먼저 터지고, 터질 때 남아 있는 다른 장애물 하나마다 피해량이 1.5배가 됩니다.","Plant an art bomb on the tile you leave while moving. Art bombs explode first, and their damage is multiplied by 1.5 for each other obstacle still on the board."
-card.detonate.name,기폭,Detonate
-card.detonate.desc,폭탄 하나를 골라 바로 터뜨립니다.,Choose a bomb and detonate it immediately.
+card.bomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a bomb.
+card.chainbomb.name,연계 폭탄,Chain Bomb
+card.chainbomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 연계 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a chain bomb.
+card.catchme.name,나 잡아봐라,Catch Me
+card.catchme.desc,이동 전의 위치에 폭탄을 설치합니다.,Plant a bomb on the tile you moved from.
+card.defuse.name,폭탄 해체,Bomb Defusal
+card.defuse.desc,거리 {distance}의 모든 폭탄을 발동합니다.,Detonate all bombs within {distance}.
+card.drone.name,자폭 드론,Suicide Drone
+card.drone.desc,마지막 턴 종료 시 빈 타일 하나에 연계 폭탄을 설치합니다.,"When the last turn ends, plant a chain bomb on an empty tile."
 # 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
 relic.pedometer.name,만보기,Pedometer
 relic.pedometer.desc,한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다. (턴당 1번),"After moving {steps} tiles in a turn, draw {count} card. (Once per turn)"

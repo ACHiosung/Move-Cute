@@ -10,26 +10,35 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
-  m_Name: Card_ArtBomb
+  m_Name: Card_CatchMe
   m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
-  id: artbomb
-  nameKey: card.artbomb.name
-  descKey: card.artbomb.desc
+  id: catchme
+  nameKey: card.catchme.name
+  descKey: card.catchme.desc
   art: {fileID: 0}
   moves:
-  - 1
+  - 0
   cost: 1
   type: 2
-  rarity: 3
+  rarity: 2
   target: 0
   keywords:
+  - rid: 3200383199153488320
+  - rid: 3200383199153488321
   effects: []
   behavior:
-    rid: 3200383199153488200
+    rid: 3200383199153488322
   references:
     version: 2
     RefIds:
-    - rid: 3200383199153488200
+    - rid: 3200383199153488320
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383199153488321
+      type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        maxReuseCount: 5
+    - rid: 3200383199153488322
       type: {class: ObstacleTrailCard, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        obstacle: {fileID: 11400000, guid: 4f13fb6d3ea34664860c00901419e924, type: 2}
+        obstacle: {fileID: 11400000, guid: 0799057331efbe34e94ea0ca7e1989ab, type: 2}

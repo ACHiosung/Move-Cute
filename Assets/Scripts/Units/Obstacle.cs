@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MoveCute
@@ -32,5 +33,13 @@ namespace MoveCute
         }
 
         public override string DisplayName => Data != null ? Data.DisplayName : "Obstacle";
+
+        /// <summary>
+        /// 여러 장애물을 차례로 처리(폭발)할 순서: lastTurnPriority 높은 것부터 (예술 → 연계 → 폭탄),
+        /// 같으면 보드 읽는 순서 (위쪽 줄부터, 줄 안에서는 왼쪽부터).
+        /// </summary>
+        public static List<Obstacle> InExplosionOrder(IEnumerable<Obstacle> obstacles, Board board) =>
+            obstacles.OrderByDescending(o => o.Data.lastTurnPriority)
+                .ThenBy(o => board.ReadingOrderKey(o.Pos)).ToList();
     }
 }

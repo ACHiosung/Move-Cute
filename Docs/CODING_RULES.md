@@ -78,6 +78,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 `CardInstance`를 상속한 `[Serializable]` 클래스를 만들고, 카드 에셋의 `behavior` 드롭다운에서 고른다. 에셋은 그대로 `Create > MoveCute > Card > Basic`으로 만든다 (`[CreateAssetMenu]` 필요 없음). 참고용 예시: **`Cards/ExampleComplicateCard.cs`** (이중 충격파: 이동 없이 충격파 2번) + 에셋 `Assets/Data/Cards/Card_ExampleComplicate.asset`.
 - `Play` 재정의: 에너지 지불(`ctx.SpendEnergy(PlayCost(ctx))`) → `ctx.BeginCardPlay` → 카드가 하는 일 → `Finish(ctx)` 순서는 지킨다
 - 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
+- `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
 - public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
 - 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
 - 카드는 `new CardInstance`로 만들지 않고 `cardData.CreateCard()`로 만든다 (behavior 하위 클래스로 만들어진다)
@@ -152,7 +153,8 @@ protected override IntentData PlanIntent(BattleContext ctx)
 - `hitPerOtherObstacle`: 켜면 남은 다른 장애물 하나마다 한 번 더 (연계)
 - `multiplierPerOtherObstacle`: 남은 다른 장애물 하나마다 곱하는 값 (예술 1.5). 유물 보너스를 더한 뒤 곱하고, 소수점은 내림
 - "남은 다른 장애물"은 폭발 순간 보드에 있는 장애물이다. 자신과 앞서 터진 폭탄은 이미 빠져 있다
-- 폭탄 하나를 골라 바로 터뜨리는 효과는 `DetonateChosenBombEffect` (`Assets/Data/Cards/Card_Detonate.asset`: → 이동 후 폭탄 선택)
+- 거리는 이동 기준이다 (상하좌우 한 칸 = 1, 대각선 = 2, `Board.Distance`). 폭탄 관련 효과: `PlaceObstacleInRangeEffect` (거리 N 이내 빈 칸을 골라 설치, 취소하면 생략), `DetonateBombsInRangeEffect` (거리 N 이내 폭탄 모두 발동, 마지막 턴과 같은 순서 `Obstacle.InExplosionOrder`), `OnLastTurnEndEffect` (안의 효과를 이번 전투의 마지막 턴 종료 때 실행하도록 예약)
+- 폭탄 카드에는 분류 키워드 `Keyword_Bomb`(연계 폭탄 카드는 `Keyword_ChainBomb`도)을 붙인다. 동작은 없고 툴팁 설명과 "폭탄 카드" 조건에 쓴다
 
 1. Project 창 `Assets/Data/Obstacles`에서 우클릭 → `Create > MoveCute > Obstacle > Basic`. 파일 이름은 `Obstacle_<Id>`.
 2. 인스펙터 입력
@@ -169,7 +171,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
    ```
 4. 장애물은 `PlaceObstacleEffect`로 놓는다.
    - 적: 적 코드에서 `PlaceObstacleEffect`로 놓고, 적 Data 에셋의 장애물 필드에 이 에셋을 끌어다 놓는다 (묘지기의 `tombstone`)
-   - 카드: 이동하며 떠난 칸마다 남기려면 `behavior`에서 `ObstacleTrailCard`(`Cards/ObstacleTrailCard.cs`)를 고르고 `obstacle`에 에셋을 넣는다 (`Assets/Data/Cards/Card_Bomb.asset`: ←← 이동, 넘패드 9 → 7이면 9·8에 폭탄 / `Card_ChainBomb.asset`: ↓ 이동, 떠난 칸에 연계 폭탄). 고른 칸에 놓으려면 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다
+   - 카드: 이동하며 떠난 칸마다 남기려면 `behavior`에서 `ObstacleTrailCard`(`Cards/ObstacleTrailCard.cs`)를 고르고 `obstacle`에 에셋을 넣는다 (`Assets/Data/Cards/Card_CatchMe.asset` 나 잡아봐라: ← 이동 + 질주, 떠난 칸마다 폭탄). 이동 후 플레이어 주변에서 고른 칸에 놓으려면 `effects`에 `PlaceObstacleInRangeEffect`를 넣는다 (`Card_Bomb.asset`: → 후 거리 1 / `Card_ChainBomb.asset`: →↓ 후 거리 2). 이동 전에 아무 칸이나 고르게 하려면 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다
    - 이동 중 칸마다 무언가 하려면 `ctx.MovePlayerAlong(src, moves, onStep)`의 `onStep(떠난 칸, 도착한 칸)`을 쓴다
 
    장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다. 폭탄의 폭발은 대상 유닛이 없으면 무작위 적에게 피해를 준다.

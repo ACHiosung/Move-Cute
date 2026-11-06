@@ -17,19 +17,28 @@ MonoBehaviour:
   descKey: card.chainbomb.desc
   art: {fileID: 0}
   moves:
+  - 2
   - 3
   cost: 1
   type: 2
-  rarity: 0
+  rarity: 2
   target: 0
   keywords:
-  effects: []
-  behavior:
-    rid: 3200383199153488102
+  - rid: 3200383199153488310
+  - rid: 3200383199153488311
+  effects:
+  - rid: 3200383199153488312
   references:
     version: 2
     RefIds:
-    - rid: 3200383199153488102
-      type: {class: ObstacleTrailCard, ns: MoveCute, asm: Assembly-CSharp}
+    - rid: 3200383199153488310
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383199153488311
+      type: {class: Keyword_ChainBomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383199153488312
+      type: {class: PlaceObstacleInRangeEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
         obstacle: {fileID: 11400000, guid: 9da89b627f664d96a9cc16da7f6dfc96, type: 2}
+        distance: 2

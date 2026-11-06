@@ -142,6 +142,13 @@ namespace MoveCute
 
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
+
+        /// <summary>
+        /// 대상이 TargetType.OtherTile일 때 고를 수 있는 칸. 기본은 플레이어 칸을 뺀 모든 칸.
+        /// 특수 카드가 후보를 좁히려면 재정의한다 (예: Cards/AnyDirectionStepCard.cs — 인접한 빈 칸만).
+        /// </summary>
+        public virtual IEnumerable<Vector2Int> TargetTiles(BattleContext ctx) =>
+            ctx.Board.AllTiles().Select(t => t.Pos).Where(p => p != ctx.Player.Pos);
     }
 
     public class CardPiles

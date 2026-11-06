@@ -104,7 +104,7 @@ namespace MoveCute
                     return EffectTarget.OfTile(ctx.Player.Pos);
 
                 case TargetType.OtherTile:
-                    var tiles = ctx.Board.AllTiles().Select(t => t.Pos).Where(p => p != ctx.Player.Pos).ToList();
+                    var tiles = card.TargetTiles(ctx).ToList();
                     var pos = await ctx.ChooseTile(tiles, $"{card}: 타일 선택");
                     return pos.HasValue ? EffectTarget.OfTile(pos.Value) : null;
 
