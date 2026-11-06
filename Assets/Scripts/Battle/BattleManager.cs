@@ -95,9 +95,7 @@ namespace MoveCute
             switch (card.Data.target)
             {
                 case TargetType.Unit:
-                    var alive = ctx.Enemies.Where(e => e.Hp > 0).Cast<Unit>().ToList();
-                    if (alive.Count == 0) alive = ctx.Enemies.Cast<Unit>().ToList();
-                    var unit = await ctx.ChooseUnit(alive, $"{card}: 대상 선택");
+                    var unit = await ctx.ChooseUnit(card.TargetUnits(ctx).ToList(), $"{card}: 대상 선택");
                     return unit == null ? null : (EffectTarget?)EffectTarget.OfUnit(unit);
 
                 case TargetType.SelfTile:

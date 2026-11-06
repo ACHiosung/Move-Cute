@@ -15,7 +15,7 @@ card.chainbomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 �
 card.catchme.name,나 잡아봐라,Catch Me
 card.catchme.desc,이동 전의 위치에 폭탄을 설치합니다.,Plant a bomb on the tile you moved from.
 card.defuse.name,폭탄 해체,Bomb Defusal
-card.defuse.desc,거리 {distance}의 모든 폭탄을 발동합니다.,Detonate all bombs within {distance}.
+card.defuse.desc,"원하는 방향으로 한 칸 이동한 뒤, 이동한 칸에서 거리 {distance} 이내의 모든 폭탄을 터뜨립니다.","Move one tile in any direction, then detonate every bomb within {distance} of where you land."
 card.drone.name,자폭 드론,Suicide Drone
 card.drone.desc,마지막 턴 종료 시 빈 타일 하나에 연계 폭탄을 설치합니다.,"When the last turn ends, plant a chain bomb on an empty tile."
 # 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
