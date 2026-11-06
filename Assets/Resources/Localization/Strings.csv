@@ -47,6 +47,6 @@ card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
 card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd
 
 relic.ignore_first_lock_moves.name,잠금 앞 이동 생략,Lock Prefix Skip
-relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {moveCount}개 이동을 무시합니다. 최소 1개는 남습니다.,Ignore the first {moveCount} moves of locked card unlock sequences. At least one move remains.
+relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the first {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
 relic.ignore_last_lock_moves.name,잠금 뒤 이동 생략,Lock Suffix Skip
-relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 최소 1개는 남습니다.,Ignore the last {moveCount} moves of locked card unlock sequences. At least one move remains.
+relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the last {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.

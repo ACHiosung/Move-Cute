@@ -504,7 +504,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
   enemy: {fileID: 11400000, guid: 62603c5a72f95fb4bafa372b83847bdf, type: 2}
   relics:
-  - {fileID: 11400000, guid: f1a954dbb1cf4b06bcca3a3e738c3f62, type: 2}
+  - {fileID: 11400000, guid: 5f54a4952f1f4b9b9e08d434db264649, type: 2}
   seed: 0
   presenter: {fileID: 2936736277624037665}
   input: {fileID: 2936736277624037665}

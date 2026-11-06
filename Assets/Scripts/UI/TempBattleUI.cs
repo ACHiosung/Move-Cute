@@ -389,7 +389,7 @@ namespace MoveCute
             Paint(view, color);
             Label(view).text =
                 $"<color=#2f5fb3><b>{card.EffectiveCost}</b></color>  <b>{card.Data.DisplayName}</b>\n" +
-                $"<size=36>{string.Concat(card.Moves.Select(m => m.ToArrow()))}</size>\n" +
+                (card.IsUnlocked ? "" : $"<size=36>{CardMoveDisplay.FormatArrows(card, ctx)}</size>\n") +
                 $"<size=17>{card.Data.Description}</size>";
         }
 

@@ -200,8 +200,13 @@ namespace MoveCute
             detailArt.color = detailArt.sprite != null ? Color.white : new Color(0.37f, 0.57f, 0.76f);
             detailName.text = card.Data.DisplayName;
             detailMeta.text = $"{T(card.Data.type.ToString())} · {T(card.Data.rarity.ToString())}";
-            detailMoves.text = string.Concat(card.Moves.Select(x => x.ToArrow()));
+            detailMoves.supportRichText = true;
+            detailMoves.text = CardMoveDisplay.FormatArrows(card, MoveDisplayContext);
+            detailMoves.gameObject.SetActive(!card.IsUnlocked && card.Moves.Count > 0);
             detailDescription.text = card.Data.Description + "\n\n" + string.Join(" · ", card.Keywords.Select(k => T(k.ToString())));
+            CardMoveDisplay.GetRange(card, MoveDisplayContext, out _, out int moveCount);
+            if (card.IsLocked && moveCount < card.Moves.Count)
+                detailDescription.text += "\n" + T("IgnoredMovesDesc");
             keywordPanel.gameObject.SetActive(false);
         }
 
@@ -306,12 +311,15 @@ namespace MoveCute
             }
         }
 
+        BattleContext MoveDisplayContext => !rewardScreenActive && ctx != null && !ctx.IsOver ? ctx : null;
+
         void RefreshCardView(Button view, CardInstance card)
         {
             bool gray = !rewardScreenActive && (card.IsGrayed || card.IsLocked || ctx != null && ctx.Energy < card.PlayCost(ctx));
+            CardMoveDisplay.GetRange(card, MoveDisplayContext, out int start, out int count);
             CachedCard(view).Render(ArtFor(card), gray ? grayscaleMaterial : null,
-                gray ? Grayed : CardBase, card.Moves, directionIcons,
-                selectedCard == card || pickable != null && pickable.Contains(card));
+                gray ? Grayed : CardBase, CardMoveDisplay.VisibleMoves(card), directionIcons,
+                selectedCard == card || pickable != null && pickable.Contains(card), start, count);
         }
 
         void RefreshEnemy(Button button, Enemy enemy)
