@@ -209,7 +209,7 @@ namespace MoveCute
         {
             if (inspectedCard == null) return;
             var lines = inspectedCard.Keywords.Select(k => $"{T(k.ToString())}\n{T(k + "Desc")}").ToList();
-            if (inspectedCard.Data.Description.Contains(T("bomb"))) lines.Add(T("bombDesc"));
+            if (!inspectedCard.Has<Keyword_Bomb>() && inspectedCard.Data.Description.Contains(T("bomb"))) lines.Add(T("bombDesc"));
             keywordText.text = string.Join("\n\n", lines);
             keywordPanel.gameObject.SetActive(lines.Count > 0);
         }

@@ -95,16 +95,14 @@ namespace MoveCute
             switch (card.Data.target)
             {
                 case TargetType.Unit:
-                    var alive = ctx.Enemies.Where(e => e.Hp > 0).Cast<Unit>().ToList();
-                    if (alive.Count == 0) alive = ctx.Enemies.Cast<Unit>().ToList();
-                    var unit = await ctx.ChooseUnit(alive, $"{card}: 대상 선택");
+                    var unit = await ctx.ChooseUnit(card.TargetUnits(ctx).ToList(), $"{card}: 대상 선택");
                     return unit == null ? null : (EffectTarget?)EffectTarget.OfUnit(unit);
 
                 case TargetType.SelfTile:
                     return EffectTarget.OfTile(ctx.Player.Pos);
 
                 case TargetType.OtherTile:
-                    var tiles = ctx.Board.AllTiles().Select(t => t.Pos).Where(p => p != ctx.Player.Pos).ToList();
+                    var tiles = card.TargetTiles(ctx).ToList();
                     var pos = await ctx.ChooseTile(tiles, $"{card}: 타일 선택");
                     return pos.HasValue ? EffectTarget.OfTile(pos.Value) : null;
 

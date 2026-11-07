@@ -36,6 +36,9 @@ namespace MoveCute
 
         /// <summary>런 덱에 넣을 카드를 만든다. behavior를 골랐으면 그 하위 클래스로 만든다.</summary>
         public CardInstance CreateCard() => CardInstance.Create(this);
+
+        [Tooltip("target이 Unit일 때 고를 수 있는 종류. 기본은 전부 (적·장애물·폭탄). 하나만 고르면 그 종류만 지정")]
+        public UnitTargetKind targetKinds = UnitTargetKind.All;
     }
 
     /// <summary>
@@ -142,6 +145,29 @@ namespace MoveCute
 
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
+
+        /// <summary>
+        /// 대상이 TargetType.OtherTile일 때 고를 수 있는 칸. 기본은 플레이어 칸을 뺀 모든 칸.
+        /// 특수 카드가 후보를 좁히려면 재정의한다 (예: Cards/AnyDirectionStepCard.cs — 인접한 빈 칸만).
+        /// </summary>
+        public virtual IEnumerable<Vector2Int> TargetTiles(BattleContext ctx) =>
+            ctx.Board.AllTiles().Select(t => t.Pos).Where(p => p != ctx.Player.Pos);
+
+        /// <summary>
+        /// 대상이 TargetType.Unit일 때 고를 수 있는 유닛. Data.targetKinds에 맞춰 적·장애물·폭탄을 모은다.
+        /// 적은 사기가 남은 적만 (모두 0이면 전부). 특수 카드가 후보를 바꾸려면 재정의한다.
+        /// </summary>
+        public virtual IEnumerable<Unit> TargetUnits(BattleContext ctx)
+        {
+            var kinds = Data.targetKinds;
+            if ((kinds & UnitTargetKind.Enemy) != 0)
+            {
+                var alive = ctx.Enemies.Where(e => e.Hp > 0).ToList();
+                foreach (var e in alive.Count > 0 ? alive : ctx.Enemies.ToList()) yield return e;
+            }
+            foreach (var o in ctx.Obstacles.ToList())
+                if ((kinds & (o.Data.isBomb ? UnitTargetKind.Bomb : UnitTargetKind.Obstacle)) != 0) yield return o;
+        }
     }
 
     public class CardPiles

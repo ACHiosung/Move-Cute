@@ -45,6 +45,18 @@ namespace MoveCute
                 if (t.Passable && t.Pos != exclude) list.Add(t.Pos);
             return list.Count == 0 ? null : rng.Pick(list);
         }
+
+        /// <summary>이동 기준 거리: 상하좌우 한 칸 = 1, 대각선 = 2 (맨해튼 거리). 카드의 "거리 N 이내"에 쓴다.</summary>
+        public static int Distance(Vector2Int a, Vector2Int b) => Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+
+        /// <summary>center에서 거리 distance 이내의 빈 칸 (장애물 없음, center 제외).</summary>
+        public List<Vector2Int> EmptyTilesWithin(Vector2Int center, int distance)
+        {
+            var list = new List<Vector2Int>();
+            foreach (var t in tiles)
+                if (t.Passable && t.Pos != center && Distance(t.Pos, center) <= distance) list.Add(t.Pos);
+            return list;
+        }
     }
 
     public class Tile

@@ -9,18 +9,29 @@ card.retreat.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage t
 card.dash.name,돌진,Dash
 card.dash.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
 card.bomb.name,폭탄 설치,Plant Bomb
-card.bomb.desc,"이동하면서 떠난 칸마다 폭탄을 설치합니다. 폭탄은 부서지거나, 마지막 턴이 끝날 때 남아 있으면 적에게 피해를 줍니다.","Plant a bomb on each tile you leave while moving. A bomb damages an enemy when destroyed, or if it is still there when the last turn ends."
-card.chainbomb.name,연계 폭탄 설치,Plant Chain Bomb
-card.chainbomb.desc,"이동하면서 떠난 칸에 연계 폭탄을 설치합니다. 연계 폭탄은 다른 폭탄보다 먼저 터지고, 터질 때 남아 있는 다른 장애물 하나마다 피해를 한 번 더 줍니다.","Plant a chain bomb on the tile you leave while moving. Chain bombs explode before other bombs, and deal damage once more for each other obstacle still on the board."
+card.bomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a bomb.
+card.chainbomb.name,연계 폭탄,Chain Bomb
+card.chainbomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 연계 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a chain bomb.
+card.catchme.name,나 잡아봐라,Catch Me
+card.catchme.desc,이동 전의 위치에 폭탄을 설치합니다.,Plant a bomb on the tile you moved from.
+card.defuse.name,폭탄 해체,Bomb Defusal
+card.defuse.desc,"원하는 방향으로 한 칸 이동한 뒤, 이동한 칸에서 거리 {distance} 이내의 모든 폭탄을 터뜨립니다.","Move one tile in any direction, then detonate every bomb within {distance} of where you land."
+card.drone.name,자폭 드론,Suicide Drone
+card.drone.desc,마지막 턴 종료 시 빈 타일 하나에 연계 폭탄을 설치합니다.,"When the last turn ends, plant a chain bomb on an empty tile."
 # 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
 relic.pedometer.name,만보기,Pedometer
 relic.pedometer.desc,한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다. (턴당 1번),"After moving {steps} tiles in a turn, draw {count} card. (Once per turn)"
+relic.bombdamage.name,화약 강화,Gunpowder
+relic.bombdamage.desc,모든 폭탄의 기본 피해량이 {bonus} 증가합니다.,All bombs deal {bonus} more base damage.
+relic.lastturnchainbomb.name,마지막 선물,Parting Gift
+relic.lastturnchainbomb.desc,마지막 턴이 끝날 때 비어 있는 칸 하나에 연계 폭탄을 설치합니다.,"When the last turn ends, plant a chain bomb on a random empty tile."
 # 적: enemy.<id>.name,,
 enemy.gravekeeper.name,묘지기,Gravekeeper
 # 장애물: obstacle.<id>.name,,
 obstacle.tombstone.name,묘비,Tombstone
 obstacle.bomb.name,폭탄,Bomb
 obstacle.chainbomb.name,연계 폭탄,Chain Bomb
+obstacle.artbomb.name,예술 폭탄,Art Bomb
 card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
 card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd
 ﻿key,ko,en

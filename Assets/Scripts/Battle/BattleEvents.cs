@@ -14,6 +14,7 @@ namespace MoveCute
         public readonly BattleEvent BattleStart = new();
         public readonly BattleEvent TurnStart = new();
         public readonly BattleEvent TurnEnd = new();
+        public readonly BattleEvent LastTurnEnd = new();                            // 마지막 턴 종료, 장애물(폭탄) 처리 직전
         public readonly BattleEvent<CardInstance> CardPlayed = new();
         public readonly BattleEvent<CardInstance, int> CardReused = new();
         public readonly BattleEvent<Vector2Int, Vector2Int> PlayerMoved = new();   // from, to

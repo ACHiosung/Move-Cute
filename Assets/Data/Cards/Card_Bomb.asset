@@ -17,20 +17,23 @@ MonoBehaviour:
   descKey: card.bomb.desc
   art: {fileID: 0}
   moves:
-  - 0
-  - 0
+  - 2
   cost: 1
   type: 2
-  rarity: 0
+  rarity: 1
   target: 0
   keywords:
-  effects: []
-  behavior:
-    rid: 3200383199153488101
+  - rid: 3200383199153488300
+  effects:
+  - rid: 3200383199153488301
   references:
     version: 2
     RefIds:
-    - rid: 3200383199153488101
-      type: {class: ObstacleTrailCard, ns: MoveCute, asm: Assembly-CSharp}
+    - rid: 3200383199153488300
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383199153488301
+      type: {class: PlaceObstacleInRangeEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
         obstacle: {fileID: 11400000, guid: 0799057331efbe34e94ea0ca7e1989ab, type: 2}
+        distance: 1
