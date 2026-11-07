@@ -16,7 +16,7 @@ MonoBehaviour:
   nameKey: card.unlock.name
   descKey: card.unlock.desc
   art: {fileID: -5295901987261241684, guid: 79de1d174c292404986104c964509346, type: 3}
-  moves:
+  moves: 
   cost: 1
   type: 1
   rarity: 0
@@ -27,6 +27,7 @@ MonoBehaviour:
   - rid: 1274502351513976838
   behavior:
     rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:

@@ -18,7 +18,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   trigger: 0
   effects: []
-  moveCount: 5
+  moveCount: 1
   references:
     version: 2
     RefIds: []
