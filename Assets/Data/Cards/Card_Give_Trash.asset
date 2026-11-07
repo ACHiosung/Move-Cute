@@ -24,7 +24,7 @@ MonoBehaviour:
   keywords:
   - rid: 2383758898733252724
   effects:
-  - rid: 2383758898733252755
+  - rid: 2383758971316207794
   behavior:
     rid: -2
   references:
@@ -35,12 +35,11 @@ MonoBehaviour:
     - rid: 2383758898733252724
       type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
       data: 
-    - rid: 2383758898733252755
-      type: {class: RandomAddCardKeyword, ns: MoveCute, asm: Assembly-CSharp}
+    - rid: 2383758971316207794
+      type: {class: AllHandAddCardKeyword, ns: MoveCute, asm: Assembly-CSharp}
       data:
         keyword:
-          rid: 2383758898733252834
-        count: 3
-    - rid: 2383758898733252834
+          rid: 2383758971316207795
+    - rid: 2383758971316207795
       type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
       data: 

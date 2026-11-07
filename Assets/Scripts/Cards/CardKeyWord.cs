@@ -15,9 +15,8 @@ namespace MoveCute
     [Serializable]
     public class Keyword_Dash : CardKeyword
     {
-        [Tooltip("최초 사용을 제외한 추가 재사용 상한. 5이면 총 최대 6회 발동")]
-        [Min(0)]
-        public int maxReuseCount = 5;
+        [Tooltip("최초 사용을 제외한 추가 재사용 상한. 5이면 총 최대 6회 발동. 전투 수치를 고르면 카드를 낼 때의 값")]
+        public BattleInt maxReuseCount = 5;
     }
     [Serializable]
     public class Keyword_Delete : CardKeyword { }

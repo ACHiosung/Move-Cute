@@ -95,8 +95,9 @@ namespace MoveCute
             if (obj == null) return false;
             if (i == path.Length)
             {
+                if (obj is ILocValue loc) obj = loc.LocValue;
                 value = obj;
-                return obj.GetType().IsPrimitive || obj.GetType().IsEnum || obj is string;
+                return obj != null && (obj.GetType().IsPrimitive || obj.GetType().IsEnum || obj is string);
             }
             if (obj is IEnumerable items && obj is not string)
             {
@@ -194,5 +195,11 @@ namespace MoveCute
         {
             if (warned.Add(id)) Debug.LogWarning(message);
         }
+    }
+
+    /// <summary>설명문 {이름} 자리에 필드 자체 대신 넣을 값을 정하는 타입 (예: BattleInt → 고정 값). null이면 값 없음으로 본다.</summary>
+    public interface ILocValue
+    {
+        object LocValue { get; }
     }
 }

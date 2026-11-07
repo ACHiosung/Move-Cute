@@ -21,7 +21,8 @@ MonoBehaviour:
   type: 0
   rarity: 0
   target: 0
-  keywords: []
+  keywords:
+  - rid: 2383758898733252786
   effects:
   - rid: 2383758898733252785
   behavior:
@@ -32,5 +33,12 @@ MonoBehaviour:
     - rid: -2
       type: {class: , ns: , asm: }
     - rid: 2383758898733252785
-      type: {class: TrashDamageEffect, ns: MoveCute, asm: Assembly-CSharp}
-      data: 
+      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        damage: 2
+    - rid: 2383758898733252786
+      type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        maxReuseCount:
+          source: 1
+          value: 0

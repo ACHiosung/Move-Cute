@@ -151,7 +151,7 @@ namespace MoveCute
             try
             {
                 var playCount = 1;
-                if (card.Has<Keyword_Dash>()) playCount += card.GetKeyword<Keyword_Dash>().maxReuseCount;
+                if (card.Has<Keyword_Dash>()) playCount += Mathf.Max(0, card.GetKeyword<Keyword_Dash>().maxReuseCount.Get(this));
                 for (int i = 0; i < playCount; i++)
                 {
                     await Presenter.CardPlayed(card, CanFullyMove(card));

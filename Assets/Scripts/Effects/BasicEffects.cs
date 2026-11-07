@@ -134,4 +134,20 @@ namespace MoveCute
             }
         }
     }
+
+    /// <summary>패에 있는 모든 카드에 키워드 부여. 이미 같은 키워드가 있는 카드는 건너뛴다.</summary>
+    [Serializable]
+    public class AllHandAddCardKeyword : Effect
+    {
+        [SerializeReference, SubclassPicker]
+        public CardKeyword keyword;
+
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            if (keyword == null) return;
+            // 부여 도중 패가 바뀌어도 순회가 깨지지 않게 복사본으로 돈다
+            foreach (var card in ctx.Piles.Hand.ToList())
+                await ctx.AddKeyword(card, keyword);   // AddKeyword가 중복 검사와 복제를 맡는다
+        }
+    }
 }
