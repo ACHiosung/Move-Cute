@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -105,6 +106,48 @@ namespace MoveCute
                 if (card == null) return;
                 await ctx.DiscardCard(card);
             }
+        }
+    }
+    [Serializable]
+    public class RandomAddCardKeyword : Effect
+    {
+        [SerializeReference, SubclassPicker]
+        public CardKeyword keyword;
+        public int count = 3;
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            //ctx.Piles.Hand에서 count만큼 무작위 카드 선택
+            var temp = ctx.Piles.Hand.ToList();
+            int keywordCount = 0;
+            for (int i = 0; i < temp.Count; i++)
+            {
+                if (temp[i].Has(keyword)) keywordCount++;
+            }
+            for (int i = 0; i < count; )
+            {
+                if (temp.Count == 0 || keywordCount >= temp.Count) break;
+                var card = temp[UnityEngine.Random.Range(0, temp.Count)];
+                if (card.Has(keyword)) continue;
+                await ctx.AddKeyword(card, keyword.Clone());
+                temp.Remove(card);
+                i++;
+            }
+        }
+    }
+
+    /// <summary>패에 있는 모든 카드에 키워드 부여. 이미 같은 키워드가 있는 카드는 건너뛴다.</summary>
+    [Serializable]
+    public class AllHandAddCardKeyword : Effect
+    {
+        [SerializeReference, SubclassPicker]
+        public CardKeyword keyword;
+
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            if (keyword == null) return;
+            // 부여 도중 패가 바뀌어도 순회가 깨지지 않게 복사본으로 돈다
+            foreach (var card in ctx.Piles.Hand.ToList())
+                await ctx.AddKeyword(card, keyword);   // AddKeyword가 중복 검사와 복제를 맡는다
         }
     }
 }

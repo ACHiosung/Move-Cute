@@ -37,7 +37,9 @@ MonoBehaviour:
     - rid: 3200383199153488321
       type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        maxReuseCount: 5
+        maxReuseCount:
+          source: 0
+          value: 5
     - rid: 3200383199153488322
       type: {class: ObstacleTrailCard, ns: MoveCute, asm: Assembly-CSharp}
       data:
