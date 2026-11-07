@@ -19,7 +19,8 @@ namespace MoveCute
         public override IEnumerable<Vector2Int> TargetTiles(BattleContext ctx) =>
             Directions.Select(d => ctx.Player.Pos + d.ToOffset()).Where(ctx.Board.IsPassable);
 
-        public override bool CanPlayFully(BattleContext ctx) => TargetTiles(ctx).Any();
+        // 잠금 카드는 흑백. 해금 상태면 MovePlayerAlong이 이동을 건너뛰어 지금 칸에서 효과만 발동한다
+        public override bool CanPlayFully(BattleContext ctx) => !IsLocked && TargetTiles(ctx).Any();
 
         public override async Awaitable Play(BattleContext ctx, EffectTarget target)
         {

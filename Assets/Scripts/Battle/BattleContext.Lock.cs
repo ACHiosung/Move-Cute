@@ -79,8 +79,9 @@ namespace MoveCute
             start = 0;
             count = card.Moves.Count;
             if (!card.IsLocked || count == 0) return;
-            long first = Run.Relics.OfType<IgnoreFirstLockMovesRelic>().Sum(r => (long)r.MoveCount);
-            long last = Run.Relics.OfType<IgnoreLastLockMovesRelic>().Sum(r => (long)r.MoveCount);
+            // 꺼진 유물(Relic.Enabled, TempRelicBar)은 읽는 쪽에서 뺀다
+            long first = Run.Relics.OfType<IgnoreFirstLockMovesRelic>().Where(r => r.Enabled).Sum(r => (long)r.MoveCount);
+            long last = Run.Relics.OfType<IgnoreLastLockMovesRelic>().Where(r => r.Enabled).Sum(r => (long)r.MoveCount);
             start = (int)System.Math.Min(first, card.Moves.Count);
             int endSkip = (int)System.Math.Min(last, card.Moves.Count - start);
             count = card.Moves.Count - start - endSkip;
@@ -100,9 +101,9 @@ namespace MoveCute
         {
             if (!card.IsLocked) return false;
             // 원래 이동이 없는 카드의 기존 동작은 유물의 유효한 생략 효과가 있을 때만 바꾼다.
-            bool hasReduction = Run.Relics.Any(r =>
+            bool hasReduction = Run.Relics.Any(r => r.Enabled && (
                 r is IgnoreFirstLockMovesRelic first && first.MoveCount > 0 ||
-                r is IgnoreLastLockMovesRelic last && last.MoveCount > 0);
+                r is IgnoreLastLockMovesRelic last && last.MoveCount > 0));
             if (!hasReduction) return false;
             GetLockMoveRange(card, out _, out int count);
             return count == 0;
