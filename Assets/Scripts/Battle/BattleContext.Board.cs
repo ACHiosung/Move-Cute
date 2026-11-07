@@ -12,12 +12,14 @@ namespace MoveCute
         public async Awaitable<bool> MovePlayer(EffectSource src, Direction dir)
         {
             if (IsOver) return false;
+            if (src.Owner is CardInstance card && card.IsUnlocked) return false;
             var next = Player.Pos + dir.ToOffset();
             if (!Board.IsPassable(next)) return false;
 
             var from = Player.Pos;
             Player.Pos = next;
             await Presenter.PlayerStepped(from, next);
+            await TrackLockMovement(dir);
             await Events.PlayerMoved.Raise(from, next);
             await TriggerTile(next, TileTrigger.Pass);
             return true;
@@ -37,6 +39,7 @@ namespace MoveCute
         public async Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves,
                                                Func<Vector2Int, Vector2Int, Awaitable> onStep)
         {
+            if (src.Owner is CardInstance card && card.IsUnlocked) return;
             bool moved = false;
             foreach (var dir in moves.ToList())
             {
@@ -54,6 +57,8 @@ namespace MoveCute
         /// </summary>
         public bool CanFullyMove(CardInstance card)
         {
+            if (card.IsLocked) return false;
+            if (card.IsUnlocked) return true;
             var pos = Player.Pos;
             foreach (var dir in card.Moves)
             {

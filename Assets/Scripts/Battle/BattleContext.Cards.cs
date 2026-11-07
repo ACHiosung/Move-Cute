@@ -37,8 +37,14 @@ namespace MoveCute
 
         public async Awaitable AddKeyword(CardInstance card, CardKeyword kw)
         {
-            if (IsOver || kw == null || card.Has(kw)) return;
+            if (kw is Keyword_Lock lockKeyword)
+            {
+                await SetLockState(card, lockKeyword.isUnlocked, lockKeyword.autoLock);
+                return;
+            }
+            if (IsOver || card == null || kw == null || card.Has(kw)) return;
             card.Keywords.Add(kw.Clone());   // 효과 에셋이 들고 있는 객체를 카드와 공유하지 않게
+            card.IsGrayed = card.IsLocked || !card.CanPlayFully(this);
             await Presenter.CardChanged(card);
         }
 

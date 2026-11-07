@@ -26,7 +26,16 @@ namespace MoveCute
     [Serializable]
     public class Keyword_Retain : CardKeyword { }
     [Serializable]
-    public class Keyword_Lock : CardKeyword { }
+    public class Keyword_Lock : CardKeyword
+    {
+        [Tooltip("false = 잠금, true = 해금")]
+        public bool isUnlocked;
+
+        [Tooltip("사용 완료 후 다시 잠급니다")]
+        public bool autoLock;
+
+        public override string ToString() => isUnlocked ? "Unlock" : "Lock";
+    }
 
     // 분류 키워드: 동작은 없고, 툴팁 설명과 "폭탄 카드" 같은 조건(유물 등)에 쓴다
     [Serializable]

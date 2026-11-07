@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_LockTest
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: lock
+  nameKey: card.lock.name
+  descKey: card.lock.desc
+  art: {fileID: -5295901987261241684, guid: 79de1d174c292404986104c964509346, type: 3}
+  moves: 02000000i
+  cost: 1
+  type: 1
+  rarity: 0
+  target: 1
+  keywords:
+  - rid: 1274502280535080960
+  effects: []
+  behavior:
+    rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1274502280535080960
+      type: {class: Keyword_Lock, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        isUnlocked: 0
+        autoLock: 0

@@ -74,7 +74,8 @@ namespace MoveCute
         void Cancel() => cancelled?.Invoke();
 
         public void Render(Sprite sprite, Material material, Color background,
-            IReadOnlyList<Direction> moves, Sprite[] directions, bool selected)
+            IReadOnlyList<Direction> moves, Sprite[] directions, bool selected,
+            int activeMoveStart = 0, int activeMoveCount = int.MaxValue)
         {
             Initialize();
             if (button.image.color != background) button.image.color = background;
@@ -114,6 +115,11 @@ namespace MoveCute
                     image.rectTransform.anchoredPosition = new Vector2(4 + i * size, -4);
                 }
             }
+            // 이동 배열이 같아도 유물·잠금 상태는 달라질 수 있다. 풀에서 재사용할 때 색도 복구한다.
+            directionRoot.gameObject.SetActive(moves.Count > 0);
+            for (int i = 0; i < moves.Count; i++)
+                icons[i].color = i >= activeMoveStart && i - activeMoveStart < activeMoveCount
+                    ? Color.white : CardMoveDisplay.IgnoredColor;
             SetTarget(selected);
         }
 

@@ -110,13 +110,16 @@ namespace MoveCute
             }
             return null;
         }
-        public int EffectiveCost => Has<Keyword_Free>() ? 0 : Cost;
+        public bool IsLocked => GetKeyword<Keyword_Lock>() is { isUnlocked: false };
+        public bool IsUnlocked => GetKeyword<Keyword_Lock>() is { isUnlocked: true };
+        public bool AutoLock => GetKeyword<Keyword_Lock>()?.autoLock == true;
+        public int EffectiveCost => Has<Keyword_Free>() || IsUnlocked ? 0 : Cost;
 
         /// <summary>
         /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능한지.
         /// 이동을 쓰지 않는 특수 카드는 재정의한다.
         /// </summary>
-        public virtual bool CanPlayFully(BattleContext ctx) => ctx.CanFullyMove(this);
+        public virtual bool CanPlayFully(BattleContext ctx) => !IsLocked && ctx.CanFullyMove(this);
 
         /// <summary>지금 낼 때 드는 에너지.</summary>
         public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;
@@ -135,7 +138,6 @@ namespace MoveCute
             await ctx.MovePlayerAlong(src, Moves);//이동 시도, 실패하면 중간에서 멈춤
             if (full) await Data.effects.ExecuteAll(ctx, src, target);//효과 발동
 
-            // TODO(카드/덱): 질주 재사용, 잠금 이동 큐 등 키워드 처리
             await Finish(ctx);
         }
 

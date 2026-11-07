@@ -58,6 +58,7 @@ RetainDesc|턴 종료 시 손패에 남습니다.|Remains in hand at the end of 
 DashDesc|가능하다면 반복 사용하는 카드입니다.|Replays when possible.
 LockDesc|이동 조건을 충족하면 해금되는 카드입니다.|Unlocks after matching its movement sequence.
 UnlockDesc|이동과 에너지 소모 없이 사용합니다.|Plays without movement or energy cost.
+IgnoredMovesDesc|어두운 이동은 해금 조건에서 제외됩니다.|Darkened moves are excluded from the unlock sequence.
 AutoLockDesc|사용 후 잠금이 부여됩니다.|Locks after use.
 DeleteDesc|사용 후 휴지통으로 이동합니다.|Moves to trash after use.
 FreeDesc|사용 시 에너지를 소모하지 않습니다.|Costs no energy to play.
