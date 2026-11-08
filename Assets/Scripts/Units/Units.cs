@@ -13,7 +13,7 @@ namespace MoveCute
         public override string ToString() => DisplayName;
     }
 
-    /// <summary>상태이상 (죄책감 등). 세부 동작은 담당자가 확장.</summary>
+    /// <summary>상태이상 (주저 등). 세부 동작은 담당자가 확장.</summary>
     public class Status
     {
         public string Id;
@@ -29,5 +29,12 @@ namespace MoveCute
         public int MaxHp;
 
         public override string DisplayName => "Player";
+    }
+
+    /// <summary>상태이상 ID. 문자열을 직접 쓰지 말고 이 상수를 쓴다.</summary>
+    public static class StatusIds
+    {
+        /// <summary>주저 (디버프): 받는 피해 증가. 계산은 BattleContext.TakenDamageMultiplier.</summary>
+        public const string Hesitation = "Hesitation";
     }
 }

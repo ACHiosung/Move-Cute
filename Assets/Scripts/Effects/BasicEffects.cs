@@ -82,7 +82,7 @@ namespace MoveCute
     [Serializable]
     public class AddStatusEffect : Effect
     {
-        public string statusId = "Guilt";
+        public string statusId = StatusIds.Hesitation;
         public int stacks = 1;
 
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)

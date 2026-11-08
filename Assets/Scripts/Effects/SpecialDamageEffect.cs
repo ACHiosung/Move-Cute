@@ -11,7 +11,7 @@ namespace MoveCute
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
         {
             var unit = target.Unit ?? ctx.GetRandomEnemy();
-            if (unit != null) await ctx.DealDamage(src, unit, (int)(ctx.Piles.Trash.Count * scale));
+            if (unit != null) await ctx.DealDamage(src, unit, new Damage(ctx.Piles.Trash.Count).Multiply((decimal)scale));
         }
     }
 }
