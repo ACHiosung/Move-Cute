@@ -7,7 +7,7 @@ card.jump.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to a
 card.retreat.name,후퇴,Retreat
 card.retreat.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
 card.dash.name,돌진,Dash
-card.dash.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.dash.desc,적에게 피해를 {damage} 줍니다. 최초 사용 후 최대 {maxReuseCount}번 재사용합니다.,Deal {damage} damage to an enemy. Reuse up to {maxReuseCount} times after the initial use.
 card.bomb.name,폭탄 설치,Plant Bomb
 card.bomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a bomb.
 card.chainbomb.name,연계 폭탄,Chain Bomb
@@ -25,6 +25,12 @@ relic.bombdamage.name,화약 강화,Gunpowder
 relic.bombdamage.desc,모든 폭탄의 기본 피해량이 {bonus} 증가합니다.,All bombs deal {bonus} more base damage.
 relic.lastturnchainbomb.name,마지막 선물,Parting Gift
 relic.lastturnchainbomb.desc,마지막 턴이 끝날 때 비어 있는 칸 하나에 연계 폭탄을 설치합니다.,"When the last turn ends, plant a chain bomb on a random empty tile."
+relic.reuse_damage.name,재사용,Reuse
+relic.reuse_damage.desc,카드가 재사용될 때마다 적에게 피해를 {damage} 줍니다.,"After reusing card, deal {damage} to an enemy."
+relic.ignore_first_lock_moves.name,잠금 앞 이동 생략,Lock Prefix Skip
+relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the first {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
+relic.ignore_last_lock_moves.name,잠금 뒤 이동 생략,Lock Suffix Skip
+relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the last {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
 # 적: enemy.<id>.name,,
 enemy.gravekeeper.name,묘지기,Gravekeeper
 # 장애물: obstacle.<id>.name,,
@@ -34,37 +40,10 @@ obstacle.chainbomb.name,연계 폭탄,Chain Bomb
 obstacle.artbomb.name,예술 폭탄,Art Bomb
 card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
 card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd
-﻿key,ko,en
-# 카드: card.<id>.name / card.<id>.desc — {이름}은 카드 효과의 같은 이름 필드 값으로 바뀐다,,
-card.sit.name,앉기,Sit
-card.sit.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
-card.jump.name,점프,Jump
-card.jump.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
-card.retreat.name,후퇴,Retreat
-card.retreat.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
-card.dash.name,돌진,Dash
-card.dash.desc,적에게 피해를 {damage} 줍니다. 최초 사용 후 최대 {maxReuseCount}번 재사용합니다.,Deal {damage} damage to an enemy. Reuse up to {maxReuseCount} times after the initial use.
-# 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
-relic.pedometer.name,만보기,Pedometer
-relic.pedometer.desc,한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다. (턴당 1번),"After moving {steps} tiles in a turn, draw {count} card. (Once per turn)"
-relic.reuse_damage.name,재사용,Reuse
-relic.reuse_damage.desc,카드가 재사용될 때마다 적에게 피해를 {damage} 줍니다.,"After reusing card, deal {damage} to an enemy."
-# 적: enemy.<id>.name,,
-enemy.gravekeeper.name,묘지기,Gravekeeper
-# 장애물: obstacle.<id>.name,,
-obstacle.tombstone.name,묘비,Tombstone
-obstacle.bomb.name,폭탄,Bomb
-card.examplecomplicate.name,예시로 만든 복잡한 카드,examplecomplicate
-card.examplecomplicate.desc,{shockwave.range} 거리 범위에 있는 장애물에 {shockwave.damage}의 데미지를 입힙니다.,godd
 card.givetrash.name,압축,zip
 card.givetrash.desc,패에 있는 카드에 [삭제 키워드]를 부여합니다,Assign [delete keyword] to the cards in the hand
 card.trashattack.name,쓰레기 투척,Trash Throw
 card.trashattack.desc,적에게 피해를 {damage} 줍니다. 휴지통에 있는 카드 수만큼 재사용합니다.,Deal {damage} damage to an enemy. Reuse once for each card in the trash.
-
-relic.ignore_first_lock_moves.name,잠금 앞 이동 생략,Lock Prefix Skip
-relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the first {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
-relic.ignore_last_lock_moves.name,잠금 뒤 이동 생략,Lock Suffix Skip
-relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the last {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
 # 주저·폭탄 카드 (서재호),,
 card.crouch.name,웅크리기,Crouch
 card.crouch.desc,적에게 주저를 {hesitation} 부여합니다.,Apply {hesitation} Hesitation to an enemy.
