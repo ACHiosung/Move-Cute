@@ -88,7 +88,9 @@ namespace MoveCute
             if (TryPick(pos)) return;
             if (teleportMode && M.CanInput && ctx.Board.IsPassable(pos) && pos != ctx.Player.Pos)
             {
-                teleportMode = false;
+                // 순간이동을 쓰면 중립 상태로: 후보 테두리·안내 문구·미리보기를 먼저 지운다 (실패해도 남지 않게)
+                ClearSelection();
+                RefreshTargets();
                 ctx.Teleport(pos).Forget();
                 return;
             }
@@ -206,6 +208,7 @@ namespace MoveCute
             foreach (var card in cards.Keys) RefreshCard(card);
             foreach (var entry in enemyViews) RefreshEnemy(entry.Value, entry.Key);
             ClearSelection();
+            RefreshTargets();   // ClearSelection은 타일 테두리를 지우지 않으므로 행동이 끝날 때마다 다시 그린다
             if (tiles.TryGetValue(ctx.Player.Pos, out var t)) playerMarker.position = t.transform.position;
             return AwaitableUtil.Completed();
         }
