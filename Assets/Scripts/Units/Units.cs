@@ -20,7 +20,8 @@ namespace MoveCute
         public int Stacks;
 
         public Status(string id, int stacks) { Id = id; Stacks = stacks; }
-        public override string ToString() => $"{Id}({Stacks})";
+        /// <summary>표시용. 다국어 표의 status.&lt;id 소문자&gt;.name이 있으면 그 이름, 없으면 Id.</summary>
+        public override string ToString() => $"{Loc.Get($"status.{Id.ToLowerInvariant()}.name", Id)}({Stacks})";
     }
 
     public class PlayerUnit : Unit
@@ -36,5 +37,11 @@ namespace MoveCute
     {
         /// <summary>주저 (디버프): 받는 피해 증가. 계산은 BattleContext.TakenDamageMultiplier.</summary>
         public const string Hesitation = "Hesitation";
+
+        /// <summary>MOVE CUTE 카드 버프 (플레이어): 수치만큼 더 이동하면 적에게 주저 부여 후 다시 채운다. 카드마다 따로 쌓인다.</summary>
+        public const string MoveCute = "MoveCute";
+
+        /// <summary>의욕 상실 카드 버프 (플레이어): 적에게 주저를 부여할 때마다 부여량 × 수치만큼 피해.</summary>
+        public const string Demotivation = "Demotivation";
     }
 }

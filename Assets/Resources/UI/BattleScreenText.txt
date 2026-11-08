@@ -68,3 +68,7 @@ Bomb|폭탄|Bomb
 BombDesc|HP가 0이 되거나 마지막 턴 종료 시 파괴되며 적에게 피해를 줍니다.|Explodes at zero HP or at the end of the final turn and damages an enemy.
 ChainBomb|연계 폭탄|Chain Bomb
 ChainBombDesc|다른 폭탄보다 먼저 터지고, 터질 때 남아 있는 다른 장애물 하나마다 피해를 한 번 더 줍니다.|Explodes before other bombs, and deals damage once more for each other obstacle still on the board.
+Hesitation|주저|Hesitation
+HesitationDesc|받는 피해가 20% 증가합니다. 수치가 남은 턴 수보다 크면 그 차이마다 5% 더 증가합니다. 턴이 지나도 줄어들지 않습니다.|Takes 20% more damage. If the stacks exceed the remaining turns, +5% more per extra stack. Does not decrease over turns.
+GunpowderKeg|화약통|Gunpowder Keg
+GunpowderKegDesc|장애물. 보드에 있는 동안 발동하는 폭탄의 기본 피해가 1 증가합니다.|Obstacle. While on the board, bombs that go off deal 1 more base damage.

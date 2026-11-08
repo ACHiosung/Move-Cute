@@ -65,3 +65,25 @@ relic.ignore_first_lock_moves.name,잠금 앞 이동 생략,Lock Prefix Skip
 relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the first {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
 relic.ignore_last_lock_moves.name,잠금 뒤 이동 생략,Lock Suffix Skip
 relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the last {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
+# 주저·폭탄 카드 (서재호),,
+card.crouch.name,웅크리기,Crouch
+card.crouch.desc,적에게 주저를 {hesitation} 부여합니다.,Apply {hesitation} Hesitation to an enemy.
+card.ptsd.name,PTSD,PTSD
+card.ptsd.desc,적에게 주저를 {hesitation} 부여합니다. 존재하는 폭탄마다 부여량이 {perBomb} 증가합니다.,Apply {hesitation} Hesitation to an enemy. Applies {perBomb} more for each bomb on the board.
+card.reinforce.name,화력 보강,Reinforce Firepower
+card.reinforce.desc,무작위 빈 타일에 화약통을 설치합니다.,Place a Gunpowder Keg on a random empty tile.
+card.detonate.name,기폭,Detonate
+card.detonate.desc,폭탄 하나를 선택해 발동합니다.,Choose a bomb and detonate it.
+card.charm.name,애교부리기,Charm
+card.charm.desc,적에게 주저를 {hesitation} 부여합니다.,Apply {hesitation} Hesitation to an enemy.
+card.plead.name,애원,Plead
+card.plead.desc,피해를 {damage} 줍니다. 대상이 보유한 주저마다 피해량이 {perHesitation} 증가합니다.,Deal {damage} damage. Deals {perHesitation} more for each Hesitation on the target.
+card.movecute.name,MOVE CUTE,MOVE CUTE
+card.movecute.desc,이번 전투 동안 {steps}칸 이동할 때마다 적에게 주저를 {hesitation} 부여합니다.,"This battle, every {steps} tiles you move, apply {hesitation} Hesitation to an enemy."
+card.demotivate.name,의욕 상실,Demotivate
+card.demotivate.desc,이번 전투 동안 적에게 주저를 부여할 때마다 부여량만큼의 피해를 줍니다.,"This battle, whenever you apply Hesitation to an enemy, deal damage equal to the amount."
+obstacle.gunpowderkeg.name,화약통,Gunpowder Keg
+# 상태: status.<id 소문자>.name,,
+status.hesitation.name,주저,Hesitation
+status.movecute.name,MOVE CUTE,MOVE CUTE
+status.demotivation.name,의욕 상실,Demotivation

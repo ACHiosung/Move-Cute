@@ -29,6 +29,7 @@ namespace MoveCute
             else target.Statuses.Add(new Status(statusId, stacks));
             Log($"{target}에게 {statusId} {stacks} 부여");
             await Presenter.StatusAdded(target, statusId, stacks);
+            await AfterStatusAdded(src, target, statusId, stacks);
         }
 
         /// <summary>피해량 보정 (주저, 유물 등). 계산만 하므로 동기. 정수 피해를 CalculateDamage로 넘긴다.</summary>
@@ -108,6 +109,50 @@ namespace MoveCute
             decimal percent = HesitationBasePercent + excess * HesitationExcessPercentPerStack;
             percent *= 1m + HesitationEffectBonusPercent / 100m;
             return 1m + percent / 100m;
+        }
+
+        // ───────────── 상태 보조 ─────────────
+
+        /// <summary>대상이 가진 그 상태의 수치 합. 없으면 0.</summary>
+        public int GetStatusStacks(Unit target, string statusId)
+        {
+            if (target == null) return 0;
+            int sum = 0;
+            foreach (var s in target.Statuses)
+                if (s.Id == statusId) sum += s.Stacks;
+            return sum;
+        }
+
+        /// <summary>
+        /// 같은 Id가 있어도 합치지 않고 새 상태를 하나 더 붙인다 (MOVE CUTE처럼 카드마다 따로 세는 버프).
+        /// 붙인 상태를 돌려준다. 전투가 끝났거나 대상이 없으면 null.
+        /// </summary>
+        public async Awaitable<Status> AddSeparateStatus(EffectSource src, Unit target, string statusId, int stacks)
+        {
+            if (IsOver || target == null) return null;
+            var s = new Status(statusId, stacks);
+            target.Statuses.Add(s);
+            Log($"{target}에게 {statusId} {stacks} 부여 (별도)");
+            await Presenter.StatusAdded(target, statusId, stacks);
+            return s;
+        }
+
+        /// <summary>
+        /// 상태가 붙은 직후 반응. AddStatus가 부른다.
+        /// 의욕 상실: 적에게 주저가 붙으면 부여량 × 플레이어의 의욕 상실 수치만큼 그 적에게 피해.
+        /// </summary>
+        async Awaitable AfterStatusAdded(EffectSource src, Unit target, string statusId, int stacks)
+        {
+            if (IsOver || stacks <= 0) return;
+            if (statusId == StatusIds.Hesitation && target is Enemy)
+            {
+                int demotivation = GetStatusStacks(Player, StatusIds.Demotivation);
+                if (demotivation > 0)
+                {
+                    var buff = Player.Statuses.Find(x => x.Id == StatusIds.Demotivation);
+                    await DealDamage(new EffectSource(buff), target, stacks * demotivation);
+                }
+            }
         }
     }
 }
