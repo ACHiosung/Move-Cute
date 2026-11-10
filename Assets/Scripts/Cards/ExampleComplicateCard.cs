@@ -12,7 +12,7 @@ namespace MoveCute
     /// 이 파일에서 볼 것:
     ///   1. public 필드 → 카드 에셋 인스펙터의 behavior 아래에서 조정하고, 설명문의 {repeat} {shockwave.damage}에 들어간다
     ///   2. CanPlayFully 재정의 → 흑백 판정을 바꾼다. 이 카드는 이동이 없으므로 항상 전부 발동
-    ///   3. Play 재정의 → 에너지 지불 → BeginCardPlay → 카드가 하는 일 → Finish 순서는 지킨다
+    ///   3. Play 재정의 → 카드가 하는 일만 넣는다. 에너지 지불·묘지/휴지통 보내기는 BattleContext.PlayCard가 한다
     ///   4. 에셋의 moves·effects는 이 카드가 쓰지 않는다. 쓰고 싶으면 Play에서 직접 부른다 (Data.effects.ExecuteAll)
     ///   5. 전투 중 상태가 필요하면 [NonSerialized] 필드로 둔다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다
     ///
@@ -40,8 +40,6 @@ namespace MoveCute
                 //await Data.effects.ExecuteAll(ctx, src, target); //기존 List에 넣었을 때
                 await shockwave.Execute(ctx, src, target); // 별도 필드에 둔 경우
             }
-
-            await Finish(ctx);//카드 묘지, 휴지통으로 버리기
         }
     }
 }

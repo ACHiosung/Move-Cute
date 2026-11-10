@@ -33,8 +33,6 @@ namespace MoveCute
                 await ctx.MovePlayerAlong(src, steps);
                 await Data.effects.ExecuteAll(ctx, src, target);
             }
-
-            await Finish(ctx);
         }
     }
 }
