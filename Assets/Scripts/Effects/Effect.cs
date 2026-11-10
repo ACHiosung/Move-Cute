@@ -21,7 +21,7 @@ namespace MoveCute
 
         /// <summary>
         /// 지금 발동할 수 있는지 (카드 흑백 판정용). 판정만 하므로 동기.
-        /// 고를 대상이 있어야 하는 효과가 재정의한다 (예: 휴지통이 비면 TrashToHandEffect는 false).
+        /// 고를 대상이 있어야 하는 효과가 재정의한다 (예: 고를 더미가 비면 MoveChosenCardsEffect는 false).
         /// false인 효과가 하나라도 있으면 카드는 흑백이고, 내면 이동만 하고 부가 효과는 발동하지 않는다.
         /// </summary>
         public virtual bool CanExecute(BattleContext ctx) => true;

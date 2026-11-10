@@ -46,6 +46,8 @@ namespace MoveCute
         Awaitable CardPlayed(CardInstance card, bool fullyMoved) => AwaitableUtil.Completed();
         Awaitable CardDiscarded(CardInstance card) => AwaitableUtil.Completed();
         Awaitable CardTrashed(CardInstance card) => AwaitableUtil.Completed();
+        /// <summary>카드가 뽑을 카드 더미로 돌아감. 따로 구현하지 않으면 버릴 때와 같은 연출(손패에서 치우기)을 쓴다.</summary>
+        Awaitable CardMovedToDraw(CardInstance card) => CardDiscarded(card);
         /// <summary>카드 내용 변경 (키워드 추가 등).</summary>
         Awaitable CardChanged(CardInstance card) => AwaitableUtil.Completed();
         Awaitable EnergyChanged(int energy) => AwaitableUtil.Completed();

@@ -70,4 +70,9 @@ relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {
 relic.ignore_last_lock_moves.name,잠금 뒤 이동 생략,Lock Suffix Skip
 relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the last {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
 # 선택 창 안내: prompt.<이름>,,
-prompt.trash_to_hand,휴지통에서 패로 가져올 카드를 고르세요,Choose a card from the trash to return to your hand
+prompt.move_cards,{from} → {to}: 카드를 고르세요 ({n}/{total}),{from} → {to}: choose a card ({n}/{total})
+# 카드 더미 이름: pile.<hand|draw|discard|trash>,,
+pile.hand,손패,Hand
+pile.draw,뽑을 카드 더미,Draw Pile
+pile.discard,버린 카드 더미,Discard Pile
+pile.trash,휴지통,Trash

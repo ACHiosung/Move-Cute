@@ -27,7 +27,7 @@ MonoBehaviour:
   - rid: 2383759034664353926
   behavior:
     rid: -2
-  targetKinds: 7
+  targetKinds: -1
   references:
     version: 2
     RefIds:
@@ -37,6 +37,11 @@ MonoBehaviour:
       type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
       data: 
     - rid: 2383759034664353926
-      type: {class: TrashToHandEffect, ns: MoveCute, asm: Assembly-CSharp}
+      type: {class: MoveChosenCardsEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        count: 1
+        from: 3
+        to: 0
+        count:
+          source: 0
+          value: 1
+        shuffleIntoDraw: 0

@@ -174,12 +174,30 @@ namespace MoveCute
         }
     }
 
+    /// <summary>카드가 있는 곳. 효과에서 "어디서 어디로"를 고를 때 쓴다. 에셋에 숫자로 저장되므로 새 값은 끝에만 추가한다.</summary>
+    public enum CardPileKind
+    {
+        [InspectorName("손패")] Hand,
+        [InspectorName("뽑을 카드 더미")] Draw,
+        [InspectorName("버린 카드 더미")] Discard,
+        [InspectorName("휴지통")] Trash,
+    }
+
     public class CardPiles
     {
         public readonly List<CardInstance> Draw = new();
         public readonly List<CardInstance> Hand = new();
         public readonly List<CardInstance> Discard = new();   // 사용한 카드 더미(묘지)
         public readonly List<CardInstance> Trash = new();     // 휴지통(삭제)
+
+        public List<CardInstance> Get(CardPileKind kind) => kind switch
+        {
+            CardPileKind.Hand => Hand,
+            CardPileKind.Draw => Draw,
+            CardPileKind.Discard => Discard,
+            CardPileKind.Trash => Trash,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
 
         readonly System.Random rng;
 
