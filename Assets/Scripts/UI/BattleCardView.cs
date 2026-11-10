@@ -81,6 +81,9 @@ namespace MoveCute
             if (button.image.color != background) button.image.color = background;
             if (artwork.sprite != sprite) artwork.sprite = sprite;
             if (artwork.color != Color.white) artwork.color = Color.white;
+            // 아트가 없으면 흰 사각형이 카드 전체를 덮어 배경색(흑백 표시)이 안 보이므로 숨긴다
+            bool hasArt = sprite != null;
+            if (artwork.enabled != hasArt) artwork.enabled = hasArt;
             if (!hasRendered || displayedMaterial != material)
             {
                 artwork.material = material;
