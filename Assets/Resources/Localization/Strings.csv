@@ -60,8 +60,14 @@ card.givetrash.name,압축,zip
 card.givetrash.desc,패에 있는 카드에 [삭제 키워드]를 부여합니다,Assign [delete keyword] to the cards in the hand
 card.trashattack.name,쓰레기 투척,Trash Throw
 card.trashattack.desc,적에게 피해를 {damage} 줍니다. 휴지통에 있는 카드 수만큼 재사용합니다.,Deal {damage} damage to an enemy. Reuse once for each card in the trash.
+card.giftbarrage.name,선물 공세,Gift Barrage
+card.giftbarrage.desc,카드를 {count}장 뽑습니다.,Draw {count} cards.
+card.recycle.name,재활용,Recycle
+card.recycle.desc,휴지통에서 카드 {count}장을 선택해 패로 가져옵니다.,Choose {count} card(s) from the trash and put them into your hand.
 
 relic.ignore_first_lock_moves.name,잠금 앞 이동 생략,Lock Prefix Skip
 relic.ignore_first_lock_moves.desc,잠금 카드의 해금 조건에서 처음 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the first {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
 relic.ignore_last_lock_moves.name,잠금 뒤 이동 생략,Lock Suffix Skip
 relic.ignore_last_lock_moves.desc,잠금 카드의 해금 조건에서 마지막 {moveCount}개 이동을 무시합니다. 모두 생략되면 즉시 해금합니다.,Ignore the last {moveCount} moves of locked card unlock sequences. Unlock immediately if all moves are skipped.
+# 선택 창 안내: prompt.<이름>,,
+prompt.trash_to_hand,휴지통에서 패로 가져올 카드를 고르세요,Choose a card from the trash to return to your hand

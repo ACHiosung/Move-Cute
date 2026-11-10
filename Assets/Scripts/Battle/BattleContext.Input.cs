@@ -26,5 +26,12 @@ namespace MoveCute
             if (IsOver || candidates == null || candidates.Count == 0) return null;
             return await Input.PickCard(candidates, prompt);
         }
+
+        /// <summary>손패에 없는 카드(휴지통·더미 등)를 목록 창에서 고른다. 손패의 카드를 고를 때는 ChooseCard.</summary>
+        public async Awaitable<CardInstance> ChooseCardFromList(IReadOnlyList<CardInstance> candidates, string prompt)
+        {
+            if (IsOver || candidates == null || candidates.Count == 0) return null;
+            return await Input.PickCardFromList(candidates, prompt);
+        }
     }
 }

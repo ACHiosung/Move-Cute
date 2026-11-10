@@ -116,10 +116,12 @@ namespace MoveCute
         public int EffectiveCost => Has<Keyword_Free>() || IsUnlocked ? 0 : Cost;
 
         /// <summary>
-        /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능한지.
+        /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능하고 부가 효과가 모두 발동할 수 있는지
+        /// (Effect.CanExecute — 휴지통이 비었는데 휴지통에서 고르는 효과 등).
         /// 이동을 쓰지 않는 특수 카드는 재정의한다.
         /// </summary>
-        public virtual bool CanPlayFully(BattleContext ctx) => !IsLocked && ctx.CanFullyMove(this);
+        public virtual bool CanPlayFully(BattleContext ctx) =>
+            !IsLocked && ctx.CanFullyMove(this) && Data.effects.CanExecuteAll(ctx);
 
         /// <summary>지금 낼 때 드는 에너지.</summary>
         public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;

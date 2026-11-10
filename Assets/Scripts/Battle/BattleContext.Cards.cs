@@ -73,5 +73,20 @@ namespace MoveCute
             Piles.Discard.Add(card);
             await Presenter.CardDiscarded(card);
         }
+
+        /// <summary>
+        /// 드로우 더미·묘지·휴지통 어디에 있든 손패로 가져온다 (재활용 등). 드로우가 아니므로 더미를 섞지 않는다.
+        /// 이미 손패에 있거나 사용 중인 카드면 아무것도 하지 않는다. 연출은 드로우와 같이 손패에 카드가 생긴다.
+        /// </summary>
+        public async Awaitable MoveCardToHand(CardInstance card)
+        {
+            if (IsOver || card == null || card == PlayingCard || Piles.Hand.Contains(card)) return;
+            Piles.Draw.Remove(card);
+            Piles.Discard.Remove(card);
+            Piles.Trash.Remove(card);
+            Piles.Hand.Add(card);
+            card.IsGrayed = card.IsLocked || !card.CanPlayFully(this);
+            await Presenter.CardDrawn(card);
+        }
     }
 }
