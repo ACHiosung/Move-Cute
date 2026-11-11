@@ -15,7 +15,7 @@ MonoBehaviour:
   id: bomb
   nameKey: card.bomb.name
   descKey: card.bomb.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 549116d152de4281bcfae6bb54e41d94, type: 3}
   moves:
   - 2
   cost: 1

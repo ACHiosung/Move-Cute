@@ -15,7 +15,7 @@ MonoBehaviour:
   id: catchme
   nameKey: card.catchme.name
   descKey: card.catchme.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: c6210e4da88d42c9b6fe68d494cdc6cc, type: 3}
   moves:
   - 0
   cost: 1

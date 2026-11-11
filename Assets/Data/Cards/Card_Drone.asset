@@ -15,7 +15,7 @@ MonoBehaviour:
   id: drone
   nameKey: card.drone.name
   descKey: card.drone.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: a0ae3378a047427b8204db5af3799bfb, type: 3}
   moves:
   - 1
   - 1

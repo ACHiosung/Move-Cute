@@ -15,7 +15,7 @@ MonoBehaviour:
   id: dash_1
   nameKey: card.dash.name
   descKey: card.dash.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 938be183183e4b258ad3b8af1a13d3be, type: 3}
   moves: 0200000001000000i
   cost: 1
   type: 1

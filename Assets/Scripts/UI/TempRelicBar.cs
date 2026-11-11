@@ -14,7 +14,7 @@ namespace MoveCute
         const float RefHeight = 1080f;   // 이 해상도 기준으로 크기를 잡고 화면에 맞춰 늘린다
         const float Size = 56f, Gap = 8f, Top = 12f;
 
-        GUIStyle label, tooltip;
+        GUIStyle label, tooltip, counter;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Spawn()
@@ -31,6 +31,7 @@ namespace MoveCute
 
             label ??= new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, fontSize = 18, fontStyle = FontStyle.Bold };
             tooltip ??= new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 18, wordWrap = true, richText = true, padding = new RectOffset(10, 10, 8, 8) };
+            counter ??= new GUIStyle(GUI.skin.label) { alignment = TextAnchor.LowerRight, fontSize = 16, fontStyle = FontStyle.Bold };
 
             float scale = Screen.height / RefHeight;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1));
@@ -63,6 +64,9 @@ namespace MoveCute
                     GUI.Box(rect, name.Length > 2 ? name.Substring(0, 2) : name, label);
                 }
 
+                string count = CounterText(relic);
+                if (count != null) DrawOutlined(new Rect(rect.x, rect.y, Size - 3, Size - 1), count);
+
                 if (rect.Contains(mouse)) { hovered = relic; hoveredRect = rect; }
                 x += Size + Gap;
             }
@@ -77,6 +81,26 @@ namespace MoveCute
                 float tipX = Mathf.Clamp(hoveredRect.x, 8, width - tipWidth - 8);
                 GUI.Box(new Rect(tipX, hoveredRect.yMax + 6, tipWidth, tipHeight), text, tooltip);
             }
+        }
+
+        /// <summary>아이콘 오른쪽 아래에 표시할 누적 수치. 없으면 null (채찍: 쌓인 주저/발동 기준)</summary>
+        static string CounterText(Relic relic)
+        {
+            if (relic is HesitationCountRelic whip && relic.Data is HesitationCountRelicData data)
+                return $"{whip.Counter}/{data.threshold}";
+            return null;
+        }
+
+        /// <summary>아이콘 위에서도 읽히도록 검은 테두리를 두르고 흰 글씨로 그린다</summary>
+        void DrawOutlined(Rect rect, string text)
+        {
+            var old = GUI.color;
+            GUI.color = new Color(0, 0, 0, old.a);
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -1; dy <= 1; dy++)
+                    if (dx != 0 || dy != 0) GUI.Label(new Rect(rect.x + dx * 2, rect.y + dy * 2, rect.width, rect.height), text, counter);
+            GUI.color = old;
+            GUI.Label(rect, text, counter);
         }
     }
 }

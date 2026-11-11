@@ -15,7 +15,7 @@ MonoBehaviour:
   id: retreat
   nameKey: card.retreat.name
   descKey: card.retreat.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: b7d8d48248a54d479ef670e5480fd172, type: 3}
   moves: 00000000i
   cost: 1
   type: 1
