@@ -29,7 +29,7 @@ namespace MoveCute
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
         {
             int others = ctx.Obstacles.Count;
-            Damage amount = Amount(ctx, others);
+            Damage amount = Amount(ctx, others, (src.Owner as Obstacle)?.Data);
             int hits = 1 + (hitPerOtherObstacle ? others : 0);
             for (int i = 0; i < hits; i++)
             {
@@ -38,9 +38,9 @@ namespace MoveCute
             }
         }
 
-        Damage Amount(BattleContext ctx, int others)
+        Damage Amount(BattleContext ctx, int others, ObstacleData bomb)
         {
-            int baseDamage = damage + ctx.Run.Relics.OfType<BombDamageRelic>().Where(r => r.Enabled).Sum(r => r.Bonus)
+            int baseDamage = damage + ctx.Run.Relics.OfType<BombDamageRelic>().Where(r => r.Enabled && r.AppliesTo(bomb)).Sum(r => r.Bonus)
                 + ctx.Obstacles.Sum(o => o.Data.bombDamageBonus);
             var amount = new Damage(baseDamage);
             for (int i = 0; i < others; i++) amount = amount.Multiply((decimal)multiplierPerOtherObstacle);

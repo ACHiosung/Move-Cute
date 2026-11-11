@@ -22,7 +22,7 @@ namespace MoveCute
         {
             var unit = target.Unit ?? ctx.GetRandomEnemy();
             if (unit == null) return;
-            int amount = hesitation + perBomb * ctx.Obstacles.Count(o => o.Data.isBomb);
+            int amount = hesitation + perBomb * ctx.Obstacles.Count(o => o.Data.isBomb) + ctx.CardHesitationBonus(src);
             if (amount > 0) await ctx.AddStatus(src, unit, StatusIds.Hesitation, amount);
         }
     }
@@ -50,32 +50,28 @@ namespace MoveCute
     }
 
     /// <summary>
-    /// MOVE CUTE: 플레이어에게 버프를 하나 붙인다. 수치는 steps에서 시작해 한 칸 이동할 때마다 1 줄고,
-    /// 0이 되면 무작위 적에게 주저를 hesitation 부여하고 steps로 돌아간다. 이번 전투 동안 유지.
-    /// 여러 번 쓰면 버프가 따로 붙어 각각 센다. 주저 부여의 주체는 카드가 아니라 버프(Status)다.
+    /// MOVE CUTE: 플레이어의 MOVE CUTE 버프 수치를 amount만큼 올린다 (기본 1, 여러 장 쓰면 쌓임).
+    /// 이번 전투 동안 한 칸 이동할 때마다 무작위 적에게 주저를 버프 수치만큼 부여한다. 순간이동도 1칸으로 센다.
+    /// 카드 자신의 이동은 버프가 붙기 전이라 세지 않는다. 주저 부여의 주체는 카드가 아니라 버프라 인공 눈물이 적용되지 않는다.
     /// </summary>
     [Serializable]
     public class MoveCuteBuffEffect : Effect
     {
-        [Tooltip("이만큼 이동할 때마다 주저를 부여한다. 설명문의 {steps}")]
-        [Min(1)] public int steps = 3;
-
-        [Tooltip("한 번에 부여하는 주저. 설명문의 {hesitation}")]
-        public int hesitation = 1;
+        [Tooltip("버프 수치 증가량 (= 이동 1칸당 주저 부여량 증가)")]
+        public int amount = 1;
 
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
         {
-            var buff = await ctx.AddSeparateStatus(src, ctx.Player, StatusIds.MoveCute, steps);
-            if (buff == null) return;
-            var buffSource = new EffectSource(buff);
+            bool first = ctx.GetStatusStacks(ctx.Player, StatusIds.MoveCute) == 0;
+            await ctx.AddStatus(src, ctx.Player, StatusIds.MoveCute, amount);
+            if (!first) return;   // 이동 반응은 전투당 한 번만 등록한다. 수치는 반응 시점에 읽는다
             ctx.Events.PlayerMoved.Add(async (from, to) =>
             {
-                if (ctx.IsOver || !ctx.Player.Statuses.Contains(buff)) return;
-                buff.Stacks--;
-                if (buff.Stacks > 0) return;
-                buff.Stacks = steps;
+                if (ctx.IsOver) return;
+                var buff = ctx.Player.Statuses.Find(s => s.Id == StatusIds.MoveCute);
+                if (buff == null || buff.Stacks <= 0) return;
                 var enemy = ctx.GetRandomEnemy();
-                if (enemy != null) await ctx.AddStatus(buffSource, enemy, StatusIds.Hesitation, hesitation);
+                if (enemy != null) await ctx.AddStatus(new EffectSource(buff), enemy, StatusIds.Hesitation, buff.Stacks);
             });
         }
     }
@@ -92,5 +88,19 @@ namespace MoveCute
 
         public override Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target) =>
             ctx.AddStatus(src, ctx.Player, StatusIds.Demotivation, amount);
+    }
+
+    /// <summary>
+    /// 주저 효과 증가: 플레이어의 주저 효과 증가 버프 수치를 amount만큼 올린다 (여러 장 쓰면 쌓임).
+    /// 버프 수치 1당 주저 효과 +20%. 계산은 BattleContext.HesitationMultiplier.
+    /// </summary>
+    [Serializable]
+    public class HesitationBoostBuffEffect : Effect
+    {
+        [Tooltip("버프 수치 증가량. 수치 1당 주저 효과 +20%")]
+        public int amount = 1;
+
+        public override Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target) =>
+            ctx.AddStatus(src, ctx.Player, StatusIds.HesitationBoost, amount);
     }
 }

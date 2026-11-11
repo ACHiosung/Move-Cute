@@ -38,10 +38,13 @@ namespace MoveCute
         /// <summary>주저 (디버프): 받는 피해 증가. 계산은 BattleContext.TakenDamageMultiplier.</summary>
         public const string Hesitation = "Hesitation";
 
-        /// <summary>MOVE CUTE 카드 버프 (플레이어): 수치만큼 더 이동하면 적에게 주저 부여 후 다시 채운다. 카드마다 따로 쌓인다.</summary>
+        /// <summary>MOVE CUTE 카드 버프 (플레이어): 한 칸 이동할 때마다 무작위 적에게 주저를 수치만큼 부여. 여러 장 쓰면 수치 +1.</summary>
         public const string MoveCute = "MoveCute";
 
         /// <summary>의욕 상실 카드 버프 (플레이어): 적에게 주저를 부여할 때마다 부여량 × 수치만큼 피해.</summary>
         public const string Demotivation = "Demotivation";
+
+        /// <summary>주저 효과 증가 버프 (플레이어): 수치 1당 주저 효과 +20% (BattleContext.HesitationMultiplier).</summary>
+        public const string HesitationBoost = "HesitationBoost";
     }
 }

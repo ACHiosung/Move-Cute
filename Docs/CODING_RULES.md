@@ -234,4 +234,4 @@ public async Awaitable PlayerStepped(Vector2Int from, Vector2Int to)
   ```
 - 정수 피해만 주는 효과는 지금처럼 `ctx.DealDamage(src, unit, 6)`을 써도 같은 공식을 거친다.
 - 계산은 `decimal`로 한다. `float`/`double`은 20 × 1.15 = 22.999…처럼 내림에서 1이 빠질 수 있다.
-- 주저 배율 = 1 + (20% + max(0, 수치 − 남은 턴) × 5%) × (1 + `HesitationEffectBonusPercent`%). 남은 턴은 지금 턴을 포함한다. 상태 ID는 `StatusIds.Hesitation`.
+- 주저 배율 = 1 + 수치 × 5% × (1 + 주저 효과 증가%). 주저 효과 증가% = 플레이어의 주저 효과 증가 버프 수치 × 20 + `HesitationEffectBonusPercent`. 턴이 지나도 줄지 않는다. 수치는 `HesitationPercentPerStack`, `HesitationBoostPercentPerStack` 상수에서 조정한다. 상태 ID는 `StatusIds.Hesitation`이고 적에게만 붙는다.

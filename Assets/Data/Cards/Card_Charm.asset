@@ -36,5 +36,5 @@ MonoBehaviour:
     - rid: 320038321000001510
       type: {class: AddHesitationEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        hesitation: 4
+        hesitation: 5
         perBomb: 0

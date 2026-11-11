@@ -22,7 +22,7 @@ MonoBehaviour:
   - 0
   cost: 1
   type: 2
-  rarity: 2
+  rarity: 3
   target: 0
   keywords:
   - rid: 3200383199153488340

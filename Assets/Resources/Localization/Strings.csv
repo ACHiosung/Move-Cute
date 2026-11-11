@@ -10,7 +10,7 @@ card.dash.name,돌진,Dash
 card.dash.desc,적에게 피해를 {damage} 줍니다. 최초 사용 후 최대 {maxReuseCount}번 재사용합니다.,Deal {damage} damage to an enemy. Reuse up to {maxReuseCount} times after the initial use.
 card.bomb.name,폭탄 설치,Plant Bomb
 card.bomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a bomb.
-card.chainbomb.name,연계 폭탄,Chain Bomb
+card.chainbomb.name,부비 트랩,Booby Trap
 card.chainbomb.desc,거리 {distance} 이내의 빈 타일 하나를 선택해 연계 폭탄을 설치합니다.,Choose an empty tile within {distance} and plant a chain bomb.
 card.catchme.name,나 잡아봐라,Catch Me
 card.catchme.desc,이동 전의 위치에 폭탄을 설치합니다.,Plant a bomb on the tile you moved from.
@@ -21,8 +21,8 @@ card.drone.desc,마지막 턴 종료 시 빈 타일 하나에 연계 폭탄을 �
 # 유물: relic.<id>.name / relic.<id>.desc — {이름}은 유물 에셋의 필드나 effects 안 필드 값으로 바뀐다,,
 relic.pedometer.name,만보기,Pedometer
 relic.pedometer.desc,한 턴에 {steps}칸 이상 이동하면 카드를 {count}장 뽑습니다. (턴당 1번),"After moving {steps} tiles in a turn, draw {count} card. (Once per turn)"
-relic.bombdamage.name,화약 강화,Gunpowder
-relic.bombdamage.desc,모든 폭탄의 기본 피해량이 {bonus} 증가합니다.,All bombs deal {bonus} more base damage.
+relic.bombdamage.name,특제 화약,Special Gunpowder
+relic.bombdamage.desc,모든 폭탄의 데미지가 {bonus} 증가합니다.,All bombs deal {bonus} more damage.
 relic.lastturnchainbomb.name,마지막 선물,Parting Gift
 relic.lastturnchainbomb.desc,마지막 턴이 끝날 때 비어 있는 칸 하나에 연계 폭탄을 설치합니다.,"When the last turn ends, plant a chain bomb on a random empty tile."
 relic.reuse_damage.name,재사용,Reuse
@@ -58,7 +58,7 @@ card.charm.desc,적에게 주저를 {hesitation} 부여합니다.,Apply {hesitat
 card.plead.name,애원,Plead
 card.plead.desc,피해를 {damage} 줍니다. 대상이 보유한 주저마다 피해량이 {perHesitation} 증가합니다.,Deal {damage} damage. Deals {perHesitation} more for each Hesitation on the target.
 card.movecute.name,MOVE CUTE,MOVE CUTE
-card.movecute.desc,이번 전투 동안 {steps}칸 이동할 때마다 적에게 주저를 {hesitation} 부여합니다.,"This battle, every {steps} tiles you move, apply {hesitation} Hesitation to an enemy."
+card.movecute.desc,이번 전투 동안 이동할 때마다 적에게 주저를 1 부여합니다.,"This battle, whenever you move, apply 1 Hesitation to an enemy."
 card.demotivate.name,의욕 상실,Demotivate
 card.demotivate.desc,이번 전투 동안 적에게 주저를 부여할 때마다 부여량만큼의 피해를 줍니다.,"This battle, whenever you apply Hesitation to an enemy, deal damage equal to the amount."
 obstacle.gunpowderkeg.name,화약통,Gunpowder Keg
@@ -66,3 +66,21 @@ obstacle.gunpowderkeg.name,화약통,Gunpowder Keg
 status.hesitation.name,주저,Hesitation
 status.movecute.name,MOVE CUTE,MOVE CUTE
 status.demotivation.name,의욕 상실,Demotivation
+# 폭탄·주저 카드와 유물 추가 (서재호),,
+card.artbomb.name,예술 폭탄,Art Bomb
+card.artbomb.desc,무작위 빈 타일에 예술 폭탄을 설치합니다.,Place an Art Bomb on a random empty tile.
+card.strike.name,강타,Bash
+card.strike.desc,피해를 {damage} 주고 주저를 {hesitation} 부여합니다.,Deal {damage} damage and apply {hesitation} Hesitation.
+card.act.name,연기,Act
+card.act.desc,적에게 주저를 {hesitation} 부여합니다.,Apply {hesitation} Hesitation to an enemy.
+card.bombassembly.name,폭탄 조립,Bomb Assembly
+card.bombassembly.desc,빈 타일 하나에 연계 폭탄을 설치합니다.,Place a Chain Bomb on an empty tile.
+relic.bombmold.name,폭탄용 거푸집,Bomb Mold
+relic.bombmold.desc,기본 폭탄의 피해량이 {bonus} 증가합니다.,Basic bombs deal {bonus} more damage.
+relic.artificialtears.name,인공 눈물,Artificial Tears
+relic.artificialtears.desc,카드 효과로 주저를 부여할 때 부여량이 {bonus} 증가합니다.,Hesitation applied by card effects is increased by {bonus}.
+relic.sharkcannon.name,상어 모양 대포,Shark Cannon
+relic.sharkcannon.desc,폭탄이 발동할 때마다 카드를 {count}장 뽑습니다.,Whenever a bomb goes off, draw {count} card.
+relic.whip.name,채찍,Whip
+relic.whip.desc,주저를 {threshold} 부여할 때마다 카드를 {count}장 뽑습니다.,"Every {threshold} Hesitation you apply, draw {count} card."
+status.hesitationboost.name,주저 효과 증가,Hesitation Boost

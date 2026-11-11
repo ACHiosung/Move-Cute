@@ -22,7 +22,7 @@ MonoBehaviour:
   - 2
   cost: 1
   type: 2
-  rarity: 2
+  rarity: 3
   target: 0
   keywords:
   - rid: 320038321000001701
@@ -42,5 +42,4 @@ MonoBehaviour:
     - rid: 320038321000001710
       type: {class: MoveCuteBuffEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        steps: 3
-        hesitation: 1
+        amount: 1
