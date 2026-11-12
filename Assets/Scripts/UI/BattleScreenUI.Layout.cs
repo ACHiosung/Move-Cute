@@ -132,6 +132,8 @@ namespace MoveCute
         void ClearSelection()
         {
             selectedCard = null;
+            energyPreviewCard = null;
+            RefreshEnergyStrip();
             teleportMode = false;
             ClearPreview();
             if (pick == null) promptRoot.SetActive(false);
@@ -290,8 +292,8 @@ namespace MoveCute
             {
                 shownEnergy = ctx.Energy; shownMaxEnergy = ctx.MaxEnergy;
                 energyText.text = $"{T("energy")}  {ctx.Energy}/{ctx.MaxEnergy}";
-                energyStrip.Render(energyCellTemplate, ctx.Energy, Mathf.Max(ctx.MaxEnergy, ctx.Energy));
             }
+            RefreshEnergyStrip();
             int turns = ctx.IsOver ? 0 : Mathf.Max(0, ctx.Config.turnLimit - ctx.Turn + 1);
             if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit || languageChanged)
             {
@@ -309,6 +311,15 @@ namespace MoveCute
                 shownDiscard = ctx.Piles.Discard.Count;
                 discardText.text = $"{T("discard")}\n{ctx.Piles.Discard.Count}";
             }
+        }
+
+        void RefreshEnergyStrip()
+        {
+            if (ctx == null) return;
+            int cost = ctx.CanAct && energyPreviewCard != null && !energyPreviewCard.IsLocked && cards.ContainsKey(energyPreviewCard)
+                ? energyPreviewCard.PlayCost(ctx) : 0;
+            int pending = cost <= ctx.Energy ? cost : 0;
+            energyStrip.Render(energyCellTemplate, ctx.Energy, Mathf.Max(ctx.MaxEnergy, ctx.Energy), pending);
         }
 
         BattleContext MoveDisplayContext => !rewardScreenActive && ctx != null && !ctx.IsOver ? ctx : null;

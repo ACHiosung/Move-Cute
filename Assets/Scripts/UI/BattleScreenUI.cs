@@ -49,6 +49,7 @@ namespace MoveCute
 
         BattleManager M => BattleManager.Instance;
         BattleContext ctx;
+        CardInstance energyPreviewCard;
 
         readonly Dictionary<Vector2Int, Button> tiles = new();
         readonly Dictionary<CardInstance, Button> cards = new();
@@ -104,7 +105,22 @@ namespace MoveCute
             selectedCard = card;
             ShowCard(card);
             Preview(card);
-            M.PlayCard(card).Forget();
+            PlaySelectedCard(card).Forget();
+        }
+
+        async Awaitable PlaySelectedCard(CardInstance card)
+        {
+            energyPreviewCard = card;
+            RefreshEnergyStrip();
+            try { await M.PlayCard(card); }
+            finally
+            {
+                if (this && energyPreviewCard == card)
+                {
+                    energyPreviewCard = null;
+                    RefreshEnergyStrip();
+                }
+            }
         }
 
         // ════════════ IPlayerInput ════════════
@@ -162,6 +178,7 @@ namespace MoveCute
             hoveredInfoOwner = null;
             hoveredInfoDisplay = null;
             selectedCard = null;
+            energyPreviewCard = null;
             teleportMode = false;
             modal.gameObject.SetActive(false);
             ClearPreview();
@@ -320,6 +337,7 @@ namespace MoveCute
         public Awaitable CardChanged(CardInstance card)
         {
             RefreshCard(card);
+            if (energyPreviewCard == card) RefreshEnergyStrip();
             if (inspectedCard == card)
             {
                 bool keywordsOpen = keywordPanel.gameObject.activeSelf;
@@ -329,8 +347,11 @@ namespace MoveCute
             return AwaitableUtil.Completed();
         }
 
-        public Awaitable EnergyChanged(int energy)
+        public async Awaitable EnergyChanged(int energy)
         {
+            // 즉시 발동하는 카드는 에너지 칸이 사라지기 전에 미리보기를 잠깐 보여준다.
+            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None or TargetType.SelfTile)
+                await Awaitable.WaitForSecondsAsync(0.18f);
             RefreshHud();
             bool empty = energy <= 0;
             if (empty != lastEmptyEnergy)
@@ -338,7 +359,6 @@ namespace MoveCute
                 lastEmptyEnergy = empty;
                 foreach (var card in cards.Keys) RefreshCard(card);
             }
-            return AwaitableUtil.Completed();
         }
 
         Awaitable RemoveCard(CardInstance card)
