@@ -64,13 +64,38 @@ namespace MoveCute
                 GetLockMoveRange(card, out int start, out int count);
                 if (!lockMovements.TryGetValue(card, out var history))
                     lockMovements[card] = history = new List<Direction>();
+                int previousMatch = CountMatchedLockMoves(card.Moves, start, count, history);
                 history.Add(direction);
                 if (history.Count > count)
                     history.RemoveRange(0, history.Count - count);
-                // 최근 N칸을 비교하므로 불일치 뒤 겹치는 접두사도 놓치지 않는다 (←←→ 등).
-                if (history.Count == count && history.SequenceEqual(card.Moves.Skip(start).Take(count)))
+                int matched = CountMatchedLockMoves(card.Moves, start, count, history);
+                if (matched == count)
                     await UnlockCard(card);
+                else if (matched != previousMatch)
+                    await Presenter.CardChanged(card);
             }
+        }
+
+        /// <summary>최근 이동과 일치한 해금 구간 앞부분의 길이.</summary>
+        public int GetMatchedLockMoveCount(CardInstance card)
+        {
+            if (!card.IsLocked || !lockMovements.TryGetValue(card, out var history)) return 0;
+            GetLockMoveRange(card, out int start, out int count);
+            return CountMatchedLockMoves(card.Moves, start, count, history);
+        }
+
+        static int CountMatchedLockMoves(IReadOnlyList<Direction> moves, int start, int count, List<Direction> history)
+        {
+            // 가장 긴 일치부터 확인해 불일치 후에도 겹치는 진행도를 유지한다 (←←→ 등).
+            for (int length = System.Math.Min(count, history.Count); length > 0; length--)
+            {
+                int historyStart = history.Count - length;
+                int matched = 0;
+                while (matched < length && history[historyStart + matched] == moves[start + matched])
+                    matched++;
+                if (matched == length) return length;
+            }
+            return 0;
         }
 
         /// <summary>판정과 UI가 공유하는 잠금 이동 구간. 원본을 유지하며 모두 생략되면 count는 0이다.</summary>
