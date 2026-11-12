@@ -12,8 +12,11 @@ namespace MoveCute
         [SerializeField] Image artwork;
         [SerializeField] RectTransform directionRoot;
         [SerializeField] GameObject targetFrame;
+        const float FreeFrameThickness = 3f;
+        static readonly Color FreeFrameColor = new Color32(255, 212, 71, 255);
         readonly List<Image> icons = new();
         readonly List<Direction> displayedMoves = new();
+        GameObject freeFrame;
         CardInstance card;
         Action<CardInstance> clicked;
         Action<Button, CardInstance> entered;
@@ -74,7 +77,7 @@ namespace MoveCute
         void Cancel() => cancelled?.Invoke();
 
         public void Render(Sprite sprite, Material material, Color background,
-            IReadOnlyList<Direction> moves, Sprite[] directions, bool selected,
+            IReadOnlyList<Direction> moves, Sprite[] directions, bool selected, bool showFreeFrame,
             int activeMoveStart = 0, int activeMoveCount = int.MaxValue, int matchedMoveCount = 0)
         {
             Initialize();
@@ -123,7 +126,51 @@ namespace MoveCute
                 icons[i].color = offset < 0 || offset >= activeMoveCount ? CardMoveDisplay.IgnoredColor
                     : offset < matchedMoveCount ? CardMoveDisplay.MatchedColor : Color.white;
             }
+            SetFreeFrame(showFreeFrame);
             SetTarget(selected);
+        }
+
+        void SetFreeFrame(bool visible)
+        {
+            if (!freeFrame)
+            {
+                if (!visible) return;
+                freeFrame = new GameObject("FreeFrame", typeof(RectTransform));
+                freeFrame.SetActive(false);
+                var root = (RectTransform)freeFrame.transform;
+                root.SetParent(transform, false);
+                root.anchorMin = Vector2.zero;
+                root.anchorMax = Vector2.one;
+                root.offsetMin = root.offsetMax = Vector2.zero;
+
+                float thickness = FreeFrameThickness;
+                AddFreeFrameEdge(root, "Top", Vector2.up, Vector2.one, new Vector2(0, -thickness), Vector2.zero);
+                AddFreeFrameEdge(root, "Bottom", Vector2.zero, Vector2.right, Vector2.zero, new Vector2(0, thickness));
+                AddFreeFrameEdge(root, "Left", Vector2.zero, Vector2.up, Vector2.zero, new Vector2(thickness, 0));
+                AddFreeFrameEdge(root, "Right", Vector2.right, Vector2.one, new Vector2(-thickness, 0), Vector2.zero);
+            }
+
+            if (freeFrame.activeSelf == visible) return;
+            freeFrame.SetActive(visible);
+            // 선택 테두리를 안쪽으로 옮겨 두 상태를 함께 표시한다.
+            var target = (RectTransform)targetFrame.transform;
+            var inset = visible ? Vector2.one * FreeFrameThickness : Vector2.zero;
+            target.offsetMin = inset;
+            target.offsetMax = -inset;
+        }
+
+        static void AddFreeFrameEdge(RectTransform root, string name, Vector2 anchorMin, Vector2 anchorMax,
+            Vector2 offsetMin, Vector2 offsetMax)
+        {
+            var edge = new GameObject(name, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            var rect = edge.rectTransform;
+            rect.SetParent(root, false);
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
+            edge.color = FreeFrameColor;
+            edge.raycastTarget = false;
         }
 
         public void SetTarget(bool value)

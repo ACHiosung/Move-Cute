@@ -319,9 +319,10 @@ namespace MoveCute
             var displayContext = MoveDisplayContext;
             CardMoveDisplay.GetRange(card, displayContext, out int start, out int count);
             int matched = displayContext?.GetMatchedLockMoveCount(card) ?? 0;
+            bool showFreeFrame = card.Has<Keyword_Free>() || card.IsUnlocked;
             CachedCard(view).Render(ArtFor(card), gray ? grayscaleMaterial : null,
                 gray ? Grayed : CardBase, CardMoveDisplay.VisibleMoves(card), directionIcons,
-                selectedCard == card || pickable != null && pickable.Contains(card), start, count, matched);
+                selectedCard == card || pickable != null && pickable.Contains(card), showFreeFrame, start, count, matched);
         }
 
         void RefreshEnemy(Button button, Enemy enemy)
