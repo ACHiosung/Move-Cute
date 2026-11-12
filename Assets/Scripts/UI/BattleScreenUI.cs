@@ -363,10 +363,12 @@ namespace MoveCute
 
         Awaitable RemoveCard(CardInstance card)
         {
-            if (!cards.Remove(card, out var view)) return AwaitableUtil.Completed();
+            bool hadView = cards.Remove(card, out var view);
+            // 사용한 카드는 이미 손패 뷰에서 빠졌을 수 있지만 더미 수는 갱신한다.
+            RefreshHud();
+            if (!hadView) return AwaitableUtil.Completed();
             handView.Remove((RectTransform)view.transform);
             EndInfoHover(view);
-            RefreshHud();
             RefreshHandLayout();
             return view.transform.DOScale(0f, D(0.06f))
                 .OnComplete(() => ReleaseHandCard(view))

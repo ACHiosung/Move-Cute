@@ -78,6 +78,10 @@ namespace MoveCute
             deckButton.onClick.AddListener(() => OpenCards(T("deck"), M.Run.Deck));
             drawButton.onClick.AddListener(() => OpenCards(T("draw"), ctx.Piles.Draw, true));
             discardButton.onClick.AddListener(() => OpenCards(T("discard"), ctx.Piles.Discard));
+            trashButton.onClick.AddListener(() =>
+            {
+                if (ctx != null) OpenCards(T("trash"), ctx.Piles.Trash);
+            });
             closeBrowserButton.onClick.AddListener(CloseCardBrowser);
             var descriptionPointer = detailDescription.GetComponent<BattleScreenPointer>();
             if (!descriptionPointer) descriptionPointer = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
@@ -94,6 +98,7 @@ namespace MoveCute
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
             BindTooltip(discardButton, () => T("discardHelp"), () => T("discard"));
+            BindTooltip(trashButton, () => T("trashHelp"), () => T("trash"));
             BindTooltip(deckButton, () => T("deckHelp"), () => T("deck"));
             cancelButton.onClick.AddListener(Back);
             endTurnButton.onClick.AddListener(Back);
@@ -267,7 +272,7 @@ namespace MoveCute
 
 
 
-        int? shownGold, shownHp, shownMaxHp, shownEnergy, shownMaxEnergy, shownTurns, shownTurnLimit, shownDraw, shownDiscard;
+        int? shownGold, shownHp, shownMaxHp, shownEnergy, shownMaxEnergy, shownTurns, shownTurnLimit, shownDraw, shownDiscard, shownTrash;
         string hudLanguage;
         float shownHpWidth = -1;
 
@@ -310,6 +315,11 @@ namespace MoveCute
             {
                 shownDiscard = ctx.Piles.Discard.Count;
                 discardText.text = $"{T("discard")}\n{ctx.Piles.Discard.Count}";
+            }
+            if (shownTrash != ctx.Piles.Trash.Count || languageChanged)
+            {
+                shownTrash = ctx.Piles.Trash.Count;
+                trashText.text = $"{T("trash")}\n{ctx.Piles.Trash.Count}";
             }
         }
 

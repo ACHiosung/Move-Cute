@@ -20,7 +20,8 @@ namespace MoveCute
         RectTransform cardPoolRoot;
         Transform detailPanelRoot, playerPanelRoot;
         GameObject mouseIcon;
-        Button deckButton, drawButton, discardButton, closeBrowserButton;
+        Button deckButton, drawButton, discardButton, trashButton, closeBrowserButton;
+        Text trashText;
         GameObject backgroundObject;
         bool lastEmptyEnergy;
         Transform[] backdropRoots;
@@ -35,14 +36,21 @@ namespace MoveCute
             deckButton = playerPanelRoot.Find("Deck").GetComponent<Button>();
             drawButton = drawText.transform.parent.GetComponent<Button>();
             discardButton = discardText.transform.parent.GetComponent<Button>();
+            var discardRect = (RectTransform)discardButton.transform;
+            trashButton = Instantiate(discardButton, discardRect.parent);
+            trashButton.name = "TrashPile";
+            var trashRect = (RectTransform)trashButton.transform;
+            trashRect.anchoredPosition = discardRect.anchoredPosition - Vector2.right * (discardRect.rect.width + 12f);
+            trashRect.SetSiblingIndex(discardRect.GetSiblingIndex());
+            trashText = trashButton.GetComponentInChildren<Text>(true);
             closeBrowserButton = modal.Find("Close").GetComponent<Button>();
             backgroundObject = transform.Find("Background").gameObject;
             cardPoolRoot = (RectTransform)transform.Find("Templates");
             backdropRoots = new[] { backgroundObject.transform, board.transform.parent,
                 hand, playerMarker, energyButton.transform, endTurnButton.transform,
-                drawButton.transform, discardButton.transform };
+                drawButton.transform, discardButton.transform, trashButton.transform };
             blockedBattleRoots = new[] { hand.gameObject, playerMarker.gameObject, energyButton.gameObject,
-                endTurnButton.gameObject, drawButton.gameObject, discardButton.gameObject };
+                endTurnButton.gameObject, drawButton.gameObject, discardButton.gameObject, trashButton.gameObject };
         }
 
         BattleCardView CachedCard(Button button)

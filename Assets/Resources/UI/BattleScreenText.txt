@@ -14,6 +14,7 @@ energyHelp|카드 사용에 필요한 에너지입니다. 길게 누르면 에�
 turnHelp|현재 턴을 종료합니다. 칸은 현재 턴을 포함한 남은 턴 수입니다.|End this turn. Cells show remaining turns including the current turn.
 drawHelp|앞으로 뽑을 카드입니다. 클릭하면 목록을 봅니다. 실제 순서는 공개하지 않습니다.|Cards available to draw. Click to inspect without revealing draw order.
 discardHelp|사용하거나 버린 카드입니다. 뽑을 카드가 비면 다시 섞입니다.|Played or discarded cards. Reshuffled when the draw pile is empty.
+trashHelp|이번 전투에서 삭제된 카드입니다. 클릭하면 목록을 볼 수 있습니다.|Cards removed for this battle. Click to view the list.
 deckHelp|이번 도전의 전체 덱을 확인합니다.|Inspect your full deck for this run.
 enemyHelp|사기를 낮춰 전투를 끝내세요. 제한 턴이 끝나면 남은 사기만큼 HP 피해를 받습니다.|Reduce morale to end the battle. Remaining morale deals HP damage after the final turn.
 turn|턴|Turn
@@ -22,6 +23,7 @@ player|플레이어|Player
 deck|덱|Deck
 draw|뽑을 카드|Draw pile
 discard|버린 카드|Discard pile
+trash|휴지통|Trash
 cancel|취소|Cancel
 close|닫기|Close
 previous|이전|Previous
