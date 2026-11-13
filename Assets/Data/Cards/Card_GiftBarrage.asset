@@ -15,19 +15,19 @@ MonoBehaviour:
   id: giftbarrage
   nameKey: card.giftbarrage.name
   descKey: card.giftbarrage.desc
-  art: {fileID: 0}
+  art: {fileID: 5794765657684610468, guid: 64013b94eb55b9e4f897ec742ae792b0, type: 3}
   moves: 0100000001000000i
   cost: 1
   type: 2
   rarity: 1
-  target: 0
+  target: 2
   keywords:
   - rid: 2383759034664353923
   effects:
   - rid: 2383759034664353924
   behavior:
     rid: -2
-  targetKinds: 7
+  targetKinds: -1
   references:
     version: 2
     RefIds:

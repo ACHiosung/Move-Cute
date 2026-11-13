@@ -21,12 +21,17 @@ MonoBehaviour:
   type: 1
   rarity: 0
   target: 1
-  keywords: 
+  keywords: []
   effects:
   - rid: 3200383178888970390
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 3200383178888970390
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:

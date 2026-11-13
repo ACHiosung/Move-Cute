@@ -15,18 +15,19 @@ MonoBehaviour:
   id: givetrash
   nameKey: card.givetrash.name
   descKey: card.givetrash.desc
-  art: {fileID: 0}
-  moves: 
+  art: {fileID: -4329690533229498726, guid: 08c6de18c44221c43b0f4daebb3c183b, type: 3}
+  moves: 0300000003000000i
   cost: 0
   type: 0
-  rarity: 0
-  target: 0
+  rarity: 3
+  target: 2
   keywords:
   - rid: 2383758898733252724
   effects:
   - rid: 2383758971316207794
   behavior:
     rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:

@@ -15,12 +15,12 @@ MonoBehaviour:
   id: recycle
   nameKey: card.recycle.name
   descKey: card.recycle.desc
-  art: {fileID: 0}
+  art: {fileID: 5930300672246745369, guid: 99d476d7731958245a4db1b28adf71d3, type: 3}
   moves: 0300000003000000020000000200000001000000010000000000000000000000i
   cost: 1
   type: 2
-  rarity: 3
-  target: 0
+  rarity: 2
+  target: 2
   keywords:
   - rid: 2383759034664353925
   effects:
