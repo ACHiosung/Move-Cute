@@ -12,8 +12,9 @@ namespace MoveCute
         public Font screenFont;
         public Image hpFill;
         public Text hpText, energyText, turnsText, drawText, discardText;
-        public RectTransform energyCells, turnCells, previewRoot, modal, modalContent;
-        public Image energyCellTemplate, turnCellTemplate;
+        public Text endTurnLabel;
+        public RectTransform energyCells, previewRoot, modal, modalContent;
+        public Image energyCellTemplate;
         public Button energyButton;
         public Text detailName, detailMeta, detailMoves, detailDescription, helpText, keywordText;
         public Image detailArt;
@@ -298,12 +299,12 @@ namespace MoveCute
                 energyText.text = $"{T("energy")}  {ctx.Energy}/{ctx.MaxEnergy}";
             }
             RefreshEnergyStrip();
+            if (languageChanged) endTurnLabel.text = T("turnEnd");
             int turns = ctx.IsOver ? 0 : Mathf.Max(0, ctx.Config.turnLimit - ctx.Turn + 1);
-            if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit || languageChanged)
+            if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit)
             {
                 shownTurns = turns; shownTurnLimit = ctx.Config.turnLimit;
-                turnsText.text = $"{T("turnEnd")}  {turns}/{ctx.Config.turnLimit}";
-                turnStrip.Render(turnCellTemplate, turns, ctx.Config.turnLimit);
+                turnsText.text = $"{turns} / {ctx.Config.turnLimit}";
             }
             if (shownDraw != ctx.Piles.Draw.Count || languageChanged)
             {

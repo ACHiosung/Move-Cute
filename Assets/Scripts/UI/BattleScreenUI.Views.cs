@@ -11,7 +11,7 @@ namespace MoveCute
         public BattlePreviewView previewView;
         public BattleCardCollectionView browserView, rewardChoicesView;
         public BattleBackdropView backdropView;
-        public BattleCellStripView energyStrip, turnStrip;
+        public BattleCellStripView energyStrip;
         public BattleRewardListView rewardListView;
         readonly Dictionary<Button, BattleCardView> cardViews = new();
         readonly Dictionary<Button, BattleEnemyView> unitViews = new();
