@@ -259,7 +259,6 @@ namespace MoveCute
             Label(rewardChest).transform.SetAsLastSibling();
             rewardOverlay = Box("RewardOverlay", transform, 0, 0, 1920, 1080, Color.clear).gameObject;
             rewardOverlay.GetComponent<Image>().raycastTarget = true;
-            rewardOverlay.AddComponent<BattleScreenPointer>().RightClick = RewardBack;
             var list = Box("RewardList", rewardOverlay.transform, 1390, 240, 420, 550, Pale).rectTransform;
             rewardListPanel = list.gameObject;
             TextAt("Title", list, T("rewards"), 20, 20, 380, 65, 32);

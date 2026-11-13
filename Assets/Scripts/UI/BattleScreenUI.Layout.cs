@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace MoveCute
@@ -61,12 +60,6 @@ namespace MoveCute
         void InitializeScreen()
         {
             InitializeViews();
-            foreach (var button in GetComponentsInChildren<Button>(true))
-            {
-                var relay = button.GetComponent<BattleScreenPointer>();
-                if (!relay) relay = button.gameObject.AddComponent<BattleScreenPointer>();
-                relay.RightClick = Back;
-            }
             var fonts = Font.GetOSInstalledFontNames();
             var preferred = new[] { "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", "Noto Sans CJK KR" };
             var installed = preferred.FirstOrDefault(f => fonts.Contains(f));
@@ -83,14 +76,14 @@ namespace MoveCute
                 if (ctx != null) OpenCards(T("trash"), ctx.Piles.Trash);
             });
             closeBrowserButton.onClick.AddListener(CloseCardBrowser);
+            detailPanelRoot.GetComponent<Image>().raycastTarget = true;
+            var detailPointer = detailPanelRoot.gameObject.AddComponent<BattleScreenPointer>();
+            detailPointer.LeftClick = CancelFromDetails;
             var descriptionPointer = detailDescription.GetComponent<BattleScreenPointer>();
             if (!descriptionPointer) descriptionPointer = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
             descriptionPointer.Enter = ShowKeywords;
             descriptionPointer.Exit = () => keywordPanel.gameObject.SetActive(false);
-            descriptionPointer.RightClick = Back;
-            energyButton.GetComponent<BattleScreenPointer>().Hold = BeginTeleport;
-            var back = gameObject.AddComponent<BattleScreenPointer>();
-            back.RightClick = Back;
+            descriptionPointer.LeftClick = CancelFromDetails;
             backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
             playerMarker.GetComponent<Image>().raycastTarget = true;
             playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
@@ -100,6 +93,7 @@ namespace MoveCute
             BindTooltip(discardButton, () => T("discardHelp"), () => T("discard"));
             BindTooltip(trashButton, () => T("trashHelp"), () => T("trash"));
             BindTooltip(deckButton, () => T("deckHelp"), () => T("deck"));
+            energyButton.GetComponent<BattleScreenPointer>().Hold = BeginTeleport;
             cancelButton.onClick.AddListener(Back);
             endTurnButton.onClick.AddListener(Back);
             endTurnButton.GetComponent<BattleScreenPointer>().LeftClick = () => { if (pick != null) Back(); };
@@ -123,6 +117,12 @@ namespace MoveCute
             prompt.text = $"{T("teleport")} · HP −{ctx.Config.teleportHpCost}";
             promptRoot.SetActive(true);
             RefreshTargets();
+        }
+
+        void CancelFromDetails()
+        {
+            if (modal.gameObject.activeSelf || pick != null || selectedCard != null || teleportMode)
+                Back();
         }
 
         void Back()
@@ -232,7 +232,6 @@ namespace MoveCute
         {
             var pointer = button.GetComponent<BattleScreenPointer>();
             if (!pointer) pointer = button.gameObject.AddComponent<BattleScreenPointer>();
-            pointer.RightClick = Back;
             pointer.Enter = () =>
             {
                 if (teleportMode)

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MoveCute
@@ -75,6 +76,13 @@ namespace MoveCute
             resultPanel.SetActive(false);
             banner.gameObject.SetActive(false);
             Loc.LanguageChanged += RefreshAll;
+        }
+
+        void Update()
+        {
+            if (ctx != null && (Mouse.current?.rightButton.wasPressedThisFrame == true ||
+                                Keyboard.current?.escapeKey.wasPressedThisFrame == true))
+                Back();
         }
 
         void OnDestroy() => Loc.LanguageChanged -= RefreshAll;

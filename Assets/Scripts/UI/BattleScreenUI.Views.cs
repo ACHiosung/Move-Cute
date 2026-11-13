@@ -84,7 +84,7 @@ namespace MoveCute
         }
 
         void BindCard(Button button, CardInstance card) =>
-            CachedCard(button).Bind(card, OnCardClick, OnCardEntered, OnCardExited, Back);
+            CachedCard(button).Bind(card, OnCardClick, OnCardEntered, OnCardExited);
 
         void OnCardEntered(Button button, CardInstance card)
         {
@@ -100,7 +100,7 @@ namespace MoveCute
 
         void BindBrowserCard(Button button, CardInstance card)
         {
-            CachedCard(button).Bind(card, InspectBrowserCard, OnCardEntered, OnCardExited, Back);
+            CachedCard(button).Bind(card, InspectBrowserCard, OnCardEntered, OnCardExited);
             RefreshCardView(button, card);
         }
 
@@ -108,7 +108,7 @@ namespace MoveCute
 
         void BindRewardCard(Button button, CardInstance card)
         {
-            CachedCard(button).Bind(card, SelectRewardCard, OnCardEntered, OnCardExited, Back);
+            CachedCard(button).Bind(card, SelectRewardCard, OnCardEntered, OnCardExited);
             RefreshCardView(button, card);
         }
 

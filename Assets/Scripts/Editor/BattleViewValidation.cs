@@ -33,7 +33,7 @@ namespace MoveCute.UIEditor
                 var collection = Rect("Collection", root.transform, 600, 300).gameObject.AddComponent<BattleCardCollectionView>();
                 data = ScriptableObject.CreateInstance<CardData>();
                 var cards = new[] { CardInstance.Create(data), CardInstance.Create(data) };
-                Action<Button, CardInstance> bind = (button, card) => button.GetComponent<BattleCardView>().Bind(card, null, null, null, null);
+                Action<Button, CardInstance> bind = (button, card) => button.GetComponent<BattleCardView>().Bind(card, null, null, null);
                 collection.Render(cards, source.cardPrefab, bind);
                 var slot = collection.transform.GetChild(0);
                 collection.Render(cards, source.cardPrefab, bind);

@@ -21,7 +21,6 @@ namespace MoveCute
         Action<CardInstance> clicked;
         Action<Button, CardInstance> entered;
         Action<Button> exited;
-        Action cancelled;
         bool initialized, hovering;
         bool hasRendered;
         Material displayedMaterial;
@@ -45,12 +44,11 @@ namespace MoveCute
             button.onClick.AddListener(Click);
             pointer.Enter = Enter;
             pointer.Exit = Exit;
-            pointer.RightClick = Cancel;
             initialized = true;
         }
 
         public void Bind(CardInstance value, Action<CardInstance> onClick,
-            Action<Button, CardInstance> onEnter, Action<Button> onExit, Action onCancel)
+            Action<Button, CardInstance> onEnter, Action<Button> onExit)
         {
             Initialize();
             Unbind();
@@ -58,7 +56,6 @@ namespace MoveCute
             clicked = onClick;
             entered = onEnter;
             exited = onExit;
-            cancelled = onCancel;
         }
 
         public void Unbind()
@@ -68,13 +65,11 @@ namespace MoveCute
             clicked = null;
             entered = null;
             exited = null;
-            cancelled = null;
         }
 
         void Click() { if (card != null) clicked?.Invoke(card); }
         void Enter() { hovering = true; if (card != null) entered?.Invoke(button, card); }
         void Exit() { hovering = false; exited?.Invoke(button); }
-        void Cancel() => cancelled?.Invoke();
 
         public void Render(Sprite sprite, Material material, Color background,
             IReadOnlyList<Direction> moves, Sprite[] directions, bool selected, bool showFreeFrame,

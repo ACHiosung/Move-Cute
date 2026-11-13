@@ -6,8 +6,16 @@ namespace MoveCute
 {
     public partial class BattleScreenUI
     {
+        IEnumerable<CardInstance> openPile;
+
         void OpenCards(string title, IEnumerable<CardInstance> pile, bool hideOrder = false)
         {
+            if (modal.gameObject.activeSelf && ReferenceEquals(openPile, pile))
+            {
+                CloseCardBrowser();
+                return;
+            }
+
             if (pick != null) Back();
             if (ctx == null || (!M.CanInput && !rewardScreenActive) || pick != null) return;
             ClearSelection();
@@ -15,6 +23,7 @@ namespace MoveCute
                 .ThenBy(c => string.Join(",", c.Moves.Select(d => (int)d)), System.StringComparer.Ordinal)
                 .ThenBy(c => string.Join(",", c.Keywords.Select(k => k.ToString()).OrderBy(n => n, System.StringComparer.Ordinal)), System.StringComparer.Ordinal)
                 .ThenBy(c => c.Cost).ThenBy(c => c.IsGrayed).ToList() : pile.ToList();
+            openPile = pile;
             modalTitle.text = title;
             modal.gameObject.SetActive(true);
             modal.SetAsLastSibling();
@@ -23,6 +32,7 @@ namespace MoveCute
 
         void CloseCardBrowser()
         {
+            openPile = null;
             modal.gameObject.SetActive(false);
             if (hoveredInfoOwner is Button owner && owner.transform.IsChildOf(modal)) EndInfoHover(owner);
             RestorePanel();
