@@ -14,6 +14,13 @@ namespace MoveCute
         Awaitable<Unit> PickUnit(IReadOnlyList<Unit> candidates, string prompt);
         Awaitable<Vector2Int?> PickTile(IReadOnlyList<Vector2Int> candidates, string prompt);
         Awaitable<CardInstance> PickCard(IReadOnlyList<CardInstance> candidates, string prompt);
+
+        /// <summary>
+        /// 손패에 없는 카드(휴지통·더미 등)를 목록 창에서 고른다.
+        /// 목록 창을 따로 구현하지 않은 입력은 PickCard로 대신한다 (예: BattleScreenUI.CardListPicker.cs가 없으면 이 기본 구현).
+        /// </summary>
+        Awaitable<CardInstance> PickCardFromList(IReadOnlyList<CardInstance> candidates, string prompt) =>
+            PickCard(candidates, prompt);
     }
 
     /// <summary>항상 첫 번째 후보를 고른다 (UI 없이 로직을 돌릴 때의 기본값).</summary>

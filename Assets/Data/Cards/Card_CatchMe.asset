@@ -16,8 +16,7 @@ MonoBehaviour:
   nameKey: card.catchme.name
   descKey: card.catchme.desc
   art: {fileID: 0}
-  moves:
-  - 0
+  moves: 00000000i
   cost: 1
   type: 2
   rarity: 2
@@ -28,6 +27,7 @@ MonoBehaviour:
   effects: []
   behavior:
     rid: 3200383199153488322
+  targetKinds: -1
   references:
     version: 2
     RefIds:

@@ -21,10 +21,11 @@ MonoBehaviour:
   type: 2
   rarity: 0
   target: 0
-  keywords: 
+  keywords: []
   effects: []
   behavior:
     rid: 3200383199153488029
+  targetKinds: -1
   references:
     version: 2
     RefIds:

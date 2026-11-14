@@ -16,9 +16,7 @@ MonoBehaviour:
   nameKey: card.chainbomb.name
   descKey: card.chainbomb.desc
   art: {fileID: 0}
-  moves:
-  - 2
-  - 3
+  moves: 0200000003000000i
   cost: 1
   type: 2
   rarity: 2
@@ -28,9 +26,14 @@ MonoBehaviour:
   - rid: 3200383199153488311
   effects:
   - rid: 3200383199153488312
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 3200383199153488310
       type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
       data: 

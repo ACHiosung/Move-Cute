@@ -16,10 +16,7 @@ MonoBehaviour:
   nameKey: card.drone.name
   descKey: card.drone.desc
   art: {fileID: 0}
-  moves:
-  - 1
-  - 1
-  - 0
+  moves: 010000000100000000000000i
   cost: 1
   type: 2
   rarity: 2
@@ -28,9 +25,14 @@ MonoBehaviour:
   - rid: 3200383199153488340
   effects:
   - rid: 3200383199153488341
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 3200383199153488340
       type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
       data: 

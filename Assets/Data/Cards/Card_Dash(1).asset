@@ -27,6 +27,7 @@ MonoBehaviour:
   - rid: 3200383178888970374
   behavior:
     rid: 3200383199153488030
+  targetKinds: -1
   references:
     version: 2
     RefIds:
