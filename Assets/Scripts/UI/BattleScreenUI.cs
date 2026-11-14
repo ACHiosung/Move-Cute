@@ -193,6 +193,7 @@ namespace MoveCute
             Resolve(null);
             resultPanel.SetActive(false);
             Build();
+            ShowRelics();
             return AwaitableUtil.Completed();
         }
 

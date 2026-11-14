@@ -18,6 +18,7 @@ namespace MoveCute
         readonly Dictionary<Button, BattleTileView> boardViews = new();
         readonly Stack<Button> availableHandCards = new();
         RectTransform cardPoolRoot;
+        RectTransform relicList, panelSupports;
         Transform detailPanelRoot, playerPanelRoot;
         GameObject mouseIcon;
         Button deckButton, drawButton, discardButton, trashButton, closeBrowserButton;
@@ -32,6 +33,7 @@ namespace MoveCute
             // One-time lookups for the root-level layout; card/target parts are serialized in each view.
             detailPanelRoot = detailName.transform.parent;
             playerPanelRoot = goldBalance.transform.parent;
+            panelSupports = transform.Find("PanelSupports") as RectTransform;
             mouseIcon = detailPanelRoot.Find("MouseIcon").gameObject;
             deckButton = playerPanelRoot.Find("Deck").GetComponent<Button>();
             drawButton = drawText.transform.parent.GetComponent<Button>();
@@ -51,6 +53,85 @@ namespace MoveCute
                 drawButton.transform, discardButton.transform, trashButton.transform };
             blockedBattleRoots = new[] { hand.gameObject, playerMarker.gameObject, energyButton.gameObject,
                 endTurnButton.gameObject, drawButton.gameObject, discardButton.gameObject, trashButton.gameObject };
+        }
+
+        void ShowRelics()
+        {
+            const int rows = 10, capacity = rows * 2;
+            const float gap = 4f;
+            int count = Mathf.Min(ctx.Run.Relics.Count, capacity);
+            var playerPanel = (RectTransform)playerPanelRoot;
+            var detailPanel = (RectTransform)detailPanelRoot;
+            var boardFrame = (RectTransform)board.transform.parent;
+            float height = playerPanel.anchoredPosition.y - detailPanel.anchoredPosition.y + detailPanel.rect.height;
+            float size = (height - (rows - 1) * gap) / rows;
+            if (count > rows) size *= 0.5f;
+            float width = count > rows ? 2 * size + gap : size;
+            float available = boardFrame.anchoredPosition.x - playerPanel.rect.width;
+            float outerGap = count == 0 ? available / 2 : (available - width) / 3;
+            float panelX = count == 0 ? outerGap : 2 * outerGap + width;
+            var shift = Vector2.right * (panelX - playerPanel.anchoredPosition.x);
+            playerPanel.anchoredPosition += shift;
+            detailPanel.anchoredPosition += shift;
+            if (panelSupports != null) panelSupports.anchoredPosition += shift;
+            modal.anchoredPosition += shift;
+            keywordPanel.anchoredPosition += shift;
+
+            if (count == 0)
+            {
+                if (relicList != null) Clear(relicList);
+                return;
+            }
+
+            if (relicList == null)
+            {
+                relicList = new GameObject("Relics", typeof(RectTransform)).GetComponent<RectTransform>();
+                relicList.SetParent(transform, false);
+                relicList.anchorMin = relicList.anchorMax = relicList.pivot = new Vector2(0, 1);
+                relicList.sizeDelta = Vector2.zero;
+            }
+            Clear(relicList);
+
+            relicList.anchoredPosition = new Vector2(outerGap, playerPanel.anchoredPosition.y);
+            for (int i = 0; i < count; i++)
+            {
+                var data = ctx.Run.Relics[i].Data;
+                var tile = new GameObject("Relic", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                var rect = tile.rectTransform;
+                rect.SetParent(relicList, false);
+                rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
+                rect.anchoredPosition = new Vector2(i / rows, -(i % rows)) * (size + gap);
+                rect.sizeDelta = Vector2.one * size;
+                tile.sprite = data.icon;
+                tile.preserveAspect = true;
+                tile.color = data.icon != null ? Color.white : Panel;
+
+                var pointer = tile.gameObject.AddComponent<BattleScreenPointer>();
+                pointer.Enter = () => BeginInfoHover(tile, () => ShowInformation(data.DisplayName, data.Description));
+                pointer.Exit = () => EndInfoHover(tile);
+
+                if (data.icon == null)
+                    RelicLabel(rect, System.Globalization.StringInfo.GetNextTextElement(data.DisplayName), Vector2.zero, Vector2.one * size);
+            }
+            int extra = ctx.Run.Relics.Count - count;
+            if (extra > 0)
+                RelicLabel(relicList, $"+{extra}", new Vector2(0, -rows * (size + gap)), new Vector2(width, size));
+        }
+
+        void RelicLabel(RectTransform parent, string value, Vector2 position, Vector2 size)
+        {
+            var label = new GameObject("Label", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
+            var rect = label.rectTransform;
+            rect.SetParent(parent, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            label.font = screenFont;
+            label.fontSize = 18;
+            label.color = Ink;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            label.text = value;
         }
 
         BattleCardView CachedCard(Button button)
