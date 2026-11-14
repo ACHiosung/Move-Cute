@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_KillerQueen
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: killerqueen
+  nameKey: card.killerqueen.name
+  descKey: card.killerqueen.desc
+  art: {fileID: 21300000, guid: dfff5edaf7f94114b8b004d52e31a76c, type: 3}
+  moves:
+  - 1
+  - 2
+  cost: 1
+  type: 2
+  rarity: 2
+  target: 0
+  keywords:
+  - rid: 3200383220001110701
+  - rid: 3200383220001110702
+  - rid: 3200383220001110703
+  effects:
+  - rid: 3200383220001110711
+  targetKinds: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: 3200383220001110701
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383220001110702
+      type: {class: Keyword_ChainBomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383220001110703
+      type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383220001110711
+      type: {class: ReplacePlayerObstaclesEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        obstacle: {fileID: 11400000, guid: 9da89b627f664d96a9cc16da7f6dfc96, type: 2}

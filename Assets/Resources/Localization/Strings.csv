@@ -67,20 +67,30 @@ status.hesitation.name,주저,Hesitation
 status.movecute.name,MOVE CUTE,MOVE CUTE
 status.demotivation.name,의욕 상실,Demotivation
 # 폭탄·주저 카드와 유물 추가 (서재호),,
-card.artbomb.name,예술 폭탄,Art Bomb
+card.artbomb.name,예술은 폭발이다,Art Is an Explosion
 card.artbomb.desc,무작위 빈 타일에 예술 폭탄을 설치합니다.,Place an Art Bomb on a random empty tile.
 card.strike.name,강타,Bash
 card.strike.desc,피해를 {damage} 주고 주저를 {hesitation} 부여합니다.,Deal {damage} damage and apply {hesitation} Hesitation.
 card.act.name,연기,Act
 card.act.desc,적에게 주저를 {hesitation} 부여합니다.,Apply {hesitation} Hesitation to an enemy.
-card.bombassembly.name,폭탄 조립,Bomb Assembly
+card.bombassembly.name,조립 자동화,Assembly Automation
 card.bombassembly.desc,빈 타일 하나에 연계 폭탄을 설치합니다.,Place a Chain Bomb on an empty tile.
 relic.bombmold.name,폭탄용 거푸집,Bomb Mold
 relic.bombmold.desc,기본 폭탄의 피해량이 {bonus} 증가합니다.,Basic bombs deal {bonus} more damage.
 relic.artificialtears.name,인공 눈물,Artificial Tears
 relic.artificialtears.desc,카드 효과로 주저를 부여할 때 부여량이 {bonus} 증가합니다.,Hesitation applied by card effects is increased by {bonus}.
 relic.sharkcannon.name,상어 모양 대포,Shark Cannon
-relic.sharkcannon.desc,폭탄이 발동할 때마다 카드를 {count}장 뽑습니다.,Whenever a bomb goes off, draw {count} card.
+relic.sharkcannon.desc,폭탄이 발동할 때마다 카드를 {count}장 뽑습니다.,"Whenever a bomb goes off, draw {count} card."
 relic.whip.name,채찍,Whip
 relic.whip.desc,주저를 {threshold} 부여할 때마다 카드를 {count}장 뽑습니다.,"Every {threshold} Hesitation you apply, draw {count} card."
 status.hesitationboost.name,주저 효과 증가,Hesitation Boost
+card.primp.name,꽃단장,Primp
+card.primp.desc,이번 전투 동안 적이 보유한 주저의 효과가 20% 증가합니다.,"This battle, Hesitation on enemies is 20% more effective."
+card.gaze.name,응시,Gaze
+card.gaze.desc,적에게 주저를 {hesitation} 부여합니다. 카드를 {count}장 뽑습니다.,Apply {hesitation} Hesitation to an enemy. Draw {count} card.
+card.killerqueen.name,킬러 퀸,Killer Queen
+card.killerqueen.desc,내가 설치한 모든 장애물을 연계 폭탄으로 교체합니다.,Replace all obstacles you placed with Chain Bombs.
+relic.ricecake.name,이사 떡,Housewarming Rice Cake
+relic.ricecake.desc,전투 시작 시 적에게 주저를 {hesitation} 부여합니다.,"At the start of battle, apply {hesitation} Hesitation to an enemy."
+relic.claymore.name,클레이모어,Claymore
+relic.claymore.desc,연계 폭탄의 피해 횟수가 {bonus} 증가합니다.,Chain Bombs hit {bonus} more times.

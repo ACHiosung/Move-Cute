@@ -75,6 +75,7 @@ namespace MoveCute
             if (data == null || tile == null || !tile.Passable || pos == Player.Pos) return false;
 
             var o = new Obstacle(data, pos);
+            o.PlacedByPlayer = src.Owner is not Enemy;
             tile.Occupant = o;
             Obstacles.Add(o);
             Log($"{src}: {o} 배치 {pos}");

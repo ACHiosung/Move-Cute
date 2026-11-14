@@ -11,7 +11,7 @@ namespace MoveCute
     ///   다른 장애물 수 k = 지금 보드에 남은 장애물 수. onDestroyed에서는 자신과 앞서 터진 폭탄이 이미 빠져 있다
     ///   피해량 = 기본 피해 × multiplierPerOtherObstacle^k (공격 측 곱). 소수점은 피격 측 곱(주저 등)까지 곱한 뒤
     ///   BattleContext.CalculateDamage에서 한 번만 내림 (예술 폭탄 1.5, 주저 없음: 2 → 3 → 4 → 6)
-    ///   횟수 = 1 + (hitPerOtherObstacle면 k) (연계 폭탄)
+    ///   횟수 = 1 + (hitPerOtherObstacle면 k + 클레이모어 bonus) (연계 폭탄)
     /// k는 실행 시작 때 한 번 센다. 대상이 없으면 매 번 무작위 적.
     /// </summary>
     [Serializable]
@@ -30,7 +30,7 @@ namespace MoveCute
         {
             int others = ctx.Obstacles.Count;
             Damage amount = Amount(ctx, others, (src.Owner as Obstacle)?.Data);
-            int hits = 1 + (hitPerOtherObstacle ? others : 0);
+            int hits = 1 + (hitPerOtherObstacle ? others + ChainHitBonus(ctx) : 0);
             for (int i = 0; i < hits; i++)
             {
                 var unit = target.Unit ?? ctx.GetRandomEnemy();
@@ -46,5 +46,9 @@ namespace MoveCute
             for (int i = 0; i < others; i++) amount = amount.Multiply((decimal)multiplierPerOtherObstacle);
             return amount;
         }
+
+        /// <summary>연계 폭탄 피해 횟수에 더할 값: 켜 둔 클레이모어(ChainBombHitRelic)의 bonus 합</summary>
+        static int ChainHitBonus(BattleContext ctx) =>
+            ctx.Run.Relics.OfType<ChainBombHitRelic>().Where(r => r.Enabled).Sum(r => r.Bonus);
     }
 }
