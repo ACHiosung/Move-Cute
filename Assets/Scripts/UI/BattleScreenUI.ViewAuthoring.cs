@@ -19,7 +19,6 @@ namespace MoveCute
             rewardChoicesView = EnsureView<BattleCardCollectionView>(rewardCandidates.gameObject);
             backdropView = EnsureView<BattleBackdropView>(gameObject);
             energyStrip = EnsureView<BattleCellStripView>(energyCells.gameObject);
-            turnStrip = EnsureView<BattleCellStripView>(turnCells.gameObject);
             rewardListView = EnsureView<BattleRewardListView>(rewardListPanel);
             rewardListView.Configure(rewardGoldButton, rewardHealButton, rewardCardButton);
         }

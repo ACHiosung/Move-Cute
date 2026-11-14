@@ -26,9 +26,14 @@ MonoBehaviour:
   - rid: 3200383199153488300
   effects:
   - rid: 3200383199153488301
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 3200383199153488300
       type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
       data: 

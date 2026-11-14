@@ -10,21 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
-  m_Name: Card_UnlockTest
+  m_Name: Card_Delete
   m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
-  id: unlock
-  nameKey: card.unlock.name
-  descKey: card.unlock.desc
-  art: {fileID: -5295901987261241684, guid: 79de1d174c292404986104c964509346, type: 3}
+  id: delete
+  nameKey: card.delete.name
+  descKey: card.delelte.desc
+  art: {fileID: 0}
   moves: 
-  cost: 1
-  type: 1
+  cost: 0
+  type: 2
   rarity: 0
-  target: 1
+  target: 0
   keywords:
-  - rid: 1274502280535080961
-  effects:
-  - rid: 1274502280535080962
+  - rid: 1274502499637395456
+  effects: []
   behavior:
     rid: -2
   targetKinds: -1
@@ -33,12 +32,6 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1274502280535080961
-      type: {class: Keyword_Lock, ns: MoveCute, asm: Assembly-CSharp}
-      data:
-        isUnlocked: 1
-        autoLock: 1
-    - rid: 1274502280535080962
-      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
-      data:
-        damage: 3
+    - rid: 1274502499637395456
+      type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
+      data: 

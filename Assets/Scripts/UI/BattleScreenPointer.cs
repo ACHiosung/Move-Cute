@@ -9,7 +9,7 @@ namespace MoveCute
     public class BattleScreenPointer : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
-        public Action Enter, Exit, Hold, RightClick, LeftClick;
+        public Action Enter, Exit, Hold, LeftClick;
         public float holdSeconds = 0.55f;
         Coroutine holdRoutine;
         bool hovering;
@@ -24,7 +24,6 @@ namespace MoveCute
         public void OnPointerUp(PointerEventData e) => StopHold();
         public void OnPointerClick(PointerEventData e)
         {
-            if (e.button == PointerEventData.InputButton.Right) RightClick?.Invoke();
             if (e.button == PointerEventData.InputButton.Left) LeftClick?.Invoke();
         }
         IEnumerator WaitForHold()

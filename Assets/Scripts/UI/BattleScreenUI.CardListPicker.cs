@@ -89,11 +89,13 @@ namespace MoveCute
         void BindListPickCard(Button button, CardInstance card)
         {
             CachedCard(button).Bind(card, ResolveListPick,
-                (view, c) => BeginInfoHover(view, () => ShowCard(c)), EndInfoHover, null);
+                (view, c) => BeginInfoHover(view, () => ShowCard(c)), view => EndInfoHover(view));
             CardMoveDisplay.GetRange(card, MoveDisplayContext, out int start, out int count);
             // 고를 수 있는 후보라는 표시로 테두리를 켠다. 흑백은 잠금만 (에너지·이동 가능 여부와 무관하게 고를 수 있음)
+            // 무료·해금 카드 테두리는 손패(RefreshCardView)와 같은 기준으로 표시한다
+            bool showFreeFrame = card.Has<Keyword_Free>() || card.IsUnlocked;
             CachedCard(button).Render(ArtFor(card), card.IsLocked ? grayscaleMaterial : null,
-                card.IsLocked ? Grayed : CardBase, CardMoveDisplay.VisibleMoves(card), directionIcons, true, start, count);
+                card.IsLocked ? Grayed : CardBase, CardMoveDisplay.VisibleMoves(card), directionIcons, true, showFreeFrame, start, count);
         }
 
         /// <summary>카드 수에 맞춰 스크롤 영역 높이를 맞춘다 (원래 창의 RenderModal과 같은 계산).</summary>

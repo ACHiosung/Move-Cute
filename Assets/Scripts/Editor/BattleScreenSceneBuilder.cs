@@ -88,10 +88,11 @@ namespace MoveCute.UIEditor
                 var enemy = root.GetComponent<BattleScreenUI>().enemyPrefab.transform;
                 var name = enemy.Find("Name");
                 if (name != null) Object.DestroyImmediate(name.gameObject);
-                SetRect(enemy.Find("Art"), .10f, .035f, .80f, .72f);
-                SetRect(enemy.Find("Bar"), .06f, -16f / 700f, .88f, .045f);
-                SetRect(enemy.Find("Morale"), .06f, -16f / 700f, .88f, .045f);
-                SetRect(enemy.Find("Statuses"), .06f, -.10f, .88f, .06f);
+                SetRect(enemy.Find("Art"), .10f, .102f, .80f, .72f);
+                SetRect(enemy.Find("Bar"), .06f, BattleScreenUI.EnemyMoraleBottomInset, .88f, 33.15f / 700f);
+                SetRect(enemy.Find("Bar/Fill"), 0, 0, 1, 1);
+                SetRect(enemy.Find("Morale"), .06f, BattleScreenUI.EnemyMoraleBottomInset, .88f, 33.15f / 700f);
+                SetRect(enemy.Find("Statuses"), .06f, 0, .88f, 28.05f / 700f);
                 var tooltip = root.transform.Find("Tooltip");
                 if (tooltip != null) Object.DestroyImmediate(tooltip.gameObject);
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);

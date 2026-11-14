@@ -22,18 +22,31 @@ namespace MoveCute.UIEditor
                 var handRoot = Rect("Hand", root.transform, 870, 175);
                 var hand = handRoot.gameObject.AddComponent<BattleHandView>();
                 var first = Rect("First", handRoot, 1, 1);
+                var hitArea = first.gameObject.AddComponent<Image>();
                 hand.Add(first); hand.ApplyIfDirty();
                 int initial = hand.LayoutPasses;
                 for (int i = 0; i < 1000; i++) hand.ApplyIfDirty();
                 Check(hand.LayoutPasses == initial, "Idle hand must not repeat layout.");
                 hand.Select(first); hand.ApplyIfDirty();
                 Check(hand.LayoutPasses == initial + 1 && first.anchoredPosition.y == 26, "Selection must invalidate layout once.");
+                hand.Select(null);
+                hand.ApplyIfDirty();
+                Vector2 nearOriginalBottom = first.TransformPoint(new Vector2(first.rect.center.x, first.rect.yMin + 1));
+                hand.Hover(first);
+                hand.ApplyIfDirty();
+                Check(first.anchoredPosition.y == 26 &&
+                    RectTransformUtility.RectangleContainsScreenPoint(first, nearOriginalBottom, null, hitArea.raycastPadding),
+                    "Hover must raise the card without losing the original lower hit area.");
+                hand.Hover(null);
+                hand.ApplyIfDirty();
+                Check(first.anchoredPosition.y == 0 && hitArea.raycastPadding == Vector4.zero,
+                    "Leaving hover must restore the resting card and hit area.");
 
                 var source = AssetDatabase.LoadAssetAtPath<GameObject>(BattleScreenSceneBuilder.PrefabPath).GetComponent<BattleScreenUI>();
                 var collection = Rect("Collection", root.transform, 600, 300).gameObject.AddComponent<BattleCardCollectionView>();
                 data = ScriptableObject.CreateInstance<CardData>();
                 var cards = new[] { CardInstance.Create(data), CardInstance.Create(data) };
-                Action<Button, CardInstance> bind = (button, card) => button.GetComponent<BattleCardView>().Bind(card, null, null, null, null);
+                Action<Button, CardInstance> bind = (button, card) => button.GetComponent<BattleCardView>().Bind(card, null, null, null);
                 collection.Render(cards, source.cardPrefab, bind);
                 var slot = collection.transform.GetChild(0);
                 collection.Render(cards, source.cardPrefab, bind);
