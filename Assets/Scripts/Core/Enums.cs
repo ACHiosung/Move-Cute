@@ -41,4 +41,14 @@ namespace MoveCute
     }
 
     public enum BattlePhase { NotStarted, PlayerAction, Resolving, Won, Lost }
+
+    // 대상이 Unit인 카드가 고를 수 있는 종류. 여러 개를 함께 고를 수 있다 (CardData.targetKinds)
+    [System.Flags]
+    public enum UnitTargetKind
+    {
+        Enemy = 1,
+        Obstacle = 2,   // 폭탄이 아닌 장애물 (묘비 등)
+        Bomb = 4,       // ObstacleData.isBomb가 켜진 장애물
+        All = Enemy | Obstacle | Bomb,
+    }
 }

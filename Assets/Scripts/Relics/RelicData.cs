@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace MoveCute
 {
-    public enum RelicTrigger { BattleStart, TurnStart, TurnEnd, CardPlayed, PlayerMoved }
+    // 에셋에 숫자로 저장되므로 새 값은 끝에만 추가한다
+    public enum RelicTrigger { BattleStart, TurnStart, TurnEnd, CardPlayed, PlayerMoved, LastTurnEnd }
 
     /// <summary>
     /// 유물 원본. 단순한 유물은 이 에셋에서 trigger + effects만 고르면 된다 (코드 없음).

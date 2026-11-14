@@ -35,7 +35,9 @@ MonoBehaviour:
     - rid: 1415127154514985050
       type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        maxReuseCount: 5
+        maxReuseCount:
+          source: 0
+          value: 5
     - rid: 3200383178888970374
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:

@@ -16,14 +16,18 @@ MonoBehaviour:
   nameKey: obstacle.bomb.name
   hp: 2
   sprite: {fileID: 0}
+  isBomb: 1
   onDestroyed:
   - rid: 3200383178888970480
   onLastTurnEnd: []
   destroyOnLastTurnEnd: 1
+  lastTurnPriority: 0
   references:
     version: 2
     RefIds:
     - rid: 3200383178888970480
-      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
+      type: {class: BombExplosionEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
         damage: 2
+        hitPerOtherObstacle: 0
+        multiplierPerOtherObstacle: 1

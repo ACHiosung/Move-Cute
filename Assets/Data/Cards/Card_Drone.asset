@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_Drone
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: drone
+  nameKey: card.drone.name
+  descKey: card.drone.desc
+  art: {fileID: 0}
+  moves:
+  - 1
+  - 1
+  - 0
+  cost: 1
+  type: 2
+  rarity: 2
+  target: 0
+  keywords:
+  - rid: 3200383199153488340
+  effects:
+  - rid: 3200383199153488341
+  references:
+    version: 2
+    RefIds:
+    - rid: 3200383199153488340
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383199153488341
+      type: {class: OnLastTurnEndEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        effects:
+        - rid: 3200383199153488342
+    - rid: 3200383199153488342
+      type: {class: PlaceObstacleEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        obstacle: {fileID: 11400000, guid: 9da89b627f664d96a9cc16da7f6dfc96, type: 2}

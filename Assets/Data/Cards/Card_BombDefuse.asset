@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_BombDefuse
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: defuse
+  nameKey: card.defuse.name
+  descKey: card.defuse.desc
+  art: {fileID: 0}
+  moves: []
+  cost: 1
+  type: 2
+  rarity: 2
+  target: 3
+  keywords:
+  - rid: 3200383199153488330
+  effects:
+  - rid: 3200383199153488331
+  behavior:
+    rid: 3200383199153488332
+  references:
+    version: 2
+    RefIds:
+    - rid: 3200383199153488330
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3200383199153488331
+      type: {class: DetonateBombsInRangeEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        distance: 1
+    - rid: 3200383199153488332
+      type: {class: AnyDirectionStepCard, ns: MoveCute, asm: Assembly-CSharp}
+      data: 

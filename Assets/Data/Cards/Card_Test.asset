@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
   m_Name: Card_Test
   m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
-  id: test
+  id: 
   nameKey: 
   descKey: 
   art: {fileID: 21300000, guid: 35f815a4e18341b78c58f6387decbe3a, type: 3}
@@ -21,11 +21,7 @@ MonoBehaviour:
   type: 0
   rarity: 0
   target: 0
-  keywords:
-  - rid: 1274502530616000680
-  - rid: 1274502530616000679
-  - rid: 1274502530616000681
-  - rid: 1274502530616000682
+  keywords: []
   effects: []
   behavior:
     rid: -2
@@ -34,18 +30,3 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1274502530616000679
-      type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
-      data:
-        maxReuseCount: 5
-    - rid: 1274502530616000680
-      type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
-      data: 
-    - rid: 1274502530616000681
-      type: {class: Keyword_Free, ns: MoveCute, asm: Assembly-CSharp}
-      data: 
-    - rid: 1274502530616000682
-      type: {class: Keyword_Lock, ns: MoveCute, asm: Assembly-CSharp}
-      data:
-        isUnlocked: 0
-        autoLock: 1
