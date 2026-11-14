@@ -39,10 +39,7 @@ namespace MoveCute
             detailMoves = TextAt("DetailMoves", detail, "", 155, 160, 230, 64, 36);
             detailDescription = TextAt("DetailDescription", detail, "", 25, 250, 360, 245, 23);
             detailDescription.alignment = TextAnchor.UpperLeft;
-            var hover = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
             detailDescription.raycastTarget = true;
-            hover.Enter = ShowKeywords;
-            hover.Exit = () => keywordPanel.gameObject.SetActive(false);
             helpText = TextAt("Help", detail, "", 35, 135, 340, 340, 25);
             helpText.alignment = TextAnchor.UpperLeft;
             mouseIcon = Box("MouseIcon", detail, 30, 82, 25, 42, Ink).gameObject;

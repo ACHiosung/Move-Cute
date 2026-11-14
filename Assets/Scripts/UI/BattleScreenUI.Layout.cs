@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MoveCute
@@ -32,6 +33,11 @@ namespace MoveCute
         [TextArea] public string[] enemyDescriptions = Array.Empty<string>();
 
         CardInstance selectedCard, inspectedCard;
+        RectTransform keywordButtonsRoot;
+        readonly List<Button> keywordButtons = new();
+        const int KeywordsPerRow = 3;
+        const float KeywordInset = 25f, KeywordBottom = 16f, KeywordHeight = 30f, KeywordGap = 6f;
+        string openKeyword;
         object hoveredInfoOwner;
         Action hoveredInfoDisplay;
         bool teleportMode;
@@ -82,9 +88,8 @@ namespace MoveCute
             detailPointer.LeftClick = CancelFromDetails;
             var descriptionPointer = detailDescription.GetComponent<BattleScreenPointer>();
             if (!descriptionPointer) descriptionPointer = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
-            descriptionPointer.Enter = ShowKeywords;
-            descriptionPointer.Exit = () => keywordPanel.gameObject.SetActive(false);
             descriptionPointer.LeftClick = CancelFromDetails;
+            InitializeKeywords();
             backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
             playerMarker.GetComponent<Image>().raycastTarget = true;
             playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
@@ -105,6 +110,15 @@ namespace MoveCute
         void LateUpdate()
         {
             if (ctx == null) return;
+            var mouse = Mouse.current;
+            if (openKeyword != null && mouse != null && mouse.leftButton.wasReleasedThisFrame)
+            {
+                var position = mouse.position.ReadValue();
+                if (!RectTransformUtility.RectangleContainsScreenPoint(keywordPanel, position) &&
+                    !keywordButtons.Any(button => button.gameObject.activeInHierarchy &&
+                        RectTransformUtility.RectangleContainsScreenPoint((RectTransform)button.transform, position)))
+                    CloseKeyword();
+            }
             endTurnButton.interactable = M.CanInput && !teleportMode && !modal.gameObject.activeSelf;
             if (teleportMode && !M.CanInput) { teleportMode = false; RefreshTargets(); }
         }
@@ -122,12 +136,13 @@ namespace MoveCute
 
         void CancelFromDetails()
         {
-            if (modal.gameObject.activeSelf || pick != null || selectedCard != null || teleportMode)
+            if (openKeyword != null || modal.gameObject.activeSelf || pick != null || selectedCard != null || teleportMode)
                 Back();
         }
 
         void Back()
         {
+            if (openKeyword != null) { CloseKeyword(); return; }
             if (rewardScreenActive) { RewardBack(); return; }
             if (modal.gameObject.activeSelf) { CloseCardBrowser(); return; }
             if (pick != null) Resolve(null);
@@ -137,6 +152,7 @@ namespace MoveCute
 
         void ClearSelection()
         {
+            CloseKeyword();
             selectedCard = null;
             energyPreviewCard = null;
             RefreshEnergyStrip();
@@ -156,7 +172,7 @@ namespace MoveCute
             detailMoves.text = "";
             detailDescription.text = "";
             detailArt.gameObject.SetActive(false);
-            keywordPanel.gameObject.SetActive(false);
+            HideKeywords();
             helpText.gameObject.SetActive(true);
             mouseIcon.SetActive(true);
             helpText.text = T("help").Replace("\\n", "\n");
@@ -166,19 +182,20 @@ namespace MoveCute
         {
             hoveredInfoOwner = owner;
             hoveredInfoDisplay = display;
-            display();
+            if (openKeyword == null) display();
         }
 
-        void EndInfoHover(object owner)
+        void EndInfoHover(object owner, bool restore = true)
         {
             if (!ReferenceEquals(hoveredInfoOwner, owner)) return;
             hoveredInfoOwner = null;
             hoveredInfoDisplay = null;
-            RestorePanel();
+            if (restore) RestorePanel();
         }
 
         void RestorePanel()
         {
+            if (openKeyword != null) return;
             if (hoveredInfoDisplay != null) hoveredInfoDisplay();
             else if (selectedCard != null) ShowCard(selectedCard);
             else if (rewardScreenActive) ShowInformation(T("rewards"), T("rewardHelp"));
@@ -194,12 +211,13 @@ namespace MoveCute
             detailArt.gameObject.SetActive(false);
             helpText.gameObject.SetActive(true);
             helpText.text = description;
-            keywordPanel.gameObject.SetActive(false);
+            HideKeywords();
             mouseIcon.SetActive(false);
         }
 
         void ShowCard(CardInstance card)
         {
+            if (inspectedCard != card) CloseKeyword();
             inspectedCard = card;
             helpText.gameObject.SetActive(false);
             mouseIcon.SetActive(false);
@@ -211,23 +229,122 @@ namespace MoveCute
             detailMoves.supportRichText = true;
             detailMoves.text = CardMoveDisplay.FormatArrows(card, MoveDisplayContext);
             detailMoves.gameObject.SetActive(!card.IsUnlocked && card.Moves.Count > 0);
-            detailDescription.text = card.Data.Description + "\n\n" + string.Join(" · ", card.Keywords.Select(k => T(k.ToString())));
+            detailDescription.text = card.Data.Description;
             CardMoveDisplay.GetRange(card, MoveDisplayContext, out _, out int moveCount);
             if (card.IsLocked && moveCount < card.Moves.Count)
                 detailDescription.text += "\n" + T("IgnoredMovesDesc");
+            RefreshKeywords(card);
+        }
+
+        void InitializeKeywords()
+        {
+            var detail = (RectTransform)detailPanelRoot;
+            keywordButtonsRoot = new GameObject("Keywords", typeof(RectTransform)).GetComponent<RectTransform>();
+            keywordButtonsRoot.SetParent(detail, false);
+            keywordButtonsRoot.anchorMin = Vector2.zero;
+            keywordButtonsRoot.anchorMax = Vector2.right;
+            keywordButtonsRoot.offsetMin = new Vector2(KeywordInset, KeywordBottom);
+            keywordButtonsRoot.offsetMax = new Vector2(-KeywordInset, KeywordBottom + KeywordHeight);
+            keywordPanel.sizeDelta = new Vector2(detail.rect.width - 2 * KeywordInset, 76);
+            detailDescription.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 214);
+            keywordPanel.GetComponent<Image>().raycastTarget = true;
+            keywordText.alignment = TextAnchor.MiddleCenter;
+            var textRect = keywordText.rectTransform;
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = new Vector2(12, 8);
+            textRect.offsetMax = new Vector2(-12, -8);
+        }
+
+        void RefreshKeywords(CardInstance card)
+        {
+            var keys = card.Keywords.Select(keyword => keyword.ToString()).Distinct().ToList();
+            if (card.Data.Description.Contains(T("bomb"))) keys.Add("bomb");
+            if (openKeyword != null && !keys.Contains(openKeyword)) CloseKeyword();
+            float buttonWidth = (keywordButtonsRoot.rect.width - (KeywordsPerRow - 1) * KeywordGap) / KeywordsPerRow;
+            for (int i = 0; i < keys.Count; i++)
+            {
+                if (i == keywordButtons.Count) keywordButtons.Add(CreateKeywordButton());
+                var button = keywordButtons[i];
+                string key = keys[i];
+                var label = button.GetComponentInChildren<Text>(true);
+                label.text = T(key);
+                var rect = (RectTransform)button.transform;
+                rect.sizeDelta = new Vector2(buttonWidth, KeywordHeight);
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => ToggleKeyword(key, rect));
+                int row = i / KeywordsPerRow;
+                int rowEnd = Mathf.Min(keys.Count, (row + 1) * KeywordsPerRow);
+                rect.anchoredPosition = new Vector2(
+                    -(rowEnd - i - 1) * (buttonWidth + KeywordGap), row * (KeywordHeight + KeywordGap));
+                button.gameObject.SetActive(true);
+                if (openKeyword == key) PositionKeywordPanel(rect);
+            }
+            int rowCount = (keys.Count + KeywordsPerRow - 1) / KeywordsPerRow;
+            float extraHeight = Mathf.Max(0, rowCount - 1) * (KeywordHeight + KeywordGap);
+            detailDescription.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 214 - extraHeight);
+            for (int i = keys.Count; i < keywordButtons.Count; i++)
+                keywordButtons[i].gameObject.SetActive(false);
+            keywordButtonsRoot.gameObject.SetActive(keys.Count > 0);
+            if (openKeyword != null) keywordText.text = T(openKeyword + "Desc");
+        }
+
+        Button CreateKeywordButton()
+        {
+            var image = new GameObject("Keyword", typeof(RectTransform), typeof(Image), typeof(Button))
+                .GetComponent<Image>();
+            var rect = image.rectTransform;
+            rect.SetParent(keywordButtonsRoot, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.right;
+            image.color = Pale;
+            var button = image.GetComponent<Button>();
+            button.targetGraphic = image;
+            var label = new GameObject("Label", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
+            label.transform.SetParent(button.transform, false);
+            label.rectTransform.anchorMin = Vector2.zero;
+            label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            label.rectTransform.offsetMin = new Vector2(5, 0);
+            label.rectTransform.offsetMax = new Vector2(-5, 0);
+            label.font = screenFont;
+            label.fontSize = 22;
+            label.fontStyle = FontStyle.Normal;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 10;
+            label.resizeTextMaxSize = 22;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = Ink;
+            label.raycastTarget = false;
+            return button;
+        }
+
+        void PositionKeywordPanel(RectTransform button)
+        {
+            keywordPanel.position = button.TransformPoint(
+                new Vector3(button.rect.xMax + 8, button.rect.center.y + keywordPanel.rect.height / 2));
+        }
+
+        void ToggleKeyword(string key, RectTransform button)
+        {
+            if (openKeyword == key) { CloseKeyword(); return; }
+            openKeyword = key;
+            keywordText.text = T(key + "Desc");
+            keywordPanel.gameObject.SetActive(true);
+            PositionKeywordPanel(button);
+            keywordPanel.SetAsLastSibling();
+        }
+
+        void CloseKeyword()
+        {
+            openKeyword = null;
             keywordPanel.gameObject.SetActive(false);
         }
 
-        void ShowKeywords()
+        void HideKeywords()
         {
-            if (inspectedCard == null) return;
-            var lines = inspectedCard.Keywords.Select(k => $"{T(k.ToString())}\n{T(k + "Desc")}").ToList();
-            if (inspectedCard.Data.Description.Contains(T("bomb"))) lines.Add(T("bombDesc"));
-            keywordText.text = string.Join("\n\n", lines);
-            keywordPanel.gameObject.SetActive(lines.Count > 0);
+            CloseKeyword();
+            if (keywordButtonsRoot != null) keywordButtonsRoot.gameObject.SetActive(false);
         }
-
-
 
         void BindTile(Button button, Vector2Int pos)
         {

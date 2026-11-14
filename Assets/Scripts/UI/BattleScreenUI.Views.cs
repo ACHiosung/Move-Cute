@@ -175,7 +175,8 @@ namespace MoveCute
 
         void OnCardExited(Button button)
         {
-            EndInfoHover(button);
+            // Keep the displayed card available while the pointer travels to its keyword buttons.
+            EndInfoHover(button, restore: !keywordButtonsRoot.gameObject.activeSelf);
             if (selectedCard == null) ClearPreview();
         }
 
@@ -185,7 +186,7 @@ namespace MoveCute
             RefreshCardView(button, card);
         }
 
-        void InspectBrowserCard(CardInstance card) { ShowCard(card); ShowKeywords(); }
+        void InspectBrowserCard(CardInstance card) => ShowCard(card);
 
         void BindRewardCard(Button button, CardInstance card)
         {

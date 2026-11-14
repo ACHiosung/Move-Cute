@@ -182,6 +182,7 @@ namespace MoveCute
         public Awaitable BattleStarted(BattleContext c)
         {
             ctx = c;
+            HideKeywords();
             ResetRewardScreen();
             hoveredInfoOwner = null;
             hoveredInfoDisplay = null;
@@ -347,12 +348,7 @@ namespace MoveCute
         {
             RefreshCard(card);
             if (energyPreviewCard == card) RefreshEnergyStrip();
-            if (inspectedCard == card)
-            {
-                bool keywordsOpen = keywordPanel.gameObject.activeSelf;
-                ShowCard(card);
-                if (keywordsOpen) ShowKeywords();
-            }
+            if (inspectedCard == card) ShowCard(card);
             return AwaitableUtil.Completed();
         }
 
