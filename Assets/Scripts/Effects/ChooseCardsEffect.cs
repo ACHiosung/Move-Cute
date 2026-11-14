@@ -7,7 +7,8 @@ namespace MoveCute
 {
     /// <summary>
     /// 카드를 골라 무언가를 하는 효과의 기반. from에서 후보를 모아 count장까지 한 장씩 고르고, 고를 때마다 Apply를 부른다.
-    /// 고르는 창은 ctx.ChooseCardFromList (전투 화면에서는 목록 창, 고르기 전에는 닫을 수 없음).
+    /// 손패에서 1장만 고를 때는 손패 카드에 빨간 테두리를 띄워 고른다 (ctx.ChooseCard, 취소되면 다시 묻는다).
+    /// 그 밖에는 목록 창 (ctx.ChooseCardFromList, 고르기 전에는 닫을 수 없음).
     /// keywords를 넣으면 그 키워드가 있는 카드만 후보로 보인다. 하위 효과는 Accepts로 조건을 더할 수 있다.
     /// 후보가 count보다 적으면 있는 만큼만 고른다. 후보가 없으면 발동할 수 없어 카드가 흑백이다.
     /// 뽑을 카드 더미에서 고를 때는 뽑을 순서가 드러나지 않게 정렬해서 보여 준다.
@@ -41,9 +42,27 @@ namespace MoveCute
                 if (from == CardPileKind.Draw)
                     candidates = candidates.OrderBy(c => c.Data.id, StringComparer.Ordinal).ToList();
 
-                var card = await ctx.ChooseCardFromList(candidates, Prompt(i + 1, total));
+                var prompt = Prompt(i + 1, total);
+                var card = from == CardPileKind.Hand && total == 1
+                    ? await ChooseInHand(ctx, candidates, prompt)
+                    : await ctx.ChooseCardFromList(candidates, prompt);
                 if (card == null) return;
                 await Apply(ctx, card);
+            }
+        }
+
+        /// <summary>
+        /// 손패 카드에 빨간 테두리를 띄워 1장 고른다 (ctx.ChooseCard). 테두리 선택은 취소 버튼·우클릭·빈 곳 클릭 등으로
+        /// 취소될 수 있지만 카드 효과는 취소할 수 없으므로 다시 묻는다. 취소 직후 화면이 테두리를 지우는 처리가
+        /// 같은 프레임에 이어지므로, 다음 프레임에 다시 띄운다. 전투가 끝나면 null.
+        /// </summary>
+        static async Awaitable<CardInstance> ChooseInHand(BattleContext ctx, List<CardInstance> candidates, string prompt)
+        {
+            while (true)
+            {
+                var card = await ctx.ChooseCard(candidates, prompt);
+                if (card != null || ctx.IsOver) return card;
+                await Awaitable.NextFrameAsync();
             }
         }
 
