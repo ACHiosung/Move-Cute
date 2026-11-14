@@ -18,6 +18,13 @@ namespace MoveCute
         /// ctx 함수는 반드시 await한다. 전투 종료 체크는 ctx가 하므로 신경 쓰지 않아도 된다.
         /// </summary>
         public abstract Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target);
+
+        /// <summary>
+        /// 지금 발동할 수 있는지 (카드 흑백 판정용). 판정만 하므로 동기.
+        /// 고를 대상이 있어야 하는 효과가 재정의한다 (예: 고를 더미가 비면 MoveChosenCardsEffect는 false).
+        /// false인 효과가 하나라도 있으면 카드는 흑백이고, 내면 이동만 하고 부가 효과는 발동하지 않는다.
+        /// </summary>
+        public virtual bool CanExecute(BattleContext ctx) => true;
     }
 
     public static class EffectListExtensions
@@ -35,6 +42,10 @@ namespace MoveCute
                 if (e != null) await e.Execute(ctx, src, target);
             }
         }
+
+        /// <summary>목록의 효과가 모두 지금 발동할 수 있는지 (Effect.CanExecute). 비어 있으면 true.</summary>
+        public static bool CanExecuteAll(this IEnumerable<Effect> effects, BattleContext ctx) =>
+            effects == null || effects.All(e => e == null || e.CanExecute(ctx));
     }
 
     /// <summary>효과를 발생시킨 주체. CardInstance / Relic / TileEffect / Enemy / Obstacle / Status 중 하나.</summary>

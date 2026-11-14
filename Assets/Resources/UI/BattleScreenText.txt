@@ -1,4 +1,6 @@
 energy|에너지|Energy
+relicOn|켜짐 (클릭해서 끄기)|On (click to turn off)
+relicOff|꺼짐 (클릭해서 켜기)|Off (click to turn on)
 rewards|전투 보상|Battle rewards
 rewardHelp|적이 선물을 남겼습니다. 상자를 열어 보상을 확인하세요.|Your opponent left a gift. Open the chest to collect rewards.
 gold|골드|Gold
@@ -11,9 +13,10 @@ back|돌아가기|Back
 leaveCard|두고 가기|Skip card
 leaveRewardsConfirm|아직 받지 않은 보상이 있습니다.\n남은 보상을 포기하고 진행할까요?|Some rewards remain.\nLeave them behind and continue?
 energyHelp|카드 사용에 필요한 에너지입니다. 길게 누르면 에너지 1과 HP를 지불하고 순간이동합니다.|Energy pays for cards. Hold to teleport, spending 1 energy and HP.
-turnHelp|현재 턴을 종료합니다. 칸은 현재 턴을 포함한 남은 턴 수입니다.|End this turn. Cells show remaining turns including the current turn.
+turnHelp|현재 턴을 종료합니다. 버튼 아래에 남은 턴 수 / 전체 턴 수가 표시됩니다. 남은 턴 수에는 현재 턴이 포함됩니다.|End this turn. The count below shows remaining turns including the current turn out of the total.
 drawHelp|앞으로 뽑을 카드입니다. 클릭하면 목록을 봅니다. 실제 순서는 공개하지 않습니다.|Cards available to draw. Click to inspect without revealing draw order.
 discardHelp|사용하거나 버린 카드입니다. 뽑을 카드가 비면 다시 섞입니다.|Played or discarded cards. Reshuffled when the draw pile is empty.
+trashHelp|이번 전투에서 삭제된 카드입니다. 클릭하면 목록을 볼 수 있습니다.|Cards removed for this battle. Click to view the list.
 deckHelp|이번 도전의 전체 덱을 확인합니다.|Inspect your full deck for this run.
 enemyHelp|사기를 낮춰 전투를 끝내세요. 제한 턴이 끝나면 남은 사기만큼 HP 피해를 받습니다.|Reduce morale to end the battle. Remaining morale deals HP damage after the final turn.
 turn|턴|Turn
@@ -22,6 +25,7 @@ player|플레이어|Player
 deck|덱|Deck
 draw|뽑을 카드|Draw pile
 discard|버린 카드|Discard pile
+trash|휴지통|Trash
 cancel|취소|Cancel
 close|닫기|Close
 previous|이전|Previous
@@ -68,3 +72,7 @@ Bomb|폭탄|Bomb
 BombDesc|HP가 0이 되거나 마지막 턴 종료 시 파괴되며 적에게 피해를 줍니다.|Explodes at zero HP or at the end of the final turn and damages an enemy.
 ChainBomb|연계 폭탄|Chain Bomb
 ChainBombDesc|다른 폭탄보다 먼저 터지고, 터질 때 남아 있는 다른 장애물 하나마다 피해를 한 번 더 줍니다.|Explodes before other bombs, and deals damage once more for each other obstacle still on the board.
+Hesitation|주저|Hesitation
+HesitationDesc|주저 수치 1마다 받는 피해가 5% 증가합니다. 턴이 지나도 줄어들지 않습니다.|Takes 5% more damage per stack. Does not decrease over turns.
+GunpowderKeg|화약통|Gunpowder Keg
+GunpowderKegDesc|장애물. 보드에 있는 동안 발동하는 폭탄의 기본 피해가 1 증가합니다.|Obstacle. While on the board, bombs that go off deal 1 more base damage.

@@ -41,5 +41,8 @@ namespace MoveCute
         public static List<Obstacle> InExplosionOrder(IEnumerable<Obstacle> obstacles, Board board) =>
             obstacles.OrderByDescending(o => o.Data.lastTurnPriority)
                 .ThenBy(o => board.ReadingOrderKey(o.Pos)).ToList();
+
+        /// <summary>플레이어 쪽(카드·유물·버프)이 설치했으면 true, 적이 설치했으면 false. BattleContext.PlaceObstacle이 정한다 (킬러 퀸)</summary>
+        public bool PlacedByPlayer;
     }
 }

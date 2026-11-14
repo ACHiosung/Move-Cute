@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MoveCute
@@ -49,6 +50,7 @@ namespace MoveCute
 
         BattleManager M => BattleManager.Instance;
         BattleContext ctx;
+        CardInstance energyPreviewCard;
 
         readonly Dictionary<Vector2Int, Button> tiles = new();
         readonly Dictionary<CardInstance, Button> cards = new();
@@ -76,6 +78,13 @@ namespace MoveCute
             Loc.LanguageChanged += RefreshAll;
         }
 
+        void Update()
+        {
+            if (ctx != null && (Mouse.current?.rightButton.wasPressedThisFrame == true ||
+                                Keyboard.current?.escapeKey.wasPressedThisFrame == true))
+                Back();
+        }
+
         void OnDestroy() => Loc.LanguageChanged -= RefreshAll;
 
         float D(float seconds) => seconds / Mathf.Max(0.01f, speed);
@@ -88,7 +97,9 @@ namespace MoveCute
             if (TryPick(pos)) return;
             if (teleportMode && M.CanInput && ctx.Board.IsPassable(pos) && pos != ctx.Player.Pos)
             {
-                teleportMode = false;
+                // 순간이동을 쓰면 중립 상태로: 후보 테두리·안내 문구·미리보기를 먼저 지운다 (실패해도 남지 않게)
+                ClearSelection();
+                RefreshTargets();
                 ctx.Teleport(pos).Forget();
                 return;
             }
@@ -104,7 +115,22 @@ namespace MoveCute
             selectedCard = card;
             ShowCard(card);
             Preview(card);
-            M.PlayCard(card).Forget();
+            PlaySelectedCard(card).Forget();
+        }
+
+        async Awaitable PlaySelectedCard(CardInstance card)
+        {
+            energyPreviewCard = card;
+            RefreshEnergyStrip();
+            try { await M.PlayCard(card); }
+            finally
+            {
+                if (this && energyPreviewCard == card)
+                {
+                    energyPreviewCard = null;
+                    RefreshEnergyStrip();
+                }
+            }
         }
 
         // ════════════ IPlayerInput ════════════
@@ -158,16 +184,19 @@ namespace MoveCute
         public Awaitable BattleStarted(BattleContext c)
         {
             ctx = c;
+            HideKeywords();
             ResetRewardScreen();
             hoveredInfoOwner = null;
             hoveredInfoDisplay = null;
             selectedCard = null;
+            energyPreviewCard = null;
             teleportMode = false;
             modal.gameObject.SetActive(false);
             ClearPreview();
             Resolve(null);
             resultPanel.SetActive(false);
             Build();
+            ShowRelics();
             return AwaitableUtil.Completed();
         }
 
@@ -179,7 +208,6 @@ namespace MoveCute
 
         public Awaitable IntentDeclared(Enemy enemy)
         {
-            unitViews[enemyViews[enemy]].InvalidateIntent();
             RefreshEnemy(enemyViews[enemy], enemy);
             return Punch(ViewOf(enemy), 0.15f);
         }
@@ -206,6 +234,7 @@ namespace MoveCute
             foreach (var card in cards.Keys) RefreshCard(card);
             foreach (var entry in enemyViews) RefreshEnemy(entry.Value, entry.Key);
             ClearSelection();
+            RefreshTargets();   // ClearSelection은 타일 테두리를 지우지 않으므로 행동이 끝날 때마다 다시 그린다
             if (tiles.TryGetValue(ctx.Player.Pos, out var t)) playerMarker.position = t.transform.position;
             return AwaitableUtil.Completed();
         }
@@ -320,17 +349,16 @@ namespace MoveCute
         public Awaitable CardChanged(CardInstance card)
         {
             RefreshCard(card);
-            if (inspectedCard == card)
-            {
-                bool keywordsOpen = keywordPanel.gameObject.activeSelf;
-                ShowCard(card);
-                if (keywordsOpen) ShowKeywords();
-            }
+            if (energyPreviewCard == card) RefreshEnergyStrip();
+            if (inspectedCard == card) ShowCard(card);
             return AwaitableUtil.Completed();
         }
 
-        public Awaitable EnergyChanged(int energy)
+        public async Awaitable EnergyChanged(int energy)
         {
+            // 즉시 발동하는 카드는 에너지 칸이 사라지기 전에 미리보기를 잠깐 보여준다.
+            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None or TargetType.SelfTile)
+                await Awaitable.WaitForSecondsAsync(0.18f);
             RefreshHud();
             bool empty = energy <= 0;
             if (empty != lastEmptyEnergy)
@@ -338,15 +366,16 @@ namespace MoveCute
                 lastEmptyEnergy = empty;
                 foreach (var card in cards.Keys) RefreshCard(card);
             }
-            return AwaitableUtil.Completed();
         }
 
         Awaitable RemoveCard(CardInstance card)
         {
-            if (!cards.Remove(card, out var view)) return AwaitableUtil.Completed();
+            bool hadView = cards.Remove(card, out var view);
+            // 사용한 카드는 이미 손패 뷰에서 빠졌을 수 있지만 더미 수는 갱신한다.
+            RefreshHud();
+            if (!hadView) return AwaitableUtil.Completed();
             handView.Remove((RectTransform)view.transform);
             EndInfoHover(view);
-            RefreshHud();
             RefreshHandLayout();
             return view.transform.DOScale(0f, D(0.06f))
                 .OnComplete(() => ReleaseHandCard(view))

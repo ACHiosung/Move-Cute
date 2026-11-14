@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37ba379e5294373b1fb1c1567262404, type: 3}
+  m_Name: Relic_BombMold
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.BombDamageRelicData
+  id: bombmold
+  nameKey: relic.bombmold.name
+  descKey: relic.bombmold.desc
+  icon: {fileID: 21300000, guid: 71d1ccd202cd4b2b82418529b41ac083, type: 3}
+  trigger: 0
+  effects: []
+  bonus: 3
+  onlyObstacle: {fileID: 11400000, guid: 0799057331efbe34e94ea0ca7e1989ab, type: 2}
+  references:
+    version: 2
+    RefIds: []

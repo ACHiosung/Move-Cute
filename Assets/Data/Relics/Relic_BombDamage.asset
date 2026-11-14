@@ -15,10 +15,10 @@ MonoBehaviour:
   id: bombdamage
   nameKey: relic.bombdamage.name
   descKey: relic.bombdamage.desc
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 9056d0ef4e2d4cf88aaac2d7a028af13, type: 3}
   trigger: 0
   effects: []
-  bonus: 2
+  bonus: 1
   references:
     version: 2
     RefIds: []

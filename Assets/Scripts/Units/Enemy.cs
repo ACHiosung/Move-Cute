@@ -42,13 +42,14 @@ namespace MoveCute
     public abstract class Enemy : Unit
     {
         public readonly EnemyData Data;
+        public int MaxHp { get; internal set; }
         /// <summary>이번 턴 예고. UI가 이걸 읽어 표시한다.</summary>
         public IntentData CurrentIntent { get; private set; }
 
         protected Enemy(EnemyData data)
         {
             Data = data;
-            Hp = data.startMorale;
+            Hp = MaxHp = data.startMorale;
         }
 
         public override string DisplayName => Data != null ? Data.DisplayName : "Enemy";

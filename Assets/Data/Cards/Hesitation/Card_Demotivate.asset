@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_Demotivate
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: demotivate
+  nameKey: card.demotivate.name
+  descKey: card.demotivate.desc
+  art: {fileID: 21300000, guid: f65d62dcaf1e446a84c998fabe17ced2, type: 3}
+  moves:
+  - 3
+  - 3
+  cost: 1
+  type: 2
+  rarity: 2
+  target: 0
+  keywords:
+  - rid: 320038321000001801
+  - rid: 320038321000001802
+  effects:
+  - rid: 320038321000001810
+  targetKinds: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: 320038321000001801
+      type: {class: Keyword_Hesitation, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 320038321000001802
+      type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 320038321000001810
+      type: {class: DemotivationBuffEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        amount: 1

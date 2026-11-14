@@ -416,7 +416,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 2383758971316207748
+    - rid: 1274502351513976966
       type: {class: 'Provider2DCache`1[[UnityEngine.Rendering.Universal.Light2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]', ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Cache: []
@@ -427,7 +427,7 @@ MonoBehaviour:
         m_SelectedSource:
           rid: -2
         m_Provider2DCache:
-          rid: 2383758971316207748
+          rid: 1274502351513976966
 --- !u!4 &619394802
 Transform:
   m_ObjectHideFlags: 0
@@ -504,11 +504,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 77be55d9ca99e48848a9cb59b76f8404, type: 2}
   - {fileID: 11400000, guid: 77be55d9ca99e48848a9cb59b76f8404, type: 2}
   - {fileID: 11400000, guid: 77be55d9ca99e48848a9cb59b76f8404, type: 2}
-  - {fileID: 11400000, guid: 77be55d9ca99e48848a9cb59b76f8404, type: 2}
-  - {fileID: 11400000, guid: d65c7a47f54b0e1489283f9c9c0be618, type: 2}
+  - {fileID: 11400000, guid: 8d58d851759f4461a8eec7ee656a425e, type: 2}
+  - {fileID: 11400000, guid: bc91aa065be1e4ef9abf4e52e7922717, type: 2}
+  - {fileID: 11400000, guid: bc91aa065be1e4ef9abf4e52e7922717, type: 2}
+  - {fileID: 11400000, guid: 3c2343fadb0f659418f4de59d44f2f5d, type: 2}
+  - {fileID: 11400000, guid: 8d58d851759f4461a8eec7ee656a425e, type: 2}
   enemy: {fileID: 11400000, guid: 62603c5a72f95fb4bafa372b83847bdf, type: 2}
   relics:
-  - {fileID: 11400000, guid: 5f54a4952f1f4b9b9e08d434db264649, type: 2}
+  - {fileID: 11400000, guid: f1a954dbb1cf4b06bcca3a3e738c3f62, type: 2}
+  - {fileID: 11400000, guid: f1a954dbb1cf4b06bcca3a3e738c3f62, type: 2}
+  - {fileID: 11400000, guid: 643d0c18c3c546f4a7dac00678831fe0, type: 2}
+  - {fileID: 11400000, guid: 643d0c18c3c546f4a7dac00678831fe0, type: 2}
+  - {fileID: 11400000, guid: 6cde030873339433c9a8f962482bced8, type: 2}
+  - {fileID: 11400000, guid: 1aa2b94bd7cc89f4dbc96b4f74cf8ace, type: 2}
+  - {fileID: 11400000, guid: 1aa2b94bd7cc89f4dbc96b4f74cf8ace, type: 2}
   seed: 0
   presenter: {fileID: 2936736277624037665}
   input: {fileID: 2936736277624037665}

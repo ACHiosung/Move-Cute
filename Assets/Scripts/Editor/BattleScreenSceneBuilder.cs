@@ -43,7 +43,7 @@ namespace MoveCute.UIEditor
             manager.startingDeck.Clear();
             foreach (var name in new[] { "Sit", "Jump", "Retreat", "Dash" })
             {
-                var card = AssetDatabase.LoadAssetAtPath<CardData>("Assets/Data/Cards/Card_" + name + ".asset");
+                var card = FindCard("Card_" + name);
                 if (card == null) throw new System.InvalidOperationException("Missing basic card: " + name);
                 for (int i = 0; i < 5; i++) manager.startingDeck.Add(card);
             }
@@ -88,10 +88,11 @@ namespace MoveCute.UIEditor
                 var enemy = root.GetComponent<BattleScreenUI>().enemyPrefab.transform;
                 var name = enemy.Find("Name");
                 if (name != null) Object.DestroyImmediate(name.gameObject);
-                SetRect(enemy.Find("Art"), .10f, .035f, .80f, .72f);
-                SetRect(enemy.Find("Bar"), .06f, -16f / 700f, .88f, .045f);
-                SetRect(enemy.Find("Morale"), .06f, -16f / 700f, .88f, .045f);
-                SetRect(enemy.Find("Statuses"), .06f, -.10f, .88f, .06f);
+                SetRect(enemy.Find("Art"), .10f, .102f, .80f, .72f);
+                SetRect(enemy.Find("Bar"), .06f, BattleScreenUI.EnemyMoraleBottomInset, .88f, 33.15f / 700f);
+                SetRect(enemy.Find("Bar/Fill"), 0, 0, 1, 1);
+                SetRect(enemy.Find("Morale"), .06f, BattleScreenUI.EnemyMoraleBottomInset, .88f, 33.15f / 700f);
+                SetRect(enemy.Find("Statuses"), .06f, 0, .88f, 28.05f / 700f);
                 var tooltip = root.transform.Find("Tooltip");
                 if (tooltip != null) Object.DestroyImmediate(tooltip.gameObject);
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
@@ -216,6 +217,17 @@ namespace MoveCute.UIEditor
             }
             ui.grayscaleMaterial = material;
             AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>Assets/Data/Cards 아래(하위 폴더 포함)에서 파일 이름이 fileName인 카드 에셋.</summary>
+        static CardData FindCard(string fileName)
+        {
+            foreach (var guid in AssetDatabase.FindAssets("t:CardData", new[] { "Assets/Data/Cards" }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (Path.GetFileNameWithoutExtension(path) == fileName) return AssetDatabase.LoadAssetAtPath<CardData>(path);
+            }
+            return null;
         }
     }
 }

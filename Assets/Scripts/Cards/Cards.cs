@@ -116,19 +116,22 @@ namespace MoveCute
         public int EffectiveCost => Has<Keyword_Free>() || IsUnlocked ? 0 : Cost;
 
         /// <summary>
-        /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능한지.
+        /// 흑백 판정: 지금 내면 효과까지 모두 발동하는지. 기본은 전체 이동이 가능하고 부가 효과가 모두 발동할 수 있는지
+        /// (Effect.CanExecute — 휴지통이 비었는데 휴지통에서 고르는 효과 등).
         /// 이동을 쓰지 않는 특수 카드는 재정의한다.
         /// </summary>
-        public virtual bool CanPlayFully(BattleContext ctx) => !IsLocked && ctx.CanFullyMove(this);
+        public virtual bool CanPlayFully(BattleContext ctx) =>
+            !IsLocked && ctx.CanFullyMove(this) && Data.effects.CanExecuteAll(ctx);
 
         /// <summary>지금 낼 때 드는 에너지.</summary>
         public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;
 
         /// <summary>
-        /// 카드 해결: 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
+        /// 카드가 하는 일: 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과.
         /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음
         /// BattleContext.PlayCard가 낼 수 있는지 확인하고 입력을 잠근 뒤 호출한다. 상태는 ctx 함수로만 바꾼다.
-        /// 특수 카드는 재정의한다. 에너지 지불 → BeginCardPlay → (카드가 하는 일) → Finish 순서는 지킨다.
+        /// 질주면 재사용마다 다시 불린다. 에너지 지불·손패에서 빼기·묘지/휴지통 보내기는 PlayCard가 하므로 여기서 하지 않는다.
+        /// 특수 카드는 재정의해서 카드가 하는 일만 넣는다.
         /// </summary>
         public virtual async Awaitable Play(BattleContext ctx, EffectTarget target)
         {
@@ -137,13 +140,7 @@ namespace MoveCute
 
             await ctx.MovePlayerAlong(src, Moves);//이동 시도, 실패하면 중간에서 멈춤
             if (full) await Data.effects.ExecuteAll(ctx, src, target);//효과 발동
-
-            await Finish(ctx);
         }
-
-        /// <summary>해결이 끝난 카드를 보낸다: 삭제 키워드면 휴지통, 아니면 묘지.</summary>
-        protected Awaitable Finish(BattleContext ctx) =>
-            Has<Keyword_Delete>() ? ctx.TrashCard(this) : ctx.SendToDiscard(this);
 
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";
@@ -172,12 +169,30 @@ namespace MoveCute
         }
     }
 
+    /// <summary>카드가 있는 곳. 효과에서 "어디서 어디로"를 고를 때 쓴다. 에셋에 숫자로 저장되므로 새 값은 끝에만 추가한다.</summary>
+    public enum CardPileKind
+    {
+        [InspectorName("손패")] Hand,
+        [InspectorName("뽑을 카드 더미")] Draw,
+        [InspectorName("버린 카드 더미")] Discard,
+        [InspectorName("휴지통")] Trash,
+    }
+
     public class CardPiles
     {
         public readonly List<CardInstance> Draw = new();
         public readonly List<CardInstance> Hand = new();
         public readonly List<CardInstance> Discard = new();   // 사용한 카드 더미(묘지)
         public readonly List<CardInstance> Trash = new();     // 휴지통(삭제)
+
+        public List<CardInstance> Get(CardPileKind kind) => kind switch
+        {
+            CardPileKind.Hand => Hand,
+            CardPileKind.Draw => Draw,
+            CardPileKind.Discard => Discard,
+            CardPileKind.Trash => Trash,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
 
         readonly System.Random rng;
 

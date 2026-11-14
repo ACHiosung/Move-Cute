@@ -22,7 +22,6 @@ namespace MoveCute
         void InitializeRewards()
         {
             rewardOverlay.GetComponent<Image>().color = Color.clear;
-            rewardOverlay.GetComponent<BattleScreenPointer>().RightClick = RewardBack;
             rewardChest.onClick.AddListener(OpenRewardList);
             rewardGoldButton.onClick.AddListener(() => ClaimGold().Forget());
             rewardHealButton.onClick.AddListener(() => ClaimHealing().Forget());
@@ -33,13 +32,6 @@ namespace MoveCute
             BindTooltip(rewardGoldButton, () => $"{T("gold")} +{ctx.Rewards.Gold}", () => T("gold"));
             BindTooltip(rewardHealButton, () => $"HP +{ctx.Rewards.Healing}", () => T("healing"));
             BindTooltip(rewardCardButton, () => T("chooseRewardHelp"), () => T("cardReward"));
-            foreach (var button in new[] { rewardChest, rewardGoldButton, rewardHealButton, rewardCardButton,
-                rewardNextButton, rewardBackButton })
-            {
-                var relay = button.GetComponent<BattleScreenPointer>();
-                if (!relay) relay = button.gameObject.AddComponent<BattleScreenPointer>();
-                relay.RightClick = RewardBack;
-            }
         }
 
         void ResetRewardScreen()

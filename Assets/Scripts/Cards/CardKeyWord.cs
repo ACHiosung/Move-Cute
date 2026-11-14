@@ -41,4 +41,8 @@ namespace MoveCute
     public class Keyword_Bomb : CardKeyword { }
     [Serializable]
     public class Keyword_ChainBomb : CardKeyword { }
+    [Serializable]
+    public class Keyword_Hesitation : CardKeyword { }
+    [Serializable]
+    public class Keyword_GunpowderKeg : CardKeyword { }
 }

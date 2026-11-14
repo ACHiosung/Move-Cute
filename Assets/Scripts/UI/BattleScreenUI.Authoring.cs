@@ -5,6 +5,8 @@ namespace MoveCute
 {
     public partial class BattleScreenUI
     {
+        public const float EnemyMoraleBottomInset = 30.6f / 700f;
+
         // Editor builder calls this once. All Images are serialized into the prefab,
         // so artists replace sprites directly without changing runtime code.
         public void BuildLayout(Font font)
@@ -21,17 +23,38 @@ namespace MoveCute
             if (!GetComponent<GraphicRaycaster>()) gameObject.AddComponent<GraphicRaycaster>();
             var root = (RectTransform)transform;
             Box("Background", root, 0, 0, 1920, 1080, new Color(0.96f, 0.97f, 0.99f)).raycastTarget = true;
-            var status = Box("PlayerPanel", root, 70, 40, 410, 235, Panel).rectTransform;
-            Box("HpTrack", status, 24, 22, 342, 28, Ink);
-            hpFill = Box("HpFill", status, 24, 22, 342, 28, Accent);
-            hpText = TextAt("HpText", status, "HP", 24, 22, 342, 28, 22);
+            var status = Box("PlayerPanel", root, 170, 40, 410, 235, Panel).rectTransform;
+            const float statusInset = 24;
+            float hpWidth = status.rect.width - 2 * statusInset;
+            Box("HpTrack", status, statusInset, 22, hpWidth, 28, Ink);
+            hpFill = Box("HpFill", status, statusInset, 22, hpWidth, 28, Accent);
+            hpText = TextAt("HpText", status, "HP", statusInset, 22, hpWidth, 28, 22);
             Contrast(hpText);
-            Box("Portrait", status, 25, 76, 126, 130, new Color(0.35f, 0.58f, 0.78f));
-            TextAt("PortraitLabel", status, T("player"), 25, 120, 126, 40, 24);
-            var deck = MakeButton("Deck", status, T("deck"), 180, 77, 160, 52);
-            deck.onClick.AddListener(() => OpenCards(T("deck"), M.Run.Deck));
-            Box("MoneyIcon", status, 185, 160, 38, 38, new Color(0.94f, 0.71f, 0.25f));
-            var detail = Box("DetailPanel", root, 70, 300, 410, 540, Panel).rectTransform;
+            const float portraitWidth = 126, portraitHeight = 130, portraitTop = 76;
+            const float rowGap = 12;
+            Box("Portrait", status, 25, portraitTop, portraitWidth, portraitHeight, new Color(0.35f, 0.58f, 0.78f));
+            TextAt("PortraitLabel", status, T("player"), 25, 120, portraitWidth, 40, 24);
+            float controlsLeft = 25 + portraitWidth + statusInset;
+            float controlsWidth = status.rect.width - statusInset - controlsLeft;
+            float rowHeight = (portraitHeight - rowGap) / 2;
+            float deckWidth = (controlsWidth - statusInset) / 2;
+            var deck = MakeButton("Deck", status, T("deck"), controlsLeft, portraitTop, deckWidth, rowHeight);
+            deck.image.color = new Color(0.49f, 0.68f, 0.89f);
+            float goldLeft = controlsLeft + deckWidth + statusInset;
+            const float coinSize = 28, goldTextGap = 6;
+            Box("MoneyIcon", status, goldLeft, portraitTop + (rowHeight - coinSize) / 2, coinSize, coinSize, new Color(0.94f, 0.71f, 0.25f));
+            goldBalance = TextAt("GoldBalance", status, "0", goldLeft + coinSize + goldTextGap, portraitTop,
+                deckWidth - coinSize - goldTextGap, rowHeight, 24);
+            energyButton = MakeButton("Energy", status, "", controlsLeft, portraitTop + rowHeight + rowGap, controlsWidth, rowHeight);
+            energyButton.image.color = Ink;
+            energyCells = NewRect("EnergyCells", energyButton.transform, 0, 0, 0, 0);
+            Stretch(energyCells, 0, 0, 1, 1);
+            energyCells.offsetMin = Vector2.one * BattleCellStripView.CellGap;
+            energyCells.offsetMax = -energyCells.offsetMin;
+            energyText = Label(energyButton);
+            energyText.transform.SetAsLastSibling();
+            Contrast(energyText);
+            var detail = Box("DetailPanel", root, 170, 300, 410, 540, Panel).rectTransform;
             detailName = TextAt("DetailName", detail, "", 20, 20, 370, 50, 28);
             detailArt = Box("DetailArt", detail, 24, 87, 122, 138, Color.white);
             detailArt.preserveAspect = true;
@@ -39,10 +62,7 @@ namespace MoveCute
             detailMoves = TextAt("DetailMoves", detail, "", 155, 160, 230, 64, 36);
             detailDescription = TextAt("DetailDescription", detail, "", 25, 250, 360, 245, 23);
             detailDescription.alignment = TextAnchor.UpperLeft;
-            var hover = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
             detailDescription.raycastTarget = true;
-            hover.Enter = ShowKeywords;
-            hover.Exit = () => keywordPanel.gameObject.SetActive(false);
             helpText = TextAt("Help", detail, "", 35, 135, 340, 340, 25);
             helpText.alignment = TextAnchor.UpperLeft;
             mouseIcon = Box("MouseIcon", detail, 30, 82, 25, 42, Ink).gameObject;
@@ -60,7 +80,8 @@ namespace MoveCute
             playerMarker.pivot = Vector2.one * 0.5f;
             ghost.rectTransform.pivot = Vector2.one * 0.5f;
             TextAt("PlayerLabel", playerMarker, T("player"), 0, 40, 100, 40, 21);
-            enemies = NewRect("Enemies", root, 1400, 140, 390, 700);
+            const float enemyHeight = 700, enemyBottom = 773;
+            enemies = NewRect("Enemies", root, 1400, enemyBottom - enemyHeight, 390, enemyHeight);
             var enemyLayout = enemies.gameObject.AddComponent<HorizontalLayoutGroup>();
             enemyLayout.childControlWidth = enemyLayout.childControlHeight = true;
             enemyLayout.childForceExpandWidth = enemyLayout.childForceExpandHeight = true;
@@ -76,25 +97,23 @@ namespace MoveCute
             var discard = MakeButton("DiscardPile", root, "", 1775, 930, 115, 115);
             discardText = Label(discard);
             discard.onClick.AddListener(() => OpenCards(T("discard"), ctx.Piles.Discard));
-            energyButton = MakeButton("Energy", root, "", 180, 895, 280, 70);
-            energyButton.image.color = Ink;
-            energyCells = NewRect("EnergyCells", energyButton.transform, 15, 12, 250, 45);
-            energyText = Label(energyButton);
-            energyText.transform.SetAsLastSibling();
-            endTurnButton = MakeButton("EndTurn", root, "", 180, 985, 280, 70);
-            endTurnButton.image.color = Ink;
-            turnCells = NewRect("TurnCells", endTurnButton.transform, 15, 12, 250, 45);
-            turnsText = Label(endTurnButton);
-            turnsText.transform.SetAsLastSibling();
-            Contrast(energyText);
-            Contrast(turnsText);
+            const float endTurnHeight = 70;
+            float boardBottom = -boardRoot.anchoredPosition.y + boardRoot.rect.height;
+            float enemyMoraleBottom = enemyBottom - enemyHeight * EnemyMoraleBottomInset;
+            float endTurnTop = (enemyMoraleBottom + boardBottom - endTurnHeight) / 2;
+            endTurnButton = MakeButton("EndTurn", root, T("turnEnd"), 1435, endTurnTop, 210, endTurnHeight);
+            endTurnButton.image.color = new Color(0.18f, 0.43f, 0.29f);
+            endTurnLabel = Label(endTurnButton);
+            turnsText = TextAt("TurnsRemaining", endTurnButton.transform, "", 226, 18, 94, 34, 22);
+            turnsText.fontStyle = FontStyle.Bold;
+            Contrast(endTurnLabel);
             hud = TextAt("UnusedHud", root, "", 0, 0, 1, 1, 1);
             log = TextAt("UnusedLog", root, "", 0, 0, 1, 1, 1);
             promptRoot = Box("PromptRoot", root, 610, 80, 676, 65, Pale).gameObject;
             prompt = TextAt("Prompt", promptRoot.transform, "", 12, 5, 540, 55, 23);
             cancelButton = MakeButton("Cancel", promptRoot.transform, T("cancel"), 550, 10, 110, 45);
             banner = TextAt("Banner", root, "", 610, 360, 676, 110, 48);
-            var keywords = Box("KeywordPanel", root, 490, 300, 300, 490, Pale);
+            var keywords = Box("KeywordPanel", root, 590, 300, 300, 490, Pale);
             keywordPanel = keywords.rectTransform;
             keywordText = TextAt("KeywordText", keywordPanel, "", 20, 20, 260, 450, 21);
             keywordText.alignment = TextAnchor.UpperLeft;
@@ -102,7 +121,7 @@ namespace MoveCute
             resultText = TextAt("ResultText", resultPanel.transform, "", 20, 25, 680, 100, 35);
             nextBattleButton = MakeButton("NextBattle", resultPanel.transform, T("nextBattle"), 55, 180, 280, 70);
             newRunButton = MakeButton("NewRun", resultPanel.transform, T("newRun"), 385, 180, 280, 70);
-            modal = Box("CardBrowser", root, 490, 60, 1050, 1000, new Color(0.10f, 0.16f, 0.23f, 0.98f)).rectTransform;
+            modal = Box("CardBrowser", root, 590, 60, 1050, 1000, new Color(0.10f, 0.16f, 0.23f, 0.98f)).rectTransform;
             modal.GetComponent<Image>().raycastTarget = true;
             modalTitle = TextAt("Title", modal, "", 35, 20, 800, 60, 30);
             modalTitle.color = Color.white;
@@ -124,7 +143,7 @@ namespace MoveCute
             Label(cardPrefab).gameObject.SetActive(false);
             CardChildren(cardPrefab.transform);
             AddFrame(cardPrefab);
-            enemyPrefab = MakeButton("EnemyTemplate", templates, "", 0, 0, 390, 700);
+            enemyPrefab = MakeButton("EnemyTemplate", templates, "", 0, 0, 390, enemyHeight);
             Label(enemyPrefab).gameObject.SetActive(false);
             EnemyChildren(enemyPrefab.transform);
             enemyPrefab.image.color = Color.clear;
@@ -133,7 +152,6 @@ namespace MoveCute
             targetFrame.SetParent(enemyPrefab.transform.Find("Art"), false);
             Stretch((RectTransform)targetFrame, 0, 0, 1, 1);
             energyCellTemplate = Box("EnergyCellTemplate", templates, 0, 0, 40, 45, new Color(0.25f, 0.88f, 0.64f));
-            turnCellTemplate = Box("TurnCellTemplate", templates, 0, 0, 40, 45, new Color(0.98f, 0.74f, 0.3f));
             templates.gameObject.SetActive(false);
             modal.gameObject.SetActive(false);
             resultPanel.SetActive(false);
@@ -155,13 +173,11 @@ namespace MoveCute
 
         void EnemyChildren(Transform root)
         {
-            RelativeBox("Art", root, 0.10f, 0.035f, 0.80f, 0.72f, new Color(0.45f, 0.57f, 0.69f)).preserveAspect = true;
-            var track = RelativeBox("Bar", root, 0.06f, -16f / 700f, 0.88f, 0.045f, Ink);
-            Box("Fill", track.transform, 0, 0, 342, 32, Accent);
-            Contrast(RelativeText("Morale", root, "", 0.06f, -16f / 700f, 0.88f, 0.045f, 23));
-            RelativeText("Statuses", root, "", 0.06f, -0.10f, 0.88f, 0.06f, 20);
-            var intent = RelativeText("Intent", root, "", 0.06f, 0.77f, 0.88f, 0.23f, 18);
-            intent.alignment = TextAnchor.UpperLeft;
+            RelativeBox("Art", root, 0.10f, .102f, 0.80f, .72f, new Color(0.45f, 0.57f, 0.69f)).preserveAspect = true;
+            var track = RelativeBox("Bar", root, 0.06f, EnemyMoraleBottomInset, 0.88f, 33.15f / 700f, Ink);
+            Stretch(Box("Fill", track.transform, 0, 0, 342, 32, Accent).rectTransform, 0, 0, 1, 1);
+            Contrast(RelativeText("Morale", root, "", 0.06f, EnemyMoraleBottomInset, 0.88f, 33.15f / 700f, 23));
+            RelativeText("Statuses", root, "", 0.06f, 0, 0.88f, 28.05f / 700f, 20);
         }
 
         static RectTransform NewRect(string name, Transform parent, float x, float y, float w, float h)
@@ -251,7 +267,8 @@ namespace MoveCute
         public void BuildRewardLayout()
         {
             if (rewardOverlay != null) return;
-            goldBalance = TextAt("GoldBalance", transform.Find("PlayerPanel"), "0", 235, 155, 120, 48, 24);
+            if (!goldBalance)
+                goldBalance = TextAt("GoldBalance", transform.Find("PlayerPanel"), "0", 235, 155, 120, 48, 24);
             rewardChest = MakeButton("RewardChest", transform, T("openGift"), 1400, 520, 390, 290);
             rewardChest.image.color = new Color(.72f, .49f, .29f);
             Box("Ribbon", rewardChest.transform, 175, 0, 40, 290, new Color(.96f, .76f, .35f));
@@ -259,7 +276,6 @@ namespace MoveCute
             Label(rewardChest).transform.SetAsLastSibling();
             rewardOverlay = Box("RewardOverlay", transform, 0, 0, 1920, 1080, Color.clear).gameObject;
             rewardOverlay.GetComponent<Image>().raycastTarget = true;
-            rewardOverlay.AddComponent<BattleScreenPointer>().RightClick = RewardBack;
             var list = Box("RewardList", rewardOverlay.transform, 1390, 240, 420, 550, Pale).rectTransform;
             rewardListPanel = list.gameObject;
             TextAt("Title", list, T("rewards"), 20, 20, 380, 65, 32);

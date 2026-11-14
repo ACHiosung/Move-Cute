@@ -10,7 +10,7 @@
 | 상태 | 카드 아이콘 / 상세 이동 목록 | 보드 경로 미리보기 |
 |---|---|---|
 | 일반 카드 | 원래 이동 표시 | 기존 방식 유지 |
-| 잠금 카드 | 원래 순서 유지, 유물로 생략된 이동만 `#292929` | 기존 경로 미리보기 유지 |
+| 잠금 카드 | 원래 순서 유지, 유물로 생략된 이동만 어둡게 처리 | 기존 경로 미리보기 유지 |
 | 해금 카드 | 이동 표시 숨김 | 숨김 |
 | 자동 잠금 후 | 잠금 상태가 실제로 남으면 표시 복원 | 다음 미리보기 호출에서 현재 상태 반영 |
 | 전부 생략되는 카드 | 즉시 해금되므로 이동 표시 숨김 | 숨김 |
@@ -25,8 +25,8 @@
 | `Assets/Scripts/UI/BattleCardView.cs` | `Render` | 렌더 함수 인자, 아이콘 캐시, 오브젝트 풀 재사용 |
 | `Assets/Scripts/UI/BattleScreenUI.cs` | `RefreshCard` | 손패 뷰 Dictionary 조회 |
 | `Assets/Scripts/UI/TempBattleUI.cs` | `RefreshCard` | 손패 뷰 조회, 문자열 포맷 |
-| `Assets/Resources/UI/BattleScreenText.txt` | `IgnoredMovesDesc` | 3열 로컬라이즈 키 추가 |
-| `Assets/Scenes/BattleUIScreen.unity` | `startingDeck`, `relics`의 직렬화 값 | YAML 참조와 테스트 설정 |
+| `Assets/Resources/UI/BattleScreenText.txt` | `IgnoredMovesDesc` | 설명 추가 |
+| `Assets/Scenes/BattleUIScreen.unity` | `startingDeck`, `relics`의 값 | 테스트 설정 변경 |
 
 ## 1. BattleScreenUI.Layout.cs
 
@@ -227,5 +227,3 @@ IgnoredMovesDesc|어두운 이동은 해금 조건에서 제외됩니다.|Darken
 6. 보상 화면에는 직전 전투 유물의 색상 효과가 남지 않는다.
 7. 0 에너지의 해금 카드는 에너지 부족 사유로 흑백 처리되지 않는다.
 8. 손패 밖 카드가 해금되어도 예외가 발생하지 않고, 보고 있던 상세 정보는 갱신된다.
-
-키워드 테스트 파일은 사용자 요청으로 삭제했다. 런타임 컴파일은 통과했으나 Unity 라이선스 초기화 문제로 실제 화면/플레이 실행 검증은 완료하지 못했다.
