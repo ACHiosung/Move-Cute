@@ -27,6 +27,7 @@ namespace MoveCute
             if (IsOver || enemy == null) return;
             int before = enemy.Hp;
             enemy.Hp = Mathf.Max(0, enemy.Hp + amount);
+            enemy.MaxHp = Mathf.Max(enemy.MaxHp, enemy.Hp);
             Log($"{enemy} 사기 {(amount >= 0 ? "+" : "")}{amount} → {enemy.Hp}");
             await Presenter.MoraleChanged(enemy, enemy.Hp - before);
         }

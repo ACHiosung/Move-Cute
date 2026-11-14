@@ -178,8 +178,6 @@ namespace MoveCute
             Stretch(Box("Fill", track.transform, 0, 0, 342, 32, Accent).rectTransform, 0, 0, 1, 1);
             Contrast(RelativeText("Morale", root, "", 0.06f, EnemyMoraleBottomInset, 0.88f, 33.15f / 700f, 23));
             RelativeText("Statuses", root, "", 0.06f, 0, 0.88f, 28.05f / 700f, 20);
-            var intent = RelativeText("Intent", root, "", 0.06f, .833f, 0.88f, .167f, 18);
-            intent.alignment = TextAnchor.UpperLeft;
         }
 
         static RectTransform NewRect(string name, Transform parent, float x, float y, float w, float h)

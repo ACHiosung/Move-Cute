@@ -100,30 +100,64 @@ namespace MoveCute
             relicList.anchoredPosition = new Vector2(outerGap, playerPanel.anchoredPosition.y);
             for (int i = 0; i < count; i++)
             {
-                var data = ctx.Run.Relics[i].Data;
-                var tile = new GameObject("Relic", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                var relic = ctx.Run.Relics[i];
+                var data = relic.Data;
+                var tile = new GameObject("Relic", typeof(RectTransform), typeof(Image), typeof(CanvasGroup))
+                    .GetComponent<Image>();
                 var rect = tile.rectTransform;
                 rect.SetParent(relicList, false);
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
                 rect.anchoredPosition = new Vector2(i / rows, -(i % rows)) * (size + gap);
                 rect.sizeDelta = Vector2.one * size;
-                tile.sprite = data.icon;
-                tile.preserveAspect = true;
-                tile.color = data.icon != null ? Color.white : Panel;
+                tile.color = new Color(0.24f, 0.24f, 0.24f);
+                var shadow = tile.gameObject.AddComponent<Shadow>();
+                shadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
+                shadow.effectDistance = new Vector2(0f, -1f);
+                var border = tile.gameObject.AddComponent<Outline>();
+                border.effectColor = new Color(0.12f, 0.12f, 0.12f);
+                border.effectDistance = new Vector2(1f, 1f);
 
+                var fade = tile.GetComponent<CanvasGroup>();
+                fade.alpha = relic.Enabled ? 1f : 0.35f;
                 var pointer = tile.gameObject.AddComponent<BattleScreenPointer>();
-                pointer.Enter = () => BeginInfoHover(tile, () => ShowInformation(data.DisplayName, data.Description));
+                pointer.Enter = () => BeginInfoHover(tile, () => ShowInformation(data.DisplayName,
+                    $"{T(relic.Enabled ? "relicOn" : "relicOff")}\n{data.Description}"));
                 pointer.Exit = () => EndInfoHover(tile);
+                pointer.LeftClick = () =>
+                {
+                    relic.Enabled = !relic.Enabled;
+                    fade.alpha = relic.Enabled ? 1f : 0.35f;
+                    foreach (var card in cards.Keys) RefreshCard(card);
+                    if (ReferenceEquals(hoveredInfoOwner, tile)) RestorePanel();
+                };
 
-                if (data.icon == null)
-                    RelicLabel(rect, System.Globalization.StringInfo.GetNextTextElement(data.DisplayName), Vector2.zero, Vector2.one * size);
+                if (data.icon != null)
+                {
+                    var icon = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    icon.rectTransform.SetParent(rect, false);
+                    icon.rectTransform.anchorMin = Vector2.zero;
+                    icon.rectTransform.anchorMax = Vector2.one;
+                    float inset = size / 14f;
+                    icon.rectTransform.offsetMin = Vector2.one * inset;
+                    icon.rectTransform.offsetMax = -Vector2.one * inset;
+                    icon.sprite = data.icon;
+                    icon.preserveAspect = true;
+                    icon.raycastTarget = false;
+                }
+                else
+                {
+                    var label = RelicLabel(rect, System.Globalization.StringInfo.GetNextTextElement(data.DisplayName),
+                        Vector2.zero, Vector2.one * size);
+                    label.color = Color.white;
+                    label.fontStyle = FontStyle.Bold;
+                }
             }
             int extra = ctx.Run.Relics.Count - count;
             if (extra > 0)
                 RelicLabel(relicList, $"+{extra}", new Vector2(0, -rows * (size + gap)), new Vector2(width, size));
         }
 
-        void RelicLabel(RectTransform parent, string value, Vector2 position, Vector2 size)
+        Text RelicLabel(RectTransform parent, string value, Vector2 position, Vector2 size)
         {
             var label = new GameObject("Label", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
             var rect = label.rectTransform;
@@ -137,6 +171,7 @@ namespace MoveCute
             label.alignment = TextAnchor.MiddleCenter;
             label.raycastTarget = false;
             label.text = value;
+            return label;
         }
 
         BattleCardView CachedCard(Button button)

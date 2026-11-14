@@ -7,7 +7,7 @@ namespace MoveCute
     /// 마우스를 올리면 이름과 설명이 나온다. 아이콘이 없는 유물은 이름 앞 두 글자로 표시한다.
     /// 아이콘을 클릭하면 그 유물을 끄고 켠다 (Relic.Enabled, 꺼진 유물은 흐리게). 전투 도중에도 바로 적용된다.
     /// 씬에 넣지 않아도 실행 시 스스로 생기고, BattleManager가 있는 씬에서만 그린다.
-    /// 정식 유물 UI가 생기면 이 파일을 지운다.
+    /// BattleScreenUI가 유물을 표시하는 전투에서는 숨긴다.
     /// </summary>
     public class TempRelicBar : MonoBehaviour
     {
@@ -26,7 +26,10 @@ namespace MoveCute
 
         void OnGUI()
         {
-            var relics = BattleManager.Instance != null ? BattleManager.Instance.Run?.Relics : null;
+            var manager = BattleManager.Instance;
+            if (manager == null || manager.presenter is BattleScreenUI screen && screen.isActiveAndEnabled) return;
+
+            var relics = manager.Run?.Relics;
             if (relics == null || relics.Count == 0) return;
 
             label ??= new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, fontSize = 18, fontStyle = FontStyle.Bold };

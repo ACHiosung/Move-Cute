@@ -93,7 +93,6 @@ namespace MoveCute.UIEditor
                 SetRect(enemy.Find("Bar/Fill"), 0, 0, 1, 1);
                 SetRect(enemy.Find("Morale"), .06f, BattleScreenUI.EnemyMoraleBottomInset, .88f, 33.15f / 700f);
                 SetRect(enemy.Find("Statuses"), .06f, 0, .88f, 28.05f / 700f);
-                SetRect(enemy.Find("Intent"), .06f, .833f, .88f, .167f);
                 var tooltip = root.transform.Find("Tooltip");
                 if (tooltip != null) Object.DestroyImmediate(tooltip.gameObject);
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);

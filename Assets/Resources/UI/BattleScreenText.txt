@@ -1,4 +1,6 @@
 energy|에너지|Energy
+relicOn|켜짐 (클릭해서 끄기)|On (click to turn off)
+relicOff|꺼짐 (클릭해서 켜기)|Off (click to turn on)
 rewards|전투 보상|Battle rewards
 rewardHelp|적이 선물을 남겼습니다. 상자를 열어 보상을 확인하세요.|Your opponent left a gift. Open the chest to collect rewards.
 gold|골드|Gold

@@ -471,19 +471,7 @@ namespace MoveCute
                 if (tileEffect.Trigger == TileTrigger.TurnEndStanding && tileEffect.Source == enemy)
                     foreach (var effect in tileEffect.Effects)
                         if (effect is GainMoraleEffect gain) bonus += gain.amount;
-            view.SetMorale(enemy.Hp, bonus, enemy.Data.startMorale);
-            if (view.NeedsIntent(enemy.CurrentIntent, Loc.Language))
-            {
-                var lines = new List<string>();
-                var intent = enemy.CurrentIntent;
-                if (intent != null)
-                {
-                    foreach (var tile in intent.tileEffects)
-                        lines.Add($"{TriggerName(tile.trigger)} ({tile.pos.x + 1}, {tile.pos.y + 1}) : " + string.Join(" / ", tile.effects.Select(DescribeEffect)));
-                    lines.AddRange(intent.turnEndActions.Select(DescribeEffect));
-                }
-                view.SetIntent(intent, Loc.Language, T("intent") + "\n" + string.Join("\n", lines));
-            }
+            view.SetMorale(enemy.Hp, bonus, enemy.MaxHp);
             view.SetStatuses(enemy.Statuses);
             view.SetTarget(pickable != null && pickable.Contains(enemy));
         }

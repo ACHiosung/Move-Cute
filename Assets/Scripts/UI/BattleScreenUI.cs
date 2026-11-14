@@ -206,7 +206,6 @@ namespace MoveCute
 
         public Awaitable IntentDeclared(Enemy enemy)
         {
-            unitViews[enemyViews[enemy]].InvalidateIntent();
             RefreshEnemy(enemyViews[enemy], enemy);
             return Punch(ViewOf(enemy), 0.15f);
         }
