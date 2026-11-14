@@ -125,10 +125,11 @@ namespace MoveCute
         public int PlayCost(BattleContext ctx) => ctx.CanFullyMove(this) ? EffectiveCost : 0;
 
         /// <summary>
-        /// 카드 해결: 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과 → 묘지/휴지통.
+        /// 카드가 하는 일: 한 칸씩 이동(타일 효과) → 모든 이동 성공 시 부가 효과.
         /// 흑백 카드(전체 이동 불가)는 가능한 만큼만 이동, 부가 효과 없음
         /// BattleContext.PlayCard가 낼 수 있는지 확인하고 입력을 잠근 뒤 호출한다. 상태는 ctx 함수로만 바꾼다.
-        /// 특수 카드는 재정의한다. 에너지 지불 → BeginCardPlay → (카드가 하는 일) → Finish 순서는 지킨다.
+        /// 질주면 재사용마다 다시 불린다. 에너지 지불·손패에서 빼기·묘지/휴지통 보내기는 PlayCard가 하므로 여기서 하지 않는다.
+        /// 특수 카드는 재정의해서 카드가 하는 일만 넣는다.
         /// </summary>
         public virtual async Awaitable Play(BattleContext ctx, EffectTarget target)
         {
@@ -137,13 +138,7 @@ namespace MoveCute
 
             await ctx.MovePlayerAlong(src, Moves);//이동 시도, 실패하면 중간에서 멈춤
             if (full) await Data.effects.ExecuteAll(ctx, src, target);//효과 발동
-
-            await Finish(ctx);
         }
-
-        /// <summary>해결이 끝난 카드를 보낸다: 삭제 키워드면 휴지통, 아니면 묘지.</summary>
-        protected Awaitable Finish(BattleContext ctx) =>
-            Has<Keyword_Delete>() ? ctx.TrashCard(this) : ctx.SendToDiscard(this);
 
         public override string ToString() =>
             $"{(Data != null ? Data.DisplayName : "Card")} [{string.Concat(Moves.Select(m => m.ToArrow()))}]";

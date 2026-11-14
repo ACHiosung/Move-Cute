@@ -73,11 +73,11 @@ BattleManager (씬 진입점, MonoBehaviour)
    - 표에 없는 키는 콘솔에 경고가 뜨고, 이름은 에셋 이름으로 대신 보인다
 4. 코드에서는 `card.Data.DisplayName` / `card.Data.Description`으로 현재 언어 텍스트를 얻는다. 언어 전환은 메뉴 `MoveCute > Language`.
 
-카드를 낼 때 하는 일(에너지 지불·이동·부가 효과·묘지/휴지통)은 **`CardInstance.Play`**(`Cards/Cards.cs`)에 있다. `BattleContext.PlayCard`는 낼 수 있는지 확인하고 입력을 잠근 뒤 이걸 호출한다. 키워드의 사용 시 동작(질주·잠금 등)은 `Play`에 넣는다.
+카드가 하는 일(이동·부가 효과)은 **`CardInstance.Play`**(`Cards/Cards.cs`)에 있다. `BattleContext.PlayCard`는 낼 수 있는지 확인 → 입력 잠금 → 에너지 지불 → 손패에서 빼기 → `Play`(질주면 재사용 횟수만큼 다시 호출) → 묘지/휴지통 보내기(마지막에 한 번) 순서로 진행한다. 사용 중인 카드는 어느 더미에도 없고 `ctx.PlayingCard`에만 있다.
 
 #### 특수 카드 (이동·효과 순서가 기본과 다른 카드)
 `CardInstance`를 상속한 `[Serializable]` 클래스를 만들고, 카드 에셋의 `behavior` 드롭다운에서 고른다. 에셋은 그대로 `Create > MoveCute > Card > Basic`으로 만든다 (`[CreateAssetMenu]` 필요 없음). 참고용 예시: **`Cards/ExampleComplicateCard.cs`** (이중 충격파: 이동 없이 충격파 2번) + 에셋 `Assets/Data/Cards/Card_ExampleComplicate.asset`.
-- `Play` 재정의: 에너지 지불(`ctx.SpendEnergy(PlayCost(ctx))`) → `ctx.BeginCardPlay` → 카드가 하는 일 → `Finish(ctx)` 순서는 지킨다
+- `Play` 재정의: 카드가 하는 일만 넣는다. 에너지 지불·묘지/휴지통 보내기는 `PlayCard`가 하므로 `Play`에서 하지 않는다 (질주면 `Play`가 재사용마다 다시 불린다)
 - 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
 - `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
 - public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다

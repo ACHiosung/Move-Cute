@@ -45,6 +45,7 @@ namespace MoveCute
         public readonly List<Enemy> Enemies = new();
         public readonly List<Obstacle> Obstacles = new();
         public readonly CardPiles Piles;
+        /// <summary>지금 사용 중인 카드. 질주 재사용까지 모두 끝날 때까지 어느 더미(손패·드로우·묘지·휴지통)에도 없고 여기에만 있다.</summary>
         public CardInstance PlayingCard { get; private set; }
 
         /// <summary>런 시드 RNG. 무작위는 UnityEngine.Random 대신 이걸 쓴다 (같은 시드 = 같은 런). 보조 함수: RandomExtensions.</summary>
@@ -137,7 +138,8 @@ namespace MoveCute
 
         /// <summary>
         /// 카드 사용. 반환되면 이동·타일·부가 효과·연쇄 반응이 모두 끝난 상태.
-        /// 여기서는 낼 수 있는지 확인하고 입력을 잠그기만 한다. 카드가 하는 일은 CardInstance.Play가 정한다.
+        /// 여기서는 낼 수 있는지 확인 → 입력 잠금 → 에너지 지불 → 손패에서 빼기 → Play(질주면 재사용 횟수만큼)
+        /// → 묘지/휴지통 보내기(마지막에 한 번)를 한다. 카드가 하는 일은 CardInstance.Play가 정한다.
         /// </summary>
         public async Awaitable<bool> PlayCard(CardInstance card, EffectTarget target)
         {
@@ -161,6 +163,10 @@ namespace MoveCute
                     if (!CanFullyMove(card)) break;
                     if (IsOver) return true;
                 }
+                // 재사용이 모두 끝난 뒤 한 번만 보낸다. 재사용 도중에는 PlayingCard에만 있으므로
+                // 휴지통에 여러 번 들어가거나, 드로우로 묘지를 섞을 때 자기 자신을 다시 뽑지 않는다.
+                if (card.Has<Keyword_Delete>()) await TrashCard(card);
+                else await SendToDiscard(card);
                 if (card.AutoLock) await LockCard(card);
                 await Events.CardPlayed.Raise(card);
                 // Judge after the full card and its reactions, so later effects may restore morale.

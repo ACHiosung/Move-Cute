@@ -40,8 +40,6 @@ namespace MoveCute
             if (full) await ctx.MovePlayerAlong(src, Moves, (from, to) => LeaveObstacle(ctx, src, from));
             else await ctx.MovePlayerAlong(src, Moves);
             if (full) await Data.effects.ExecuteAll(ctx, src, target);
-
-            await Finish(ctx);
         }
 
         async Awaitable LeaveObstacle(BattleContext ctx, EffectSource src, Vector2Int pos)
