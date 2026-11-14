@@ -56,7 +56,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 ### 새 카드
 카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Basic/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
 
-카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Lock`(잠금) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다.
+카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Hesitation`(주저) · `Lock`(잠금) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다. 키워드가 여러 테마에 걸치면 카드가 주로 하는 일로 고른다 (예: `PTSD`는 폭탄 키워드가 있지만 주저를 부여하므로 `Hesitation`).
 
 1. Project 창 `Assets/Data/Cards/<테마>`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
 2. 인스펙터 입력
