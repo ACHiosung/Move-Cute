@@ -451,9 +451,10 @@ namespace MoveCute
 
         BattleContext MoveDisplayContext => !rewardScreenActive && ctx != null && !ctx.IsOver ? ctx : null;
 
-        void RefreshCardView(Button view, CardInstance card)
+        void RefreshCardView(Button view, CardInstance card, bool showPlayability = true)
         {
-            bool gray = !rewardScreenActive && (card.IsGrayed || card.IsLocked || ctx != null && ctx.Energy < card.PlayCost(ctx));
+            bool gray = showPlayability && !rewardScreenActive &&
+                (card.IsGrayed || card.IsLocked || ctx != null && ctx.Energy < card.PlayCost(ctx));
             var displayContext = MoveDisplayContext;
             CardMoveDisplay.GetRange(card, displayContext, out int start, out int count);
             int matched = displayContext?.GetMatchedLockMoveCount(card) ?? 0;

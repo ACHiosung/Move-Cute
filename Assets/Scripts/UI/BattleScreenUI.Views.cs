@@ -225,7 +225,7 @@ namespace MoveCute
         void BindBrowserCard(Button button, CardInstance card)
         {
             CachedCard(button).Bind(card, InspectBrowserCard, OnCardEntered, OnCardExited);
-            RefreshCardView(button, card);
+            RefreshCardView(button, card, showPlayability: false);
         }
 
         void InspectBrowserCard(CardInstance card) => ShowCard(card);
