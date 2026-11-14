@@ -42,9 +42,14 @@ namespace MoveCute
             trashButton = Instantiate(discardButton, discardRect.parent);
             trashButton.name = "TrashPile";
             var trashRect = (RectTransform)trashButton.transform;
-            trashRect.anchoredPosition = discardRect.anchoredPosition - Vector2.right * (discardRect.rect.width + 12f);
+            float trashSize = discardRect.rect.width * 0.5f;
+            const float trashGap = 12f;
+            trashRect.sizeDelta = new Vector2(trashSize, trashSize);
+            trashRect.anchoredPosition = discardRect.anchoredPosition
+                + new Vector2(discardRect.rect.width - trashSize, trashSize + trashGap);
             trashRect.SetSiblingIndex(discardRect.GetSiblingIndex());
             trashText = trashButton.GetComponentInChildren<Text>(true);
+            trashText.fontSize = trashText.resizeTextMaxSize = 18;
             closeBrowserButton = modal.Find("Close").GetComponent<Button>();
             backgroundObject = transform.Find("Background").gameObject;
             cardPoolRoot = (RectTransform)transform.Find("Templates");
@@ -170,6 +175,7 @@ namespace MoveCute
         void OnCardEntered(Button button, CardInstance card)
         {
             BeginInfoHover(button, () => ShowCard(card));
+            RefreshHandLayout();
             if (selectedCard == null && M.CanInput && !modal.gameObject.activeSelf) Preview(card);
         }
 
@@ -177,6 +183,7 @@ namespace MoveCute
         {
             // Keep the displayed card available while the pointer travels to its keyword buttons.
             EndInfoHover(button, restore: !keywordButtonsRoot.gameObject.activeSelf);
+            RefreshHandLayout();
             if (selectedCard == null) ClearPreview();
         }
 
@@ -201,6 +208,8 @@ namespace MoveCute
             RectTransform chosen = null;
             if (selectedCard != null && cards.TryGetValue(selectedCard, out var view)) chosen = (RectTransform)view.transform;
             handView.Select(chosen);
+            handView.Hover(hoveredInfoOwner is Button hovered && hovered.transform.parent == hand
+                ? (RectTransform)hovered.transform : null);
             handView.ApplyIfDirty();
         }
 

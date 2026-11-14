@@ -4,11 +4,12 @@ using UnityEngine.UI;
 
 namespace MoveCute
 {
-    /// <summary>Stable hand order and layout, updated only on membership/selection/size changes.</summary>
+    /// <summary>Stable hand order with raised cards for selection and hover.</summary>
     public sealed class BattleHandView : MonoBehaviour
     {
+        const float Lift = 26f;
         readonly List<RectTransform> items = new();
-        RectTransform root, selected;
+        RectTransform root, selected, hovered;
         bool dirty;
         public int LayoutPasses { get; private set; }
 
@@ -20,9 +21,25 @@ namespace MoveCute
         }
 
         public void Add(RectTransform item) { if (!items.Contains(item)) { items.Add(item); dirty = true; } }
-        public void Remove(RectTransform item) { if (items.Remove(item)) dirty = true; }
-        public void Clear() { items.Clear(); selected = null; dirty = true; }
+        public void Remove(RectTransform item)
+        {
+            if (!items.Remove(item)) return;
+            SetHitArea(item, 0);
+            if (selected == item) selected = null;
+            if (hovered == item) hovered = null;
+            dirty = true;
+        }
+
+        public void Clear()
+        {
+            foreach (var item in items) SetHitArea(item, 0);
+            items.Clear();
+            selected = hovered = null;
+            dirty = true;
+        }
+
         public void Select(RectTransform item) { if (selected != item) { selected = item; dirty = true; } }
+        public void Hover(RectTransform item) { if (hovered != item) { hovered = item; dirty = true; } }
         void OnRectTransformDimensionsChange() => dirty = true;
         void LateUpdate() => ApplyIfDirty();
 
@@ -38,10 +55,23 @@ namespace MoveCute
                 var item = items[i];
                 item.anchorMin = item.anchorMax = item.pivot = new Vector2(0, 1);
                 item.sizeDelta = new Vector2(width, height);
-                item.anchoredPosition = new Vector2(start + i * step, item == selected ? 26 : 0);
+                float lift = item == selected || item == hovered ? Lift : 0;
+                item.anchoredPosition = new Vector2(start + i * step, lift);
+                SetHitArea(item, lift);
             }
             dirty = false;
             LayoutPasses++;
+        }
+
+        static void SetHitArea(RectTransform item, float lift)
+        {
+            // Negative bottom padding keeps the old lower edge clickable after the lift.
+            if (item.TryGetComponent<Image>(out var image))
+            {
+                var padding = image.raycastPadding;
+                padding.y = -lift;
+                image.raycastPadding = padding;
+            }
         }
     }
 }

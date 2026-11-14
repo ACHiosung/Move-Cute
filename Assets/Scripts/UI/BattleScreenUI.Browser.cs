@@ -134,8 +134,8 @@ namespace MoveCute
             var supports = NewRect("PanelSupports", transform, 0, 0, 1920, 1080);
             supports.SetSiblingIndex(1); // Above the backdrop, behind both panel images.
             var color = new Color(.30f, .48f, .66f);
-            Box("LeftSupport", supports, 110, 0, 14, 320, color);
-            Box("RightSupport", supports, 425, 0, 14, 320, color);
+            Box("LeftSupport", supports, 210, 0, 14, 320, color);
+            Box("RightSupport", supports, 525, 0, 14, 320, color);
         }
 
         public void UpdateRewardControls()

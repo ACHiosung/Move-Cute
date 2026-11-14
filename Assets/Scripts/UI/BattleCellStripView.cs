@@ -6,6 +6,7 @@ namespace MoveCute
 {
     public sealed class BattleCellStripView : MonoBehaviour
     {
+        internal const float CellGap = 5f;
         const float PendingAlpha = 0.5f;
         readonly List<Image> cells = new();
         int shown = -1, capacity = -1, pending;
@@ -24,7 +25,7 @@ namespace MoveCute
             while (cells.Count < capacity)
                 cells.Add(Instantiate(template, transform));
             var root = (RectTransform)transform;
-            float width = (root.rect.width - Mathf.Max(0, capacity - 1) * 5f) / Mathf.Max(1, capacity);
+            float width = Mathf.Max(0, root.rect.width - Mathf.Max(0, capacity - 1) * CellGap) / Mathf.Max(1, capacity);
             var normal = template.color;
             var translucent = normal;
             translucent.a *= PendingAlpha;
@@ -35,7 +36,7 @@ namespace MoveCute
                 imageCell.color = i >= shown - pending && i < shown ? translucent : normal;
                 var cell = imageCell.rectTransform;
                 cell.anchorMin = cell.anchorMax = cell.pivot = new Vector2(0, .5f);
-                cell.anchoredPosition = new Vector2(i * (width + 5), 0);
+                cell.anchoredPosition = new Vector2(i * (width + CellGap), 0);
                 cell.sizeDelta = new Vector2(width, root.rect.height);
             }
             geometryDirty = false;
