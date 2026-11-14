@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
+// 폭탄·장애물 설치 효과. 인스펙터 효과 목록에서 "BombEffects" 아래에 모인다.
 namespace MoveCute
 {
     /// <summary>
@@ -50,5 +51,48 @@ namespace MoveCute
         /// <summary>연계 폭탄 피해 횟수에 더할 값: 켜 둔 클레이모어(ChainBombHitRelic)의 bonus 합</summary>
         static int ChainHitBonus(BattleContext ctx) =>
             ctx.Run.Relics.OfType<ChainBombHitRelic>().Where(r => r.Enabled).Sum(r => r.Bonus);
+    }
+
+    /// <summary>
+    /// 플레이어에게서 거리 distance 이내의 빈 칸 하나를 골라 장애물을 놓는다 (폭탄 설치 카드).
+    /// 거리는 이동 기준 (대각선 = 2, Board.Distance). 카드의 부가 효과라 이동이 모두 끝난 뒤 고른다.
+    /// 선택을 취소하거나 빈 칸이 없으면 놓지 않는다 (설치 생략).
+    /// </summary>
+    [Serializable]
+    public class PlaceObstacleInRangeEffect : Effect
+    {
+        [Tooltip("놓을 장애물 (Assets/Data/Obstacles)")]
+        public ObstacleData obstacle;
+
+        [Tooltip("플레이어에게서 이 거리 이내의 빈 칸에 놓는다. 설명문의 {distance}")]
+        [Min(1)] public int distance = 1;
+
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            var tiles = ctx.Board.EmptyTilesWithin(ctx.Player.Pos, distance);
+            var pos = await ctx.ChooseTile(tiles, $"{obstacle.DisplayName} 설치할 칸 선택 (취소: 설치 안 함)");
+            if (pos.HasValue) await ctx.PlaceObstacle(src, pos.Value, obstacle);
+        }
+    }
+
+    /// <summary>
+    /// 플레이어에게서 거리 distance 이내의 폭탄(ObstacleData.isBomb)을 모두 터뜨린다 (폭탄 해체 카드).
+    /// 거리는 이동 기준 (대각선 = 2). 순서는 마지막 턴 폭발과 같다 (Obstacle.InExplosionOrder).
+    /// 앞의 폭발로 이미 부서진 폭탄은 건너뛴다.
+    /// </summary>
+    [Serializable]
+    public class DetonateBombsInRangeEffect : Effect
+    {
+        [Tooltip("플레이어에게서 이 거리 이내의 폭탄을 터뜨린다. 설명문의 {distance}")]
+        [Min(1)] public int distance = 1;
+
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            var player = ctx.Player.Pos;
+            var bombs = Obstacle.InExplosionOrder(
+                ctx.Obstacles.Where(o => o.Data.isBomb && Board.Distance(o.Pos, player) <= distance), ctx.Board);
+            foreach (var bomb in bombs)
+                if (ctx.Obstacles.Contains(bomb)) await ctx.DestroyObstacle(src, bomb);
+        }
     }
 }

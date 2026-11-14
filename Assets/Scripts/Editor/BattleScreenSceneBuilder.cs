@@ -43,7 +43,7 @@ namespace MoveCute.UIEditor
             manager.startingDeck.Clear();
             foreach (var name in new[] { "Sit", "Jump", "Retreat", "Dash" })
             {
-                var card = AssetDatabase.LoadAssetAtPath<CardData>("Assets/Data/Cards/Card_" + name + ".asset");
+                var card = FindCard("Card_" + name);
                 if (card == null) throw new System.InvalidOperationException("Missing basic card: " + name);
                 for (int i = 0; i < 5; i++) manager.startingDeck.Add(card);
             }
@@ -217,6 +217,17 @@ namespace MoveCute.UIEditor
             }
             ui.grayscaleMaterial = material;
             AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>Assets/Data/Cards 아래(하위 폴더 포함)에서 파일 이름이 fileName인 카드 에셋.</summary>
+        static CardData FindCard(string fileName)
+        {
+            foreach (var guid in AssetDatabase.FindAssets("t:CardData", new[] { "Assets/Data/Cards" }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (Path.GetFileNameWithoutExtension(path) == fileName) return AssetDatabase.LoadAssetAtPath<CardData>(path);
+            }
+            return null;
         }
     }
 }

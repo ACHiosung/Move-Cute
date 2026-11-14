@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
-  m_Name: Card_Dash(2)
+  m_Name: Card_Dash(1)
   m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
-  id: dash_2
+  id: dash_1
   nameKey: card.dash.name
   descKey: card.dash.desc
-  art: {fileID: 21300000, guid: b57cdc0ec4ca4b97a5b5c62e4b01863e, type: 3}
-  moves: 
+  art: {fileID: 21300000, guid: 938be183183e4b258ad3b8af1a13d3be, type: 3}
+  moves: 0200000001000000i
   cost: 1
   type: 1
   rarity: 0
   target: 1
   keywords:
-  - rid: 1415127154514985050
+  - rid: 1415127154514985049
   effects:
   - rid: 3200383178888970374
   behavior:
-    rid: 3200383199153488030
+    rid: -2
   targetKinds: -1
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1415127154514985050
+    - rid: 1415127154514985049
       type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
       data:
         maxReuseCount:
@@ -42,8 +42,4 @@ MonoBehaviour:
     - rid: 3200383178888970374
       type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:
-        damage: 4
-    - rid: 3200383199153488030
-      type: {class: DashCard, ns: MoveCute, asm: Assembly-CSharp}
-      data:
-        maxReuseCount: 5
+        damage: 5

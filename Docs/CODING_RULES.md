@@ -54,9 +54,11 @@ BattleManager (씬 진입점, MonoBehaviour)
 ## 5. 자주 하는 작업
 
 ### 새 카드
-카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
+카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Basic/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
 
-1. Project 창 `Assets/Data/Cards`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
+카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Lock`(잠금) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다.
+
+1. Project 창 `Assets/Data/Cards/<테마>`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
 2. 인스펙터 입력
    - `id`: 소문자 영문 (`sit`). `nameKey` = `card.<id>.name`, `descKey` = `card.<id>.desc`
    - `moves`: 이동 방향 (순서대로 한 칸씩). 카드에는 화살표로 표시되므로 설명문에 쓰지 않는다
@@ -76,10 +78,10 @@ BattleManager (씬 진입점, MonoBehaviour)
 카드가 하는 일(이동·부가 효과)은 **`CardInstance.Play`**(`Cards/Cards.cs`)에 있다. `BattleContext.PlayCard`는 낼 수 있는지 확인 → 입력 잠금 → 에너지 지불 → 손패에서 빼기 → `Play`(질주면 재사용 횟수만큼 다시 호출) → 묘지/휴지통 보내기(마지막에 한 번) 순서로 진행한다. 사용 중인 카드는 어느 더미에도 없고 `ctx.PlayingCard`에만 있다.
 
 #### 특수 카드 (이동·효과 순서가 기본과 다른 카드)
-`CardInstance`를 상속한 `[Serializable]` 클래스를 만들고, 카드 에셋의 `behavior` 드롭다운에서 고른다. 에셋은 그대로 `Create > MoveCute > Card > Basic`으로 만든다 (`[CreateAssetMenu]` 필요 없음). 참고용 예시: **`Cards/ExampleComplicateCard.cs`** (이중 충격파: 이동 없이 충격파 2번) + 에셋 `Assets/Data/Cards/Card_ExampleComplicate.asset`.
+`CardInstance`를 상속한 `[Serializable]` 클래스를 `Cards/Behaviors/`에 만들고, 카드 에셋의 `behavior` 드롭다운에서 고른다. 에셋은 그대로 `Create > MoveCute > Card > Basic`으로 만든다 (`[CreateAssetMenu]` 필요 없음). 참고용 예시: **`Cards/Behaviors/ExampleComplicateCard.cs`** (이중 충격파: 이동 없이 충격파 2번) + 에셋 `Assets/Data/Cards/_Test/Card_ExampleComplicate.asset`.
 - `Play` 재정의: 카드가 하는 일만 넣는다. 에너지 지불·묘지/휴지통 보내기는 `PlayCard`가 하므로 `Play`에서 하지 않는다 (질주면 `Play`가 재사용마다 다시 불린다)
 - 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
-- `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
+- `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/Behaviors/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
 - public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
 - 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
 - 카드는 `new CardInstance`로 만들지 않고 `cardData.CreateCard()`로 만든다 (behavior 하위 클래스로 만들어진다)
@@ -99,6 +101,12 @@ public class HealEffect : Effect
 ```
 `[Serializable]` + 기본 생성자가 있으면 인스펙터 드롭다운(SubclassPicker)에 자동으로 나온다.
 
+**효과는 비슷한 것끼리 한 파일에 모은다.** 드롭다운은 효과를 정의된 파일별로 묶어 보여 준다 (`BasicEffects ▸ DamageEffect`, `BombEffects ▸ BombExplosionEffect`). 파일에 효과가 하나뿐이면 묶지 않고 바로 보인다. 맨 위 검색창에 이름 일부를 쳐서 찾을 수도 있다.
+- 기존 묶음에 맞으면 그 파일에 추가한다: `BasicEffects.cs`(피해·드로우·에너지·키워드 등 기본), `BombEffects.cs`(폭탄 폭발·설치·발동)
+- 새 묶음이 필요하면 `<주제>Effects.cs` 파일을 만든다. 효과는 ScriptableObject가 아니라서 한 파일에 여러 개 있어도 된다
+- 효과 클래스를 다른 파일로 옮겨도 에셋은 깨지지 않는다 (에셋은 네임스페이스+클래스 이름으로 저장). **대신 네임스페이스 `MoveCute`와 클래스 이름은 바꾸지 않는다.** 바꾸면 그 효과를 쓰던 에셋에서 효과가 사라진다
+- 같은 드롭다운이 키워드(`CardKeyword`)와 특수 카드(`behavior`) 선택에도 쓰인다. 묶는 규칙은 같다
+
 **참고용 예시: `Effects/ShockwaveEffect.cs`** (충격파). 새 효과는 이 파일을 복사해서 시작한다. 주석에 정리된 것:
 - 숫자는 public 필드 → 인스펙터에서 조정, 설명문에 자동 반영
 - 다른 효과를 담는 필드(`[SerializeReference, SubclassPicker] List<Effect>`)로 "무엇을 할지"를 기획자가 조합
@@ -109,12 +117,13 @@ public class HealEffect : Effect
 
 ### 새 유물
 - **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic > Basic` 에셋에서 `trigger`와 `effects`만 고른다.
-- **조건·누적 상태가 필요한 유물**: `RelicData`와 `Relic`을 함께 상속한다. 참고용 예시: **`Relics/PedometerRelicData.cs`** (만보기: 한 턴에 N칸 이동하면 발동)
+- **조건·누적 상태가 필요한 유물**: `RelicData`와 `Relic`을 함께 상속해 `Relics/Special/`에 둔다. 참고용 예시: **`Relics/Special/PedometerRelicData.cs`** (만보기: 한 턴에 N칸 이동하면 발동)
+  - `RelicData` 하위 클래스는 ScriptableObject라서 **파일 하나에 하나**, 파일 이름 = 클래스 이름 (`XxxRelicData.cs`). 같은 파일에 짝이 되는 `XxxRelic`을 함께 둔다
   - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의. 메뉴는 `[CreateAssetMenu(menuName = "MoveCute/Relic/<이름>")]`로 `Relic` 아래에 둔다
   - `Relic` 하위 클래스: `Bind`에서 `ctx.Events` 구독, 상태 보관. Relic은 런 내내 유지되므로 전투마다 초기화할 값은 `Bind`에서 초기화
   - 발동 시 할 일은 에셋의 `effects`를 `Fire(ctx)`로 실행 → 기획자가 조정 가능
 - 트리거 `LastTurnEnd`는 제한 턴의 마지막 턴이 끝날 때, 장애물의 마지막 턴 처리(폭탄 폭발) **직전**에 발동한다. 여기서 놓은 폭탄도 같이 터진다 (예: `Assets/Data/Relics/Relic_LastTurnChainBomb.asset`)
-- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다)
+- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다)
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
 
 ### 새 적
@@ -136,7 +145,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
 - `PlanIntent`는 턴 시작에 이번 턴 예고를 정한다. 보드·플레이어 위치·사기·턴 수를 읽어 판단만 하고 상태는 바꾸지 않는다. 타일 배치·UI 공개·턴 종료 실행은 `Enemy` 기본 구현이 한다
 - 좌표를 박아 두지 말고 `ctx.Board`, `ctx.Player.Pos`에서 계산한다 (보드 크기가 막마다 다르다). 보드 좌표는 (0,0)이 왼쪽 아래, y가 위로 증가
 - 타일 `trigger`: `Pass` 지나갈 때(도착 포함) / `Arrive` 이동이 끝나 도착할 때 / `TurnEndStanding` 그 칸에 서 있는 채로 턴이 끝날 때
-- 예고와 별개로 전투 상황에 반응하려면 `Bind`에서 `ctx.Events`를 구독한다 (예: `ctx.Events.ObstacleDestroyed.Add(o => ...)`. 유물 `Relics/PedometerRelicData.cs`의 Bind와 같은 방식)
+- 예고와 별개로 전투 상황에 반응하려면 `Bind`에서 `ctx.Events`를 구독한다 (예: `ctx.Events.ObstacleDestroyed.Add(o => ...)`. 유물 `Relics/Special/PedometerRelicData.cs`의 Bind와 같은 방식)
 - 예고로 표현이 안 되는 행동은 `DeclareIntent` / `OnTurnEnd`를 재정의한다. 단, 플레이어가 미리 볼 수 있게 가능하면 예고(`IntentData`)에 담는다
 - 효과가 부족하면 [새 효과](#새-효과)를 만든다
 
@@ -149,8 +158,8 @@ protected override IntentData PlanIntent(BattleContext ctx)
 - `Assets/Data/Obstacles/Obstacle_ChainBomb.asset` (연계 폭탄: 폭탄과 같고, 남은 다른 장애물 하나마다 피해를 한 번 더 준다. `lastTurnPriority` 1이라 폭탄보다 먼저 터진다)
 - `Assets/Data/Obstacles/Obstacle_ArtBomb.asset` (예술 폭탄: 폭탄과 같고, 남은 다른 장애물 하나마다 피해량이 1.5배씩 곱해진다. `lastTurnPriority` 2라 가장 먼저 터진다)
 
-폭탄은 `isBomb`을 켜고, `onDestroyed`에 `BombExplosionEffect`(`Effects/BombExplosionEffect.cs`)를 넣는다. 일반·연계·예술 폭탄이 모두 이 효과 하나를 쓴다.
-- 기본 피해 = `damage` + 장착한 폭탄 피해 유물(`Relics/BombDamageRelicData.cs`)의 `bonus` 합
+폭탄은 `isBomb`을 켜고, `onDestroyed`에 `BombExplosionEffect`(`Effects/BombEffects.cs`)를 넣는다. 일반·연계·예술 폭탄이 모두 이 효과 하나를 쓴다.
+- 기본 피해 = `damage` + 장착한 폭탄 피해 유물(`Relics/Special/BombDamageRelicData.cs`)의 `bonus` 합
 - `hitPerOtherObstacle`: 켜면 남은 다른 장애물 하나마다 한 번 더 (연계)
 - `multiplierPerOtherObstacle`: 남은 다른 장애물 하나마다 곱하는 값 (예술 1.5). 유물 보너스를 더한 뒤 곱하고, 소수점은 내림
 - "남은 다른 장애물"은 폭발 순간 보드에 있는 장애물이다. 자신과 앞서 터진 폭탄은 이미 빠져 있다
@@ -172,7 +181,7 @@ protected override IntentData PlanIntent(BattleContext ctx)
    ```
 4. 장애물은 `PlaceObstacleEffect`로 놓는다.
    - 적: 적 코드에서 `PlaceObstacleEffect`로 놓고, 적 Data 에셋의 장애물 필드에 이 에셋을 끌어다 놓는다 (묘지기의 `tombstone`)
-   - 카드: 이동하며 떠난 칸마다 남기려면 `behavior`에서 `ObstacleTrailCard`(`Cards/ObstacleTrailCard.cs`)를 고르고 `obstacle`에 에셋을 넣는다 (`Assets/Data/Cards/Card_CatchMe.asset` 나 잡아봐라: ← 이동 + 질주, 떠난 칸마다 폭탄). 이동 후 플레이어 주변에서 고른 칸에 놓으려면 `effects`에 `PlaceObstacleInRangeEffect`를 넣는다 (`Card_Bomb.asset`: → 후 거리 1 / `Card_ChainBomb.asset`: →↓ 후 거리 2). 이동 전에 아무 칸이나 고르게 하려면 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다
+   - 카드: 이동하며 떠난 칸마다 남기려면 `behavior`에서 `ObstacleTrailCard`(`Cards/Behaviors/ObstacleTrailCard.cs`)를 고르고 `obstacle`에 에셋을 넣는다 (`Assets/Data/Cards/Bomb/Card_CatchMe.asset` 나 잡아봐라: ← 이동 + 질주, 떠난 칸마다 폭탄). 이동 후 플레이어 주변에서 고른 칸에 놓으려면 `effects`에 `PlaceObstacleInRangeEffect`를 넣는다 (`Card_Bomb.asset`: → 후 거리 1 / `Card_ChainBomb.asset`: →↓ 후 거리 2). 이동 전에 아무 칸이나 고르게 하려면 `target`을 `OtherTile`로 하고 `effects`에 `PlaceObstacleEffect`를 넣는다
    - 이동 중 칸마다 무언가 하려면 `ctx.MovePlayerAlong(src, moves, onStep)`의 `onStep(떠난 칸, 도착한 칸)`을 쓴다
 
    장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다. 폭탄의 폭발은 대상 유닛이 없으면 무작위 적에게 피해를 준다.
