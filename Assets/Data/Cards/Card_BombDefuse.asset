@@ -15,8 +15,8 @@ MonoBehaviour:
   id: defuse
   nameKey: card.defuse.name
   descKey: card.defuse.desc
-  art: {fileID: 0}
-  moves: 
+  art: {fileID: 21300000, guid: 2670554de0084f379206dd8cb99ac37b, type: 3}
+  moves: []
   cost: 1
   type: 2
   rarity: 2

@@ -13,14 +13,15 @@ namespace MoveCute
         public override string ToString() => DisplayName;
     }
 
-    /// <summary>상태이상 (죄책감 등). 세부 동작은 담당자가 확장.</summary>
+    /// <summary>상태이상 (주저 등). 세부 동작은 담당자가 확장.</summary>
     public class Status
     {
         public string Id;
         public int Stacks;
 
         public Status(string id, int stacks) { Id = id; Stacks = stacks; }
-        public override string ToString() => $"{Id}({Stacks})";
+        /// <summary>표시용. 다국어 표의 status.&lt;id 소문자&gt;.name이 있으면 그 이름, 없으면 Id.</summary>
+        public override string ToString() => $"{Loc.Get($"status.{Id.ToLowerInvariant()}.name", Id)}({Stacks})";
     }
 
     public class PlayerUnit : Unit
@@ -29,5 +30,21 @@ namespace MoveCute
         public int MaxHp;
 
         public override string DisplayName => "Player";
+    }
+
+    /// <summary>상태이상 ID. 문자열을 직접 쓰지 말고 이 상수를 쓴다.</summary>
+    public static class StatusIds
+    {
+        /// <summary>주저 (디버프): 받는 피해 증가. 계산은 BattleContext.TakenDamageMultiplier.</summary>
+        public const string Hesitation = "Hesitation";
+
+        /// <summary>MOVE CUTE 카드 버프 (플레이어): 한 칸 이동할 때마다 무작위 적에게 주저를 수치만큼 부여. 여러 장 쓰면 수치 +1.</summary>
+        public const string MoveCute = "MoveCute";
+
+        /// <summary>의욕 상실 카드 버프 (플레이어): 적에게 주저를 부여할 때마다 부여량 × 수치만큼 피해.</summary>
+        public const string Demotivation = "Demotivation";
+
+        /// <summary>주저 효과 증가 버프 (플레이어): 수치 1당 주저 효과 +20% (BattleContext.HesitationMultiplier).</summary>
+        public const string HesitationBoost = "HesitationBoost";
     }
 }

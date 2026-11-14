@@ -15,7 +15,7 @@ MonoBehaviour:
   id: examplecomplicate
   nameKey: card.examplecomplicate.name
   descKey: card.examplecomplicate.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 37af2fe7191246c581b64e9470b0560f, type: 3}
   moves: 
   cost: 1
   type: 2

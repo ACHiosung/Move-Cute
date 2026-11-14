@@ -28,5 +28,8 @@ namespace MoveCute
 
         /// <summary>현재 언어의 이름. 다국어 표에 없으면 에셋 이름.</summary>
         public string DisplayName => Loc.Get(nameKey, name);
+
+        [Tooltip("보드에 있는 동안 발동하는 모든 폭탄의 기본 피해에 더하는 값 (화약통 1). 여러 개면 합산")]
+        public int bombDamageBonus;
     }
 }

@@ -13,6 +13,9 @@ namespace MoveCute
         public int bonus = 2;
 
         public override Relic CreateRelic() => new BombDamageRelic(this);
+
+        [Tooltip("비워 두면 모든 폭탄. 넣으면 이 장애물 종류의 폭탄에만 적용 (폭탄용 거푸집: 기본 폭탄)")]
+        public ObstacleData onlyObstacle;
     }
 
     public class BombDamageRelic : Relic
@@ -24,5 +27,8 @@ namespace MoveCute
         public int Bonus => data.bonus;
 
         public override void Bind(BattleContext ctx) { }
+
+        /// <summary>이 폭탄(장애물 데이터)에 보너스가 붙는지. 종류를 모르면(null) 제한 없는 유물만 적용.</summary>
+        public bool AppliesTo(ObstacleData bomb) => data.onlyObstacle == null || data.onlyObstacle == bomb;
     }
 }

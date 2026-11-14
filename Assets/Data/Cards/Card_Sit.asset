@@ -15,7 +15,7 @@ MonoBehaviour:
   id: sit
   nameKey: card.sit.name
   descKey: card.sit.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 6059c77b86ff438195ec9b9c81fa60b0, type: 3}
   moves: 03000000i
   cost: 1
   type: 1

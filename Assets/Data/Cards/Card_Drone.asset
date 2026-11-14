@@ -15,11 +15,14 @@ MonoBehaviour:
   id: drone
   nameKey: card.drone.name
   descKey: card.drone.desc
-  art: {fileID: 0}
-  moves: 010000000100000000000000i
+  art: {fileID: 21300000, guid: a0ae3378a047427b8204db5af3799bfb, type: 3}
+  moves:
+  - 1
+  - 1
+  - 0
   cost: 1
   type: 2
-  rarity: 2
+  rarity: 3
   target: 0
   keywords:
   - rid: 3200383199153488340

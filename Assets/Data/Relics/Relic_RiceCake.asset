@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e491983898127046be8a877af357010, type: 3}
+  m_Name: Relic_RiceCake
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.RelicData
+  id: ricecake
+  nameKey: relic.ricecake.name
+  descKey: relic.ricecake.desc
+  icon: {fileID: 21300000, guid: d4dd4bb20db545ae88db9a6d50377b66, type: 3}
+  trigger: 0
+  effects:
+  - rid: 32003832300001141
+  references:
+    version: 2
+    RefIds:
+    - rid: 32003832300001141
+      type: {class: AddHesitationEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        hesitation: 2
+        perBomb: 0

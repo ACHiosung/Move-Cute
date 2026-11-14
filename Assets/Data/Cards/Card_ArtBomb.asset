@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_ArtBomb
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: artbomb
+  nameKey: card.artbomb.name
+  descKey: card.artbomb.desc
+  art: {fileID: 21300000, guid: 3b1669c45d2c4c30b470ebb0e9918e44, type: 3}
+  moves:
+  - 0
+  - 1
+  - 1
+  cost: 1
+  type: 2
+  rarity: 3
+  target: 0
+  keywords:
+  - rid: 32003832200079701
+  effects:
+  - rid: 32003832200079711
+  targetKinds: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: 32003832200079701
+      type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 32003832200079711
+      type: {class: PlaceObstacleEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        obstacle: {fileID: 11400000, guid: 4f13fb6d3ea34664860c00901419e924, type: 2}

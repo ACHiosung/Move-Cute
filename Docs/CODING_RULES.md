@@ -215,3 +215,23 @@ public async Awaitable PlayerStepped(Vector2Int from, Vector2Int to)
 
 - `BattleContext`를 presenter·input 없이 만들면 연출은 즉시 끝나고(`NullBattlePresenter`), 선택은 첫 후보로 자동 결정된다(`AutoPlayerInput`). 이 상태에서는 전투 전체가 한 프레임에 끝까지 돈다.
 - `BattleManager`의 OnGUI 디버그 패널은 `DebugPlayerInput`을 써서 선택을 버튼으로 받는다.
+
+## 7. 피해 계산 공식
+
+```
+최종 피해 = 내림( (기본 피해 + 합연산) × 공격 측 곱 × 피격 측 곱 )
+```
+
+1. **합연산**: 기본 피해에 고정 보너스를 더한다 (폭탄 피해 유물 +n 등).
+2. **공격 측 곱연산**: 공격하는 쪽 배율 (예술 폭탄 1.5^k 등).
+3. **피격 측 곱연산**: 맞는 쪽 상태 (주저 등). 여러 개면 서로 곱한다. `BattleContext.TakenDamageMultiplier`.
+4. **내림은 마지막에 한 번만** 한다. `BattleContext.CalculateDamage`.
+
+- 효과에서 소수점을 직접 버리지 않는다. 1·2단계는 `Damage`(`Effects/Damage.cs`)에 담아 `ctx.DealDamage(src, unit, damage)`로 넘긴다.
+  ```csharp
+  var damage = new Damage(baseDamage).Add(bonus).Multiply(1.5m);
+  await ctx.DealDamage(src, unit, damage);
+  ```
+- 정수 피해만 주는 효과는 지금처럼 `ctx.DealDamage(src, unit, 6)`을 써도 같은 공식을 거친다.
+- 계산은 `decimal`로 한다. `float`/`double`은 20 × 1.15 = 22.999…처럼 내림에서 1이 빠질 수 있다.
+- 주저 배율 = 1 + 수치 × 5% × (1 + 주저 효과 증가%). 주저 효과 증가% = 플레이어의 주저 효과 증가 버프 수치 × 20 + `HesitationEffectBonusPercent`. 턴이 지나도 줄지 않는다. 수치는 `HesitationPercentPerStack`, `HesitationBoostPercentPerStack` 상수에서 조정한다. 상태 ID는 `StatusIds.Hesitation`이고 적에게만 붙는다.
