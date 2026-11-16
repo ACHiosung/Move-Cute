@@ -63,7 +63,7 @@ BattleManager (씬 진입점, MonoBehaviour)
    - `id`: 소문자 영문 (`sit`). `nameKey` = `card.<id>.name`, `descKey` = `card.<id>.desc`
    - `moves`: 이동 방향 (순서대로 한 칸씩). 카드에는 화살표로 표시되므로 설명문에 쓰지 않는다
    - `effects`: 드롭다운에서 효과 선택 후 값 입력. 모든 이동이 성공했을 때 발동한다
-   - `target`: 카드를 낼 때 고르는 대상. `Unit`이면 `targetKinds`로 고를 수 있는 종류를 정한다 — 기본은 전부(적·장애물·폭탄), 하나만 고르면 그 종류만 (예: 폭탄만). 후보는 `CardInstance.TargetUnits`가 만든다. 장애물을 고른 카드의 피해 효과는 장애물에 들어가고, HP가 0이 되면 부서진다 (폭탄이면 터짐)
+   - `target`: 카드를 낼 때 고르는 대상. 시트의 "적"은 `Unit`, "보드"는 `SelfTile`(내 칸) 또는 `OtherTile`(다른 칸)이다. `SelfTile`은 내 칸 하나만 후보로 띄우고 그 칸(플레이어 그림)을 눌러야 발동한다 (`BattleManager.ChooseTarget`). 카드는 누르자마자 발동하지 않으므로 `None`은 쓰지 않는다 (인스펙터에 경고가 뜬다, `Editor/CardDataEditor.cs`). `Unit`이면 `targetKinds`로 고를 수 있는 종류를 정한다 — 기본은 전부(적·장애물·폭탄), 하나만 고르면 그 종류만 (예: 폭탄만). 후보는 `CardInstance.TargetUnits`가 만든다. 장애물을 고른 카드의 피해 효과는 장애물에 들어가고, HP가 0이 되면 부서진다 (폭탄이면 터짐)
 3. `Assets/Resources/Localization/Strings.csv`에 이름·설명 줄 추가
    ```
    card.sit.name,앉기,Sit

@@ -92,7 +92,11 @@ namespace MoveCute
             InitializeKeywords();
             backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
             playerMarker.GetComponent<Image>().raycastTarget = true;
-            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
+            // 플레이어 그림이 내 칸을 덮고 있으므로, 내 칸을 고르는 중이면(SelfTile 카드) 그 칸을 고른 것으로 처리한다
+            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = () =>
+            {
+                if (ctx == null || !TryPick(ctx.Player.Pos)) Back();
+            };
             BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.Config.teleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));

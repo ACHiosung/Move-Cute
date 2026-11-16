@@ -357,7 +357,7 @@ namespace MoveCute
         public async Awaitable EnergyChanged(int energy)
         {
             // 즉시 발동하는 카드는 에너지 칸이 사라지기 전에 미리보기를 잠깐 보여준다.
-            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None or TargetType.SelfTile)
+            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None)
                 await Awaitable.WaitForSecondsAsync(0.18f);
             RefreshHud();
             bool empty = energy <= 0;
