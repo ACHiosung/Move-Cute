@@ -54,6 +54,7 @@ card.masterkey.desc,패에서 잠금이 있는 카드를 {count}장 선택해 �
 # 선택 창 안내: prompt.<이름>,,
 prompt.move_cards,{from} → {to}: 카드를 고르세요 ({n}/{total}),{from} → {to}: choose a card ({n}/{total})
 prompt.unlock_cards,{from}: 해금할 카드를 고르세요 ({n}/{total}),{from}: choose a card to unlock ({n}/{total})
+prompt.add_keyword,{from}: 키워드를 부여할 카드를 고르세요 ({n}/{total}),{from}: choose a card to give the keyword ({n}/{total})
 # 카드 더미 이름: pile.<hand|draw|discard|trash>,,
 pile.hand,손패,Hand
 pile.draw,뽑을 카드 더미,Draw Pile
@@ -109,3 +110,14 @@ relic.ricecake.name,이사 떡,Housewarming Rice Cake
 relic.ricecake.desc,전투 시작 시 적에게 주저를 {hesitation} 부여합니다.,"At the start of battle, apply {hesitation} Hesitation to an enemy."
 relic.claymore.name,클레이모어,Claymore
 relic.claymore.desc,연계 폭탄의 피해 횟수가 {bonus} 증가합니다.,Chain Bombs hit {bonus} more times.
+# 질주 카드,,
+card.focus.name,집중,Focus
+card.focus.desc,카드를 {count}장 뽑습니다.,Draw {count} card(s).
+card.flurry.name,연타,Flurry
+card.flurry.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.climb.name,등반,Climb
+card.climb.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.wings.name,날개,Wings
+card.wings.desc,패에서 카드를 {count}장 선택해 질주를 부여합니다.,Choose {count} card(s) in your hand and give them Dash.
+card.sprint.name,전력질주,Sprint
+card.sprint.desc,적에게 피해를 {damage} 줍니다. 비어 있는 타일마다 피해량이 {perEmptyTile} 증가합니다.,Deal {damage} damage to an enemy. Deals {perEmptyTile} more for each empty tile.

@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_Sprint
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: sprint
+  nameKey: card.sprint.name
+  descKey: card.sprint.desc
+  art: {fileID: 0}
+  moves:
+  - 0
+  - 1
+  cost: 1
+  type: 1
+  rarity: 2
+  target: 1
+  keywords:
+  - rid: 3700000000000042001
+  effects:
+  - rid: 3700000000000042011
+  behavior:
+    rid: -2
+  targetKinds: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3700000000000042001
+      type: {class: Keyword_Dash, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        maxReuseCount:
+          source: 0
+          value: 5
+    - rid: 3700000000000042011
+      type: {class: DamagePerEmptyTileEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        damage: 0
+        perEmptyTile: 1
