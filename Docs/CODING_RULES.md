@@ -82,6 +82,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 - `Play` 재정의: 카드가 하는 일만 넣는다. 에너지 지불·묘지/휴지통 보내기는 `PlayCard`가 하므로 `Play`에서 하지 않는다 (질주면 `Play`가 재사용마다 다시 불린다)
 - 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
 - `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/Behaviors/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
+- 해금된 잠금 카드는 화살표대로 움직이지 않는다 (`MovePlayer`가 해금 카드가 출처인 이동을 막는다). 이동 자체가 효과인 잠금 카드는 플레이어를 출처로 이동한다. 예: `Cards/Behaviors/DistanceMoveCard.cs` (축지법: 원하는 방향으로 거리 N 이동, 재사용 때는 다시 고르고 취소 가능, 에셋 `Lock/Card_EarthShrink.asset`)
 - public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
 - 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
 - 카드는 `new CardInstance`로 만들지 않고 `cardData.CreateCard()`로 만든다 (behavior 하위 클래스로 만들어진다)

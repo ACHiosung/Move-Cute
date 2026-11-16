@@ -55,6 +55,7 @@ card.masterkey.desc,패에서 잠금이 있는 카드를 {count}장 선택해 �
 prompt.move_cards,{from} → {to}: 카드를 고르세요 ({n}/{total}),{from} → {to}: choose a card ({n}/{total})
 prompt.unlock_cards,{from}: 해금할 카드를 고르세요 ({n}/{total}),{from}: choose a card to unlock ({n}/{total})
 prompt.add_keyword,{from}: 키워드를 부여할 카드를 고르세요 ({n}/{total}),{from}: choose a card to give the keyword ({n}/{total})
+prompt.move_again,{card}: 한 번 더 이동할 칸을 고르세요 (취소하면 이동하지 않음),{card}: choose where to move again (cancel to stay)
 # 카드 더미 이름: pile.<hand|draw|discard|trash>,,
 pile.hand,손패,Hand
 pile.draw,뽑을 카드 더미,Draw Pile
@@ -121,3 +122,14 @@ card.wings.name,날개,Wings
 card.wings.desc,패에서 카드를 {count}장 선택해 질주를 부여합니다.,Choose {count} card(s) in your hand and give them Dash.
 card.sprint.name,전력질주,Sprint
 card.sprint.desc,적에게 피해를 {damage} 줍니다. 비어 있는 타일마다 피해량이 {perEmptyTile} 증가합니다.,Deal {damage} damage to an enemy. Deals {perEmptyTile} more for each empty tile.
+# 잠금 카드,,
+card.jab.name,잽,Jab
+card.jab.desc,적에게 피해를 {damage} 줍니다. 카드를 {count}장 뽑습니다.,Deal {damage} damage to an enemy. Draw {count} card(s).
+card.earthshrink.name,축지법,Earth Shrink
+card.earthshrink.desc,거리 {distance}만큼 이동합니다. 재사용 {maxReuseCount}.,Move {distance} tile(s). Reuse {maxReuseCount}.
+card.bottomdeal.name,밑장빼기,Bottom Deal
+card.bottomdeal.desc,카드를 {count}장 뽑습니다.,Draw {count} cards.
+card.creditloan.name,신용 대출,Credit Loan
+card.creditloan.desc,패에서 잠금이 없는 카드를 {count}장 선택해 해금 및 자동 잠금을 부여합니다.,Choose {count} card(s) in your hand without Lock and give them Unlock and Auto Lock.
+card.hammer.name,망치질,Hammering
+card.hammer.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.

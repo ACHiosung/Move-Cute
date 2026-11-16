@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_CreditLoan
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: creditloan
+  nameKey: card.creditloan.name
+  descKey: card.creditloan.desc
+  art: {fileID: 0}
+  moves:
+  - 1
+  - 3
+  cost: 1
+  type: 2
+  rarity: 2
+  target: 2
+  keywords: []
+  effects:
+  - rid: 3700000000000050011
+  behavior:
+    rid: -2
+  targetKinds: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3700000000000050011
+      type: {class: AddKeywordToChosenCardsEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        from: 0
+        count:
+          source: 0
+          value: 1
+        keywords: []
+        requireAllKeywords: 0
+        keyword:
+          rid: 3700000000000050021
+    - rid: 3700000000000050021
+      type: {class: Keyword_Lock, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        isUnlocked: 1
+        autoLock: 1

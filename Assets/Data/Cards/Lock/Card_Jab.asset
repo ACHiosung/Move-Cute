@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_Jab
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: jab
+  nameKey: card.jab.name
+  descKey: card.jab.desc
+  art: {fileID: 0}
+  moves:
+  - 0
+  cost: 1
+  type: 1
+  rarity: 1
+  target: 1
+  keywords:
+  - rid: 3700000000000044001
+  effects:
+  - rid: 3700000000000044011
+  - rid: 3700000000000044012
+  behavior:
+    rid: -2
+  targetKinds: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3700000000000044001
+      type: {class: Keyword_Lock, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        isUnlocked: 0
+        autoLock: 1
+    - rid: 3700000000000044011
+      type: {class: DamageEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        damage: 3
+    - rid: 3700000000000044012
+      type: {class: DrawCardsEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        count: 1
