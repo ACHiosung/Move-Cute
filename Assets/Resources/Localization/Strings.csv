@@ -56,6 +56,8 @@ prompt.move_cards,{from} → {to}: 카드를 고르세요 ({n}/{total}),{from} �
 prompt.unlock_cards,{from}: 해금할 카드를 고르세요 ({n}/{total}),{from}: choose a card to unlock ({n}/{total})
 prompt.add_keyword,{from}: 키워드를 부여할 카드를 고르세요 ({n}/{total}),{from}: choose a card to give the keyword ({n}/{total})
 prompt.move_again,{card}: 한 번 더 이동할 칸을 고르세요 (취소하면 이동하지 않음),{card}: choose where to move again (cancel to stay)
+prompt.swap_first,교환할 첫 번째 칸을 고르세요 (취소하면 교환하지 않음),Choose the first tile to swap (cancel to skip)
+prompt.swap_second,교환할 두 번째 칸을 고르세요 (취소하면 교환하지 않음),Choose the second tile to swap (cancel to skip)
 # 카드 더미 이름: pile.<hand|draw|discard|trash>,,
 pile.hand,손패,Hand
 pile.draw,뽑을 카드 더미,Draw Pile
@@ -133,3 +135,10 @@ card.creditloan.name,신용 대출,Credit Loan
 card.creditloan.desc,패에서 잠금이 없는 카드를 {count}장 선택해 해금 및 자동 잠금을 부여합니다.,Choose {count} card(s) in your hand without Lock and give them Unlock and Auto Lock.
 card.hammer.name,망치질,Hammering
 card.hammer.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+# 테마 키워드 없는 카드,,
+card.slam.name,내려찍기,Slam
+card.slam.desc,적에게 피해를 {damage} 줍니다.,Deal {damage} damage to an enemy.
+card.rampage.name,난동피우기,Rampage
+card.rampage.desc,적에게 피해를 {damage} 줍니다. 비어 있는 타일마다 피해량이 {perEmptyTile} 증가합니다.,Deal {damage} damage to an enemy. Deals {perEmptyTile} more for each empty tile.
+card.relocate.name,재배치,Relocate
+card.relocate.desc,적에게 피해를 {damage} 줍니다. 타일 두 개를 골라 위에 있는 개체를 교환합니다. 빈 타일을 선택할 수 있습니다.,Deal {damage} damage to an enemy. Choose two tiles and swap what is on them. Empty tiles can be chosen.

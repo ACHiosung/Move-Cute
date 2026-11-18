@@ -35,6 +35,8 @@ namespace MoveCute
         Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost) => AwaitableUtil.Completed();
         Awaitable ObstaclePlaced(Obstacle obstacle) => AwaitableUtil.Completed();
         Awaitable ObstacleDestroyed(Obstacle obstacle) => AwaitableUtil.Completed();
+        /// <summary>두 칸의 내용물(장애물·플레이어)이 맞바뀐 뒤 (재배치). 플레이어가 옮겨졌으면 ctx.Player.Pos가 새 칸이다.</summary>
+        Awaitable TilesSwapped(Vector2Int a, Vector2Int b) => AwaitableUtil.Completed();
         Awaitable TileEffectAdded(Vector2Int pos, TileEffect effect) => AwaitableUtil.Completed();
         Awaitable TileEffectRemoved(Vector2Int pos, TileEffect effect) => AwaitableUtil.Completed();
         /// <summary>타일 효과 발동 직전.</summary>

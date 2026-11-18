@@ -228,6 +228,22 @@ namespace MoveCute
             return Punch(tiles[obstacle.Pos].transform, 0.25f);
         }
 
+        /// <summary>재배치: 보드를 다시 그리고 두 칸을 튕긴다. 플레이어가 옮겨졌으면 새 칸으로 옮긴다.</summary>
+        public Awaitable TilesSwapped(Vector2Int a, Vector2Int b)
+        {
+            RefreshAll();
+            if (ctx.Player.Pos == a || ctx.Player.Pos == b)
+                playerMarker.position = tiles[ctx.Player.Pos].transform.position;
+            var sequence = DOTween.Sequence();
+            foreach (var pos in new[] { a, b })
+            {
+                var tile = tiles[pos].transform;
+                tile.DOComplete();
+                sequence.Insert(0, tile.DOPunchScale(Vector3.one * 0.15f, D(0.25f), 6));
+            }
+            return sequence.SetLink(playerMarker.gameObject).ToAwaitable();
+        }
+
         public Awaitable TileEffectAdded(Vector2Int pos, TileEffect effect)
         {
             RefreshTile(pos);

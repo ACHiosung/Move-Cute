@@ -94,6 +94,31 @@ namespace MoveCute
             await o.OnDestroyed(this);
         }
 
+        /// <summary>
+        /// 두 칸에 있는 것(장애물·플레이어)을 맞바꾼다 (재배치). 빈 칸과도 바꿀 수 있고, 둘 다 비어 있으면 아무 일도 없다.
+        /// 칸에 걸린 타일 효과(적 예고 등)는 칸에 그대로 남는다.
+        /// 플레이어가 옮겨져도 이동으로 치지 않는다: 잠금 진행·PlayerMoved(MOVE CUTE 등)·Pass 효과 없이 도착한 칸의 Arrive 효과만 발동한다.
+        /// </summary>
+        public async Awaitable SwapTiles(EffectSource src, Vector2Int a, Vector2Int b)
+        {
+            if (IsOver || a == b) return;
+            var tileA = Board.Get(a);
+            var tileB = Board.Get(b);
+            if (tileA == null || tileB == null) return;
+            bool playerAtA = Player.Pos == a, playerAtB = Player.Pos == b;
+            if (tileA.Occupant == null && tileB.Occupant == null && !playerAtA && !playerAtB) return;
+
+            (tileA.Occupant, tileB.Occupant) = (tileB.Occupant, tileA.Occupant);
+            if (tileA.Occupant != null) tileA.Occupant.Pos = a;
+            if (tileB.Occupant != null) tileB.Occupant.Pos = b;
+            if (playerAtA) Player.Pos = b;
+            else if (playerAtB) Player.Pos = a;
+
+            Log($"{src}: {a} ↔ {b} 교환");
+            await Presenter.TilesSwapped(a, b);
+            if (playerAtA || playerAtB) await TriggerTile(Player.Pos, TileTrigger.Arrive);
+        }
+
         public async Awaitable AddTileEffect(Vector2Int pos, TileEffect effect)
         {
             var tile = Board.Get(pos);

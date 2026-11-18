@@ -18,7 +18,7 @@ namespace MoveCute
 
     /// <summary>
     /// 대상 유닛(없으면 무작위 적)에게 피해. 보드의 빈 타일 하나마다 피해량이 perEmptyTile 증가 (전력질주 1, 난동피우기 2).
-    /// 빈 타일 = 지나갈 수 있는 칸 (Tile.Passable, 장애물 없음). 플레이어가 서 있는 칸도 센다.
+    /// 빈 타일 = 장애물도 플레이어도 없는 칸 (Tile.Passable이고 플레이어 칸이 아님).
     /// 이동이 끝난 뒤 발동하는 순간에 센다 (질주면 재사용마다 다시 셈).
     /// 증가분은 합연산이라 주저 배율보다 먼저 더해진다.
     /// </summary>
@@ -35,7 +35,7 @@ namespace MoveCute
         {
             var unit = target.Unit ?? ctx.GetRandomEnemy();
             if (unit == null) return;
-            int empty = ctx.Board.AllTiles().Count(t => t.Passable);
+            int empty = ctx.Board.AllTiles().Count(t => t.Passable && t.Pos != ctx.Player.Pos);
             await ctx.DealDamage(src, unit, new Damage(damage).Add(perEmptyTile * empty));
         }
     }

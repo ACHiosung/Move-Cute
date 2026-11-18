@@ -56,7 +56,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 ### 새 카드
 카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Basic/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
 
-카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Dash`(질주) · `Hesitation`(주저) · `Lock`(잠금) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다. 키워드가 여러 테마에 걸치면 카드가 주로 하는 일로 고른다 (예: `PTSD`는 폭탄 키워드가 있지만 주저를 부여하므로 `Hesitation`).
+카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Dash`(질주) · `Hesitation`(주저) · `Lock`(잠금) · `Neutral`(테마 키워드 없음) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다. 키워드가 여러 테마에 걸치면 카드가 주로 하는 일로 고른다 (예: `PTSD`는 폭탄 키워드가 있지만 주저를 부여하므로 `Hesitation`).
 
 1. Project 창 `Assets/Data/Cards/<테마>`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
 2. 인스펙터 입력
@@ -186,6 +186,8 @@ protected override IntentData PlanIntent(BattleContext ctx)
    - 이동 중 칸마다 무언가 하려면 `ctx.MovePlayerAlong(src, moves, onStep)`의 `onStep(떠난 칸, 도착한 칸)`을 쓴다
 
    장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다. 폭탄의 폭발은 대상 유닛이 없으면 무작위 적에게 피해를 준다.
+
+   두 칸의 내용물(장애물·플레이어)을 맞바꾸려면 `ctx.SwapTiles(src, a, b)`를 쓴다 (재배치, 효과 `SwapTileContentsEffect`). 타일 효과는 칸에 남고, 플레이어가 옮겨져도 이동으로 치지 않는다 (잠금 진행·`PlayerMoved`·Pass 없이 도착 칸의 Arrive만). 연출은 `IBattlePresenter.TilesSwapped`.
 
 ### 효과 도중 플레이어 선택
 ```csharp
