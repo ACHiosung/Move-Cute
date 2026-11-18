@@ -20,6 +20,7 @@ MonoBehaviour:
   effects:
   - rid: 3700000000000123011
   threshold: 2
+  showRemaining: 1
   references:
     version: 2
     RefIds:

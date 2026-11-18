@@ -14,6 +14,9 @@ namespace MoveCute
         [Tooltip("trigger가 이만큼 일어날 때마다 발동. 설명문의 {threshold}")]
         [Min(1)] public int threshold = 2;
 
+        [Tooltip("아이콘 숫자: 켜면 발동까지 남은 수 (5 → 0), 끄면 쌓인 수 (0 → 5)")]
+        public bool showRemaining = true;
+
         public override Relic CreateRelic() => new CountingRelic(this);
     }
 
@@ -24,6 +27,7 @@ namespace MoveCute
         /// <summary>지금까지 센 횟수 (0 ~ threshold-1).</summary>
         public int Counter { get; private set; }
         public int Threshold => Mathf.Max(1, data.threshold);
+        public int DisplayValue => data.showRemaining ? Threshold - Counter : Counter;
 
         public CountingRelic(CountingRelicData data) : base(data) { this.data = data; }
 

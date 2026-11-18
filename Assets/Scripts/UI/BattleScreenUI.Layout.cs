@@ -125,6 +125,7 @@ namespace MoveCute
             }
             endTurnButton.interactable = M.CanInput && !teleportMode && !modal.gameObject.activeSelf;
             if (teleportMode && !M.CanInput) { teleportMode = false; RefreshTargets(); }
+            RefreshRelicStates();
         }
 
         void BeginTeleport()

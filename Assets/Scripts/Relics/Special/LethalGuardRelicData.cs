@@ -30,6 +30,9 @@ namespace MoveCute
         /// <summary>이미 발동했는지. 런 동안 유지 (resetEachBattle이면 전투 시작마다 초기화).</summary>
         public bool Used { get; private set; }
 
+        /// <summary>발동하고 나면 전투 화면에서 흑백.</summary>
+        public override bool Spent => Used;
+
         public LethalGuardRelic(LethalGuardRelicData data) : base(data) { this.data = data; }
 
         public override void Bind(BattleContext ctx)

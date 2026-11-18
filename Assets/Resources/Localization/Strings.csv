@@ -168,3 +168,5 @@ relic.praisesticker.name,칭찬 스티커,Praise Sticker
 relic.praisesticker.desc,카드가 해금될 때 버린 카드 더미에 있다면 뽑을 카드 더미 맨 위로 옮깁니다.,"When a card is unlocked while in the discard pile, put it on top of the draw pile."
 relic.castpuzzle.name,캐스트 퍼즐,Cast Puzzle
 relic.castpuzzle.desc,해금을 {threshold}번 할 때마다 카드를 {count}장 뽑습니다.,"Every {threshold} unlocks, draw {count} card."
+relic.suspiciousfang.name,수상한 송곳니,Suspicious Fang
+relic.suspiciousfang.desc,전투 종료 후 HP 보상이 {percent}% 증가합니다.,Post-battle HP rewards are increased by {percent}%.

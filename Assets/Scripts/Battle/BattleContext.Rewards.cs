@@ -53,9 +53,19 @@ namespace MoveCute
             {
                 var candidates = pool.Where(c => c != null).Distinct().ToList();
                 Rng.Shuffle(candidates);
-                Rewards = new BattleRewards(gold, healing, candidates.Take(3).ToList());
+                Rewards = new BattleRewards(gold, RewardHealingWithRelics(healing), candidates.Take(3).ToList());
             }
             return AwaitableUtil.Completed();
+        }
+
+        /// <summary>회복 보상에 켜진 유물의 증가 %를 더해 곱한다 (수상한 송곳니 +10%). 소수점 내림.</summary>
+        int RewardHealingWithRelics(int healing)
+        {
+            int percent = Run.Relics.Where(r => r.Enabled).OfType<RewardHealingBonusRelic>().Sum(r => r.Percent);
+            if (percent <= 0 || healing <= 0) return healing;
+            int boosted = (int)decimal.Floor(healing * (1m + percent / 100m));
+            Log($"회복 보상 {healing} → {boosted} (유물 +{percent}%)");
+            return boosted;
         }
 
         public Awaitable<bool> ClaimRewardGold()

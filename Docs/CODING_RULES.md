@@ -129,8 +129,9 @@ public class HealEffect : Effect
   - `Relic` 하위 클래스: `Bind`에서 `ctx.Events` 구독, 상태 보관. Relic은 런 내내 유지되므로 전투마다 초기화할 값은 `Bind`에서 초기화
   - 발동 시 할 일은 에셋의 `effects`를 `Fire(ctx)`로 실행 → 기획자가 조정 가능
 - 트리거 `LastTurnEnd`는 제한 턴의 마지막 턴이 끝날 때, 장애물의 마지막 턴 처리(폭탄 폭발) **직전**에 발동한다. 여기서 놓은 폭탄도 같이 터진다 (예: `Assets/Data/Relics/Bomb/Relic_LastTurnChainBomb.asset`)
-- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다), `Relics/Special/FreeTeleportRelicData.cs` (제트팩: `ctx.TeleportHpCost`가 0)
-- 누적 수치가 있는 유물은 `ICountingRelic`(`Counter`/`Threshold`)을 구현한다. 디버그 창(`MoveCute > Debug > Relic Toggle`)에 쌓인 수치가 보인다. 예: 채찍(`HesitationCountRelicData`), `CountingRelicData`
+- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다), `Relics/Special/FreeTeleportRelicData.cs` (제트팩: `ctx.TeleportHpCost`가 0), `Relics/Special/RewardHealingBonusRelicData.cs` (수상한 송곳니: 회복 보상 +%, 내림)
+- 누적 수치가 있는 유물은 `ICountingRelic`(`Counter`/`Threshold`)을 구현한다. 전투 화면은 아이콘 오른쪽 아래에 `DisplayValue`를 보여 준다 (기본은 쌓인 수, `CountingRelicData.showRemaining`이면 발동까지 남은 수). 디버그 창(`MoveCute > Debug > Relic Toggle`)에도 보인다. 예: 채찍(`HesitationCountRelicData`), `CountingRelicData`
+- 한 번 쓰고 끝나는 유물은 `Relic.Spent`를 재정의한다. 전투 화면이 아이콘을 흑백으로 그린다. 예: 기계 심장(`LethalGuardRelic.Used`)
 - 플레이어가 잃는 HP를 바꾸는 유물은 `IPlayerHpLossModifier`(합·곱), 죽음을 버티는 유물은 `IPlayerLethalGuard`를 구현한다. 계산 순서는 [7. 피해 계산 공식](#7-피해-계산-공식). 예: 두꺼운 패딩(`HpLossReductionRelicData`), 기계 심장(`LethalGuardRelicData`)
 - 카드 효과만 한 번 더 내려면 `ctx.ReplayCardEffects(src, card, target)` (에너지·더미 이동·재사용 이벤트 없음, 카드 이동 막힘). 예: 이온 음료(`ReplayAfterReusesRelicData`, `CardResolved` 이벤트 = 재사용까지 모두 끝난 직후)
 - 전투에서 이긴 뒤 HP를 회복하는 유물은 `BattleEnd` 이벤트에서 `ctx.HealAfterBattle(src, amount)`를 쓴다 (전투가 끝난 뒤에도 동작). 예: `Relics/Special/BattleEndHealRelicData.cs` (자가수리키트)

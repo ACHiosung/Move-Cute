@@ -14,6 +14,9 @@ namespace MoveCute
         /// <summary>꺼져 있으면 Fire가 아무것도 하지 않는다. 효과를 읽기만 하는 유물은 읽는 쪽이 확인한다 (예: BombDamageRelic).</summary>
         public bool Enabled = true;
 
+        /// <summary>한 번 쓰고 나서 더는 발동하지 않는 상태 (기계 심장). 전투 화면이 아이콘을 흑백으로 그린다.</summary>
+        public virtual bool Spent => false;
+
         public virtual void Bind(BattleContext ctx)
         {
             var ev = ctx.Events;
@@ -44,13 +47,15 @@ namespace MoveCute
     }
 
     /// <summary>
-    /// 누적 수치가 있는 유물 (채찍, 독수리 깃털). Counter가 Threshold에 닿으면 발동하고 Threshold만큼 줄어든다.
-    /// 디버그 창(RelicToggleWindow)이 "Counter/Threshold"로 보여 준다. 아이콘 숫자 표시에도 쓸 수 있다.
+    /// 누적 수치가 있는 유물 (채찍, 독수리 깃털, 캐스트 퍼즐). Counter가 Threshold에 닿으면 발동하고 Threshold만큼 줄어든다.
+    /// 디버그 창(RelicToggleWindow)은 "Counter/Threshold"로, 전투 화면은 아이콘 오른쪽 아래에 DisplayValue를 보여 준다.
     /// </summary>
     public interface ICountingRelic
     {
         int Counter { get; }
         int Threshold { get; }
+        /// <summary>아이콘에 표시할 숫자. 기본은 쌓인 수 (채찍: 0에서 10까지). 남은 수로 보여 줄 유물은 재정의한다.</summary>
+        int DisplayValue => Counter;
     }
 
     /// <summary>플레이어가 HP를 잃는 이유. 유물이 순간이동 비용을 따로 다룰 때 쓴다.</summary>
