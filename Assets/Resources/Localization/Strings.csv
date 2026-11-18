@@ -142,3 +142,29 @@ card.rampage.name,난동피우기,Rampage
 card.rampage.desc,적에게 피해를 {damage} 줍니다. 비어 있는 타일마다 피해량이 {perEmptyTile} 증가합니다.,Deal {damage} damage to an enemy. Deals {perEmptyTile} more for each empty tile.
 card.relocate.name,재배치,Relocate
 card.relocate.desc,적에게 피해를 {damage} 줍니다. 타일 두 개를 골라 위에 있는 개체를 교환합니다. 빈 타일을 선택할 수 있습니다.,Deal {damage} damage to an enemy. Choose two tiles and swap what is on them. Empty tiles can be chosen.
+# 유물 1차 (끈끈이 장갑·폭죽·자가수리키트·락픽·독수리 깃털·제트팩),,
+relic.stickygloves.name,끈끈이 장갑,Sticky Gloves
+relic.stickygloves.desc,매 턴 카드를 {count}장 더 뽑습니다.,Draw {count} more card each turn.
+relic.firecracker.name,폭죽,Firecracker
+relic.firecracker.desc,전투를 시작할 때 적 사기의 {percent}%만큼 피해를 줍니다.,"At the start of battle, deal damage equal to {percent}% of the enemy's Morale."
+relic.repairkit.name,자가수리키트,Self-Repair Kit
+relic.repairkit.desc,전투에서 이기면 최대 HP의 {percent}%만큼 HP를 회복합니다.,"After winning a battle, heal {percent}% of your max HP."
+relic.lockpick.name,락픽,Lockpick
+relic.lockpick.desc,이동이 {minMoves}번 이상 필요한 잠금 카드에 필요한 마지막 이동을 생략합니다.,Locked cards that need {minMoves} or more moves skip their last move.
+relic.eaglefeather.name,독수리 깃털,Eagle Feather
+relic.eaglefeather.desc,카드를 {threshold}번 재사용할 때마다 에너지를 {amount} 회복합니다.,"Every {threshold} card reuses, gain {amount} Energy."
+relic.jetpack.name,제트팩,Jetpack
+relic.jetpack.desc,순간이동이 HP를 소모하지 않습니다.,Teleporting costs no HP.
+# 유물 2차 (기계 심장·이온 음료·환경보호 포스터·두꺼운 패딩·칭찬 스티커·캐스트 퍼즐),,
+relic.mechanicalheart.name,기계 심장,Mechanical Heart
+relic.mechanicalheart.desc,처음으로 치명적인 피해를 입었을 때 HP {leaveHp}을 남기고 생존합니다.,"The first time you would die, survive with {leaveHp} HP."
+relic.iondrink.name,이온 음료,Ion Drink
+relic.iondrink.desc,한 카드를 {minReuses}번 이상 재사용하면 효과를 한 번 더 발동합니다.,"When a card is reused {minReuses} or more times, trigger its effect once more."
+relic.ecoposter.name,환경보호 포스터,Eco Poster
+relic.ecoposter.desc,카드를 삭제할 때마다 적에게 주저를 {hesitation} 부여합니다.,"Whenever a card is deleted, apply {hesitation} Hesitation to an enemy."
+relic.thickpadding.name,두꺼운 패딩,Thick Padding
+relic.thickpadding.desc,HP를 잃을 때 {reducePercent}%만큼 덜 잃습니다.,Lose {reducePercent}% less HP.
+relic.praisesticker.name,칭찬 스티커,Praise Sticker
+relic.praisesticker.desc,카드가 해금될 때 버린 카드 더미에 있다면 뽑을 카드 더미 맨 위로 옮깁니다.,"When a card is unlocked while in the discard pile, put it on top of the draw pile."
+relic.castpuzzle.name,캐스트 퍼즐,Cast Puzzle
+relic.castpuzzle.desc,해금을 {threshold}번 할 때마다 카드를 {count}장 뽑습니다.,"Every {threshold} unlocks, draw {count} card."

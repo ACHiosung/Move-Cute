@@ -66,6 +66,21 @@ namespace MoveCute
             return AwaitableUtil.FromResult(true);
         }
 
+        /// <summary>
+        /// 이긴 전투가 끝난 뒤 런 HP 회복 (자가수리키트 등 유물). 최대 HP를 넘지 않는다.
+        /// 전투가 끝난 뒤(BattleEnd 이벤트)에 부르는 함수라 IsOver여도 동작한다. 진 전투에서는 아무것도 하지 않는다.
+        /// </summary>
+        public async Awaitable HealAfterBattle(EffectSource src, int amount)
+        {
+            if (Phase != BattlePhase.Won || amount <= 0) return;
+            int before = Run.Hp;
+            Run.Hp = Mathf.Min(Run.MaxHp, Run.Hp + amount);
+            Player.Hp = Run.Hp;
+            int healed = Run.Hp - before;
+            Log($"{src}: HP {healed} 회복 (HP {Run.Hp})");
+            if (healed > 0) await Presenter.PlayerHealed(healed);
+        }
+
         public Awaitable<bool> ClaimRewardHealing()
         {
             if (!CanClaimReward || Rewards.HealingClaimed) return AwaitableUtil.FromResult(false);

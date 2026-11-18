@@ -117,14 +117,23 @@ public class HealEffect : Effect
 - **피해량 계산에서 소수점이 나오면 항상 내림한다** (배율 1.5 × 피해 3 = 4.5 → 4)
 
 ### 새 유물
+유물 에셋은 `Assets/Data/Relics` 아래 카드와 같은 테마 폴더에 둔다: `Bomb`(폭탄) · `Dash`(질주·재사용) · `Hesitation`(주저) · `Lock`(잠금) · `Neutral`(테마 키워드 없음 — HP·드로우·순간이동 등) · `Trash`(휴지통·삭제) · `_Test`(테스트·예시용, 실제로 장착하지 않음). 파일 이름은 `Relic_<Id>`.
+
 - **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic > Basic` 에셋에서 `trigger`와 `effects`만 고른다.
+  - `trigger`: 전투 시작 · 턴 시작 · 턴 종료 · 카드 사용 · 플레이어 이동 · 마지막 턴 종료 · 카드 재사용 · 카드 삭제(휴지통으로 감) · 카드 해금
+  - 카드 시점(사용·재사용·삭제·해금)은 그 카드를 효과 대상(`target.Card`)으로 넘긴다. 예: 칭찬 스티커 = 해금 + `MoveTargetCardEffect`(버린 더미에 있으면 뽑을 더미 맨 위로)
+- **N번마다 발동하는 유물**은 `Create > MoveCute > Relic > Counting`(`CountingRelicData`)에서 `trigger`와 `threshold`를 고른다 (코드 없음). 예: 캐스트 퍼즐(해금 2번마다 1장), 독수리 깃털(재사용 5번마다 에너지 1)
 - **조건·누적 상태가 필요한 유물**: `RelicData`와 `Relic`을 함께 상속해 `Relics/Special/`에 둔다. 참고용 예시: **`Relics/Special/PedometerRelicData.cs`** (만보기: 한 턴에 N칸 이동하면 발동)
   - `RelicData` 하위 클래스는 ScriptableObject라서 **파일 하나에 하나**, 파일 이름 = 클래스 이름 (`XxxRelicData.cs`). 같은 파일에 짝이 되는 `XxxRelic`을 함께 둔다
   - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의. 메뉴는 `[CreateAssetMenu(menuName = "MoveCute/Relic/<이름>")]`로 `Relic` 아래에 둔다
   - `Relic` 하위 클래스: `Bind`에서 `ctx.Events` 구독, 상태 보관. Relic은 런 내내 유지되므로 전투마다 초기화할 값은 `Bind`에서 초기화
   - 발동 시 할 일은 에셋의 `effects`를 `Fire(ctx)`로 실행 → 기획자가 조정 가능
-- 트리거 `LastTurnEnd`는 제한 턴의 마지막 턴이 끝날 때, 장애물의 마지막 턴 처리(폭탄 폭발) **직전**에 발동한다. 여기서 놓은 폭탄도 같이 터진다 (예: `Assets/Data/Relics/Relic_LastTurnChainBomb.asset`)
-- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다)
+- 트리거 `LastTurnEnd`는 제한 턴의 마지막 턴이 끝날 때, 장애물의 마지막 턴 처리(폭탄 폭발) **직전**에 발동한다. 여기서 놓은 폭탄도 같이 터진다 (예: `Assets/Data/Relics/Bomb/Relic_LastTurnChainBomb.asset`)
+- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다), `Relics/Special/FreeTeleportRelicData.cs` (제트팩: `ctx.TeleportHpCost`가 0)
+- 누적 수치가 있는 유물은 `ICountingRelic`(`Counter`/`Threshold`)을 구현한다. 디버그 창(`MoveCute > Debug > Relic Toggle`)에 쌓인 수치가 보인다. 예: 채찍(`HesitationCountRelicData`), `CountingRelicData`
+- 플레이어가 잃는 HP를 바꾸는 유물은 `IPlayerHpLossModifier`(합·곱), 죽음을 버티는 유물은 `IPlayerLethalGuard`를 구현한다. 계산 순서는 [7. 피해 계산 공식](#7-피해-계산-공식). 예: 두꺼운 패딩(`HpLossReductionRelicData`), 기계 심장(`LethalGuardRelicData`)
+- 카드 효과만 한 번 더 내려면 `ctx.ReplayCardEffects(src, card, target)` (에너지·더미 이동·재사용 이벤트 없음, 카드 이동 막힘). 예: 이온 음료(`ReplayAfterReusesRelicData`, `CardResolved` 이벤트 = 재사용까지 모두 끝난 직후)
+- 전투에서 이긴 뒤 HP를 회복하는 유물은 `BattleEnd` 이벤트에서 `ctx.HealAfterBattle(src, amount)`를 쓴다 (전투가 끝난 뒤에도 동작). 예: `Relics/Special/BattleEndHealRelicData.cs` (자가수리키트)
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
 
 ### 새 적
@@ -246,4 +255,7 @@ public async Awaitable PlayerStepped(Vector2Int from, Vector2Int to)
   ```
 - 정수 피해만 주는 효과는 지금처럼 `ctx.DealDamage(src, unit, 6)`을 써도 같은 공식을 거친다.
 - 계산은 `decimal`로 한다. `float`/`double`은 20 × 1.15 = 22.999…처럼 내림에서 1이 빠질 수 있다.
+- **플레이어가 잃는 HP**는 위 공식 다음에 `BattleContext.LosePlayerHp`를 한 번 더 지난다. 피해(`DamagePlayer`)와 순간이동 비용이 모두 이 길을 쓴다.
+  1. 유물의 합과 곱(`IPlayerHpLossModifier`)을 따로 모아 `(양 + 합) × 곱`. 장착 순서와 무관하다. 곱으로 바뀐 양은 소수점을 버린다 (두꺼운 패딩 10%: 15 → 감소 1.5를 버려 1 → 14)
+  2. 그래도 HP가 0 이하가 되면 버티기 유물(`IPlayerLethalGuard`, 기계 심장)에 마지막으로 묻는다
 - 주저 배율 = 1 + 수치 × 5% × (1 + 주저 효과 증가%). 주저 효과 증가% = 플레이어의 주저 효과 증가 버프 수치 × 20 + `HesitationEffectBonusPercent`. 턴이 지나도 줄지 않는다. 수치는 `HesitationPercentPerStack`, `HesitationBoostPercentPerStack` 상수에서 조정한다. 상태 ID는 `StatusIds.Hesitation`이고 적에게만 붙는다.

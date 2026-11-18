@@ -12,7 +12,7 @@ namespace MoveCute
         public async Awaitable<bool> MovePlayer(EffectSource src, Direction dir)
         {
             if (IsOver) return false;
-            if (src.Owner is CardInstance card && card.IsUnlocked) return false;
+            if (src.Owner is CardInstance card && SkipsCardMoves(card)) return false;
             var next = Player.Pos + dir.ToOffset();
             if (!Board.IsPassable(next)) return false;
 
@@ -39,7 +39,7 @@ namespace MoveCute
         public async Awaitable MovePlayerAlong(EffectSource src, IEnumerable<Direction> moves,
                                                Func<Vector2Int, Vector2Int, Awaitable> onStep)
         {
-            if (src.Owner is CardInstance card && card.IsUnlocked) return;
+            if (src.Owner is CardInstance card && SkipsCardMoves(card)) return;
             bool moved = false;
             foreach (var dir in moves.ToList())
             {
@@ -58,7 +58,7 @@ namespace MoveCute
         public bool CanFullyMove(CardInstance card)
         {
             if (card.IsLocked) return false;
-            if (card.IsUnlocked) return true;
+            if (SkipsCardMoves(card)) return true;   // 해금 카드·효과만 다시 내는 중인 카드는 경로와 무관
             var pos = Player.Pos;
             foreach (var dir in card.Moves)
             {

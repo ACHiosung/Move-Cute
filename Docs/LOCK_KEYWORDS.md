@@ -22,7 +22,7 @@
 
 - `IgnoreFirstLockMovesRelicData`: 해금 조건에서 앞쪽 `moveCount`개 이동을 생략한다.
 - `IgnoreLastLockMovesRelicData`: 해금 조건에서 뒤쪽 `moveCount`개 이동을 생략한다.
-- 기본값은 각각 1이며, `Assets/Data/Relics/Relic_IgnoreFirstLockMoves.asset`과 `Relic_IgnoreLastLockMoves.asset`의 인스펙터에서 변경한다. 장착은 기존 `BattleManager.relics`에 에셋을 추가한다.
+- 기본값은 각각 1이며, `Assets/Data/Relics/Lock/Relic_IgnoreFirstLockMoves.asset`과 `Relic_IgnoreLastLockMoves.asset`의 인스펙터에서 변경한다. 장착은 기존 `BattleManager.relics`에 에셋을 추가한다.
 - 예: `← ↓ ↑ ↓`에 앞 1개 생략이면 `↓ ↑ ↓`, 뒤 1개 생략이면 `← ↓ ↑`, 둘 다 있으면 `↓ ↑`가 해금 조건이다.
 - 효과는 잠금 상태의 해금 비교에만 적용한다. 카드의 원래 `Moves`, 코스트, 에셋은 수정하지 않는다. 재잠금되거나 전투 중 새로 잠금이 부여된 카드에도 적용된다.
 - 여러 개를 보유하면 개수를 합산한다. 음수는 0으로 취급한다. 생략 개수 합계가 카드 이동 개수 이상이면 이동 없이 즉시 해금한다. 앞·뒤 생략의 합계와 중복 유물도 포함한다.

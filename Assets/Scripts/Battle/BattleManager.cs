@@ -163,7 +163,7 @@ namespace MoveCute
             GUI.enabled = CanInput;
 
             // 보드: 위쪽 행부터 그린다. 칸 클릭 = 순간이동
-            GUILayout.Label($"보드 (칸 클릭 = 순간이동, HP -{ctx.Config.teleportHpCost})   P=플레이어 #=장애물  타일효과 노랑:지나감 파랑:도착 빨강:턴종료");
+            GUILayout.Label($"보드 (칸 클릭 = 순간이동, HP -{ctx.TeleportHpCost})   P=플레이어 #=장애물  타일효과 노랑:지나감 파랑:도착 빨강:턴종료");
             for (int y = ctx.Board.Size - 1; y >= 0; y--)
             {
                 GUILayout.BeginHorizontal();

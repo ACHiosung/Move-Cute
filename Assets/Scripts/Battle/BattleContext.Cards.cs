@@ -33,6 +33,7 @@ namespace MoveCute
             Piles.Discard.Remove(card);
             Piles.Trash.Add(card);
             await Presenter.CardTrashed(card);
+            await Events.CardTrashed.Raise(card);
         }
 
         public async Awaitable AddKeyword(CardInstance card, CardKeyword kw)
@@ -112,6 +113,7 @@ namespace MoveCute
                 case CardPileKind.Trash:
                     target.Add(card);
                     await Presenter.CardTrashed(card);
+                    await Events.CardTrashed.Raise(card);
                     break;
             }
         }

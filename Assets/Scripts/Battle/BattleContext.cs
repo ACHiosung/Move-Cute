@@ -155,14 +155,18 @@ namespace MoveCute
             {
                 var playCount = 1;
                 if (card.Has<Keyword_Dash>()) playCount += Mathf.Max(0, card.GetKeyword<Keyword_Dash>().maxReuseCount.Get(this));
+                int reuses = 0;
                 for (int i = 0; i < playCount; i++)
                 {
                     await Presenter.CardPlayed(card, CanFullyMove(card));
                     await card.Play(this, target);
-                    if (i > 0) await Events.CardReused.Raise(card, i);
+                    if (i > 0) { reuses = i; await Events.CardReused.Raise(card, i); }
                     if (!CanFullyMove(card)) break;
                     if (IsOver) return true;
                 }
+                // 이동·효과·재사용이 모두 끝난 뒤, 더미로 보내기 전 (이온 음료: 재사용 2번 이상이면 효과 한 번 더)
+                await Events.CardResolved.Raise(card, target, reuses);
+                if (IsOver) return true;
                 // 재사용이 모두 끝난 뒤 한 번만 보낸다. 재사용 도중에는 PlayingCard에만 있으므로
                 // 휴지통에 여러 번 들어가거나, 드로우로 묘지를 섞을 때 자기 자신을 다시 뽑지 않는다.
                 if (card.Has<Keyword_Delete>()) await TrashCard(card);
@@ -175,6 +179,34 @@ namespace MoveCute
             }
             finally { PlayingCard = null; await FinishAction(); }
         }
+
+        /// <summary>
+        /// 카드의 효과만 한 번 더 낸다 (이온 음료). 에너지 지불·더미 이동·재사용 이벤트 없이 card.Play를 다시 부른다.
+        /// 이동은 하지 않는다: 이 동안 이 카드는 해금 카드처럼 다뤄져 MovePlayer가 카드의 이동을 막고 CanFullyMove가 참이 된다.
+        /// 그래서 effects뿐 아니라 behavior(특수 카드)에 든 효과도 발동한다. 이동 자체가 효과인 카드(나 잡아봐라 등)는 아무 일도 없다.
+        /// </summary>
+        public async Awaitable ReplayCardEffects(EffectSource src, CardInstance card, EffectTarget target)
+        {
+            if (IsOver || card == null) return;
+            Log($"{src}: {card} 효과 한 번 더");
+            effectsOnlyCard = card;
+            try
+            {
+                await Presenter.CardPlayed(card, true);
+                await card.Play(this, target);
+            }
+            finally { effectsOnlyCard = null; }
+        }
+
+        /// <summary>ReplayCardEffects로 효과만 내는 중인 카드.</summary>
+        CardInstance effectsOnlyCard;
+
+        /// <summary>이 카드가 출처인 이동을 건너뛰는지: 해금 카드, 또는 효과만 다시 내는 중인 카드.</summary>
+        bool SkipsCardMoves(CardInstance card) => card.IsUnlocked || card == effectsOnlyCard;
+
+        /// <summary>순간이동 한 번에 드는 HP. 제트팩(FreeTeleportRelic)이 켜져 있으면 0. UI 표시도 이 값을 쓴다.</summary>
+        public int TeleportHpCost =>
+            Run.Relics.Any(r => r.Enabled && r is FreeTeleportRelic) ? 0 : Config.teleportHpCost;
 
         /// <summary>에너지 1과 HP를 지불하는 순간이동.</summary>
         public async Awaitable<bool> Teleport(Vector2Int pos)
@@ -189,10 +221,9 @@ namespace MoveCute
                 TeleportsThisTurn++;
                 Energy--;
                 await Presenter.EnergyChanged(Energy);
-                int cost = Config.teleportHpCost;
-                Player.Hp -= cost;
+                int cost = LosePlayerHp(EffectSource.System, TeleportHpCost, PlayerHpLossKind.Teleport);
                 Log($"순간이동 → {pos} (HP -{cost})");
-                if (Player.Hp <= 0) { Player.Hp = 0; await EndBattle(false); return true; }
+                if (Player.Hp <= 0) { await EndBattle(false); return true; }
 
                 var from = Player.Pos;
                 Player.Pos = pos;

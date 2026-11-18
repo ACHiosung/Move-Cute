@@ -198,6 +198,13 @@ namespace MoveCute
             return AwaitableUtil.Completed();
         }
 
+        public Awaitable PlayerHealed(int amount)
+        {
+            RefreshAll();
+            Popup(playerMarker, $"HP +{amount}", Color.green);
+            return AwaitableUtil.Completed();
+        }
+
         // ════════════ IBattlePresenter: 보드 ════════════
 
         public Awaitable PlayerStepped(Vector2Int from, Vector2Int to) =>
@@ -206,7 +213,7 @@ namespace MoveCute
         public Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost)
         {
             RefreshAll();
-            Popup(playerMarker, $"HP -{hpCost}", Color.red);
+            if (hpCost > 0) Popup(playerMarker, $"HP -{hpCost}", Color.red);
             return DOTween.Sequence()
                 .Append(playerMarker.DOScale(0f, D(0.12f)))
                 .AppendCallback(() => playerMarker.position = tiles[to].transform.position)

@@ -17,20 +17,63 @@ namespace MoveCute
         public virtual void Bind(BattleContext ctx)
         {
             var ev = ctx.Events;
+            var none = EffectTarget.None;
             switch (Data.trigger)
             {
-                case RelicTrigger.BattleStart: ev.BattleStart.Add(() => Fire(ctx)); break;
-                case RelicTrigger.TurnStart: ev.TurnStart.Add(() => Fire(ctx)); break;
-                case RelicTrigger.TurnEnd: ev.TurnEnd.Add(() => Fire(ctx)); break;
-                case RelicTrigger.CardPlayed: ev.CardPlayed.Add(_ => Fire(ctx)); break;
-                case RelicTrigger.PlayerMoved: ev.PlayerMoved.Add((_, _) => Fire(ctx)); break;
-                case RelicTrigger.LastTurnEnd: ev.LastTurnEnd.Add(() => Fire(ctx)); break;
+                case RelicTrigger.BattleStart: ev.BattleStart.Add(() => OnTriggered(ctx, none)); break;
+                case RelicTrigger.TurnStart: ev.TurnStart.Add(() => OnTriggered(ctx, none)); break;
+                case RelicTrigger.TurnEnd: ev.TurnEnd.Add(() => OnTriggered(ctx, none)); break;
+                case RelicTrigger.CardPlayed: ev.CardPlayed.Add(card => OnTriggered(ctx, EffectTarget.OfCard(card))); break;
+                case RelicTrigger.PlayerMoved: ev.PlayerMoved.Add((_, _) => OnTriggered(ctx, none)); break;
+                case RelicTrigger.LastTurnEnd: ev.LastTurnEnd.Add(() => OnTriggered(ctx, none)); break;
+                case RelicTrigger.CardReused: ev.CardReused.Add((card, _) => OnTriggered(ctx, EffectTarget.OfCard(card))); break;
+                case RelicTrigger.CardTrashed: ev.CardTrashed.Add(card => OnTriggered(ctx, EffectTarget.OfCard(card))); break;
+                case RelicTrigger.CardUnlocked: ev.CardUnlocked.Add(card => OnTriggered(ctx, EffectTarget.OfCard(card))); break;
             }
         }
 
-        protected Awaitable Fire(BattleContext ctx) =>
-            Enabled ? Data.effects.ExecuteAll(ctx, new EffectSource(this), EffectTarget.None) : AwaitableUtil.Completed();
+        /// <summary>trigger 시점마다 불린다. 기본은 effects 실행. 누적 유물(CountingRelic)은 재정의해서 세다가 발동한다.</summary>
+        protected virtual Awaitable OnTriggered(BattleContext ctx, EffectTarget target) => Fire(ctx, target);
+
+        protected Awaitable Fire(BattleContext ctx) => Fire(ctx, EffectTarget.None);
+
+        protected Awaitable Fire(BattleContext ctx, EffectTarget target) =>
+            Enabled ? Data.effects.ExecuteAll(ctx, new EffectSource(this), target) : AwaitableUtil.Completed();
 
         public override string ToString() => Data != null ? Data.DisplayName : "Relic";
+    }
+
+    /// <summary>
+    /// 누적 수치가 있는 유물 (채찍, 독수리 깃털). Counter가 Threshold에 닿으면 발동하고 Threshold만큼 줄어든다.
+    /// 디버그 창(RelicToggleWindow)이 "Counter/Threshold"로 보여 준다. 아이콘 숫자 표시에도 쓸 수 있다.
+    /// </summary>
+    public interface ICountingRelic
+    {
+        int Counter { get; }
+        int Threshold { get; }
+    }
+
+    /// <summary>플레이어가 HP를 잃는 이유. 유물이 순간이동 비용을 따로 다룰 때 쓴다.</summary>
+    public enum PlayerHpLossKind { Damage, Teleport }
+
+    /// <summary>
+    /// 플레이어가 잃는 HP를 바꾸는 유물 (두꺼운 패딩). BattleContext가 켜진 유물의 합과 곱을 따로 모아
+    /// "(양 + 합) × 곱"으로 계산하므로 장착 순서와 무관하다. 곱으로 바뀐 양은 소수점을 버린다 (감소량 내림).
+    /// </summary>
+    public interface IPlayerHpLossModifier
+    {
+        /// <summary>잃는 양에 더할 값 (음수면 감소).</summary>
+        int HpLossAdd(PlayerHpLossKind kind) => 0;
+        /// <summary>잃는 양에 곱할 값 (0.9 = 10% 덜 잃음).</summary>
+        decimal HpLossMultiplier(PlayerHpLossKind kind) => 1m;
+    }
+
+    /// <summary>
+    /// 잃는 HP 때문에 HP가 0 이하가 될 때 버티게 하는 유물 (기계 심장). 합·곱 계산이 모두 끝난 뒤 마지막에 묻고, 하나만 발동한다.
+    /// </summary>
+    public interface IPlayerLethalGuard
+    {
+        /// <summary>버티면 true와 남길 HP(1 이상)를 돌려준다. 발동 횟수 제한은 유물이 관리한다.</summary>
+        bool TrySurvive(PlayerHpLossKind kind, out int leaveHp);
     }
 }

@@ -97,7 +97,7 @@ namespace MoveCute
             {
                 if (ctx == null || !TryPick(ctx.Player.Pos)) Back();
             };
-            BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.Config.teleportHpCost}", () => T("energy"));
+            BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.TeleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
             BindTooltip(discardButton, () => T("discardHelp"), () => T("discard"));
@@ -133,7 +133,7 @@ namespace MoveCute
             if (!M.CanInput || ctx.Energy <= 0 || modal.gameObject.activeSelf) return;
             ClearSelection();
             teleportMode = true;
-            prompt.text = $"{T("teleport")} · HP −{ctx.Config.teleportHpCost}";
+            prompt.text = $"{T("teleport")} · HP −{ctx.TeleportHpCost}";
             promptRoot.SetActive(true);
             RefreshTargets();
         }

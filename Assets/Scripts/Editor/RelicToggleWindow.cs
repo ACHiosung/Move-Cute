@@ -51,12 +51,8 @@ namespace MoveCute.EditorTools
             EditorGUILayout.EndScrollView();
         }
 
-        /// <summary>누적 수치가 있는 유물의 표시 문자열. 없으면 null (채찍: 쌓인 주저/발동 기준)</summary>
-        static string CounterText(Relic relic)
-        {
-            if (relic is HesitationCountRelic whip && relic.Data is HesitationCountRelicData data)
-                return $"{whip.Counter}/{data.threshold}";
-            return null;
-        }
+        /// <summary>누적 수치가 있는 유물의 표시 문자열. 없으면 null (채찍: 쌓인 주저/발동 기준, 독수리 깃털: 재사용 횟수/발동 기준)</summary>
+        static string CounterText(Relic relic) =>
+            relic is ICountingRelic counting ? $"{counting.Counter}/{counting.Threshold}" : null;
     }
 }

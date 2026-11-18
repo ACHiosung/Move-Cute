@@ -39,4 +39,22 @@ namespace MoveCute
             await ctx.DealDamage(src, unit, new Damage(damage).Add(perEmptyTile * empty));
         }
     }
+
+    /// <summary>
+    /// 대상 유닛(없으면 무작위 적)에게 그 유닛의 지금 사기(HP)의 percent%만큼 피해 (폭죽: 전투 시작 시 5%).
+    /// 소수점은 최종 피해 계산에서 한 번만 내림한다 (사기 26의 5% = 1.3 → 1).
+    /// </summary>
+    [Serializable]
+    public class DamagePercentOfMoraleEffect : Effect
+    {
+        [Tooltip("대상 사기(HP)의 몇 %만큼 피해를 줄지. 설명문의 {percent}")]
+        public int percent = 5;
+
+        public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
+        {
+            var unit = target.Unit ?? ctx.GetRandomEnemy();
+            if (unit == null || unit.Hp <= 0) return;
+            await ctx.DealDamage(src, unit, new Damage(unit.Hp * percent / 100m));
+        }
+    }
 }

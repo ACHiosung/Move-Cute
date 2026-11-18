@@ -17,6 +17,10 @@ namespace MoveCute
         public readonly BattleEvent LastTurnEnd = new();                            // 마지막 턴 종료, 장애물(폭탄) 처리 직전
         public readonly BattleEvent<CardInstance> CardPlayed = new();
         public readonly BattleEvent<CardInstance, int> CardReused = new();
+        // 카드의 이동·효과·재사용이 모두 끝난 직후, 묘지/휴지통으로 가기 전 (카드, 낼 때 고른 대상, 재사용 횟수)
+        public readonly BattleEvent<CardInstance, EffectTarget, int> CardResolved = new();
+        public readonly BattleEvent<CardInstance> CardTrashed = new();             // 휴지통으로 감 (삭제 키워드·효과로 보내기 모두)
+        public readonly BattleEvent<CardInstance> CardUnlocked = new();            // 해금됨 (이동·만능열쇠·유물·해금 부여 모두. SetLockState에서)
         public readonly BattleEvent<Vector2Int, Vector2Int> PlayerMoved = new();   // from, to
         public readonly BattleEvent<Unit, int> Damaged = new();
         public readonly BattleEvent<Obstacle> ObstacleDestroyed = new();
@@ -60,6 +64,19 @@ namespace MoveCute
         internal async Awaitable Raise(T1 arg1, T2 arg2)
         {
             foreach (var h in handlers.ToArray()) await h(arg1, arg2);
+        }
+    }
+
+    public class BattleEvent<T1, T2, T3>
+    {
+        readonly List<Func<T1, T2, T3, Awaitable>> handlers = new();
+
+        public void Add(Func<T1, T2, T3, Awaitable> handler) => handlers.Add(handler);
+        public void Remove(Func<T1, T2, T3, Awaitable> handler) => handlers.Remove(handler);
+
+        internal async Awaitable Raise(T1 arg1, T2 arg2, T3 arg3)
+        {
+            foreach (var h in handlers.ToArray()) await h(arg1, arg2, arg3);
         }
     }
 }

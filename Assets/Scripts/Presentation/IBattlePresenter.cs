@@ -29,6 +29,8 @@ namespace MoveCute
         /// <summary>amount = 실제 변화량 (음수 가능).</summary>
         Awaitable MoraleChanged(Enemy enemy, int amount) => AwaitableUtil.Completed();
         Awaitable StatusAdded(Unit target, string statusId, int stacks) => AwaitableUtil.Completed();
+        /// <summary>플레이어 HP가 회복된 뒤 (전투 후 회복 유물 등). amount = 실제 회복량.</summary>
+        Awaitable PlayerHealed(int amount) => AwaitableUtil.Completed();
 
         // ── 보드 ──
         Awaitable PlayerStepped(Vector2Int from, Vector2Int to) => AwaitableUtil.Completed();
