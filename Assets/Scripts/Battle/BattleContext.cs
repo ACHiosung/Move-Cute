@@ -225,14 +225,34 @@ namespace MoveCute
                 Log($"순간이동 → {pos} (HP -{cost})");
                 if (Player.Hp <= 0) { await EndBattle(false); return true; }
 
-                var from = Player.Pos;
-                Player.Pos = pos;
-                await Presenter.PlayerTeleported(from, pos, cost);
-                await Events.PlayerMoved.Raise(from, pos);
-                await TriggerTile(pos, TileTrigger.Arrive);
+                await TeleportPlayer(pos, cost);
                 return true;
             }
             finally { await FinishAction(); }
+        }
+
+        /// <summary>
+        /// 비용 없는 순간이동 (빙고판: 전투 시작 때 시작 칸 고르기). 에너지·HP·이번 턴 순간이동 횟수를 쓰지 않고,
+        /// 입력 진입점이 아니라 효과가 부르는 함수라 입력을 잠그지 않는다.
+        /// 도착은 보통 순간이동과 같다: PlayerMoved 이벤트 + 도착 칸의 Arrive 효과. 잠금 진행에는 들어가지 않는다.
+        /// 막힌 칸이거나 지금 칸이면 false (아무 일도 없음).
+        /// </summary>
+        public async Awaitable<bool> TeleportFree(EffectSource src, Vector2Int pos)
+        {
+            if (IsOver || !Board.IsPassable(pos) || pos == Player.Pos) return false;
+            Log($"{src}: 순간이동 → {pos} (비용 없음)");
+            await TeleportPlayer(pos, 0);
+            return true;
+        }
+
+        /// <summary>순간이동의 도착 부분 (비용을 치른 뒤). 연출 → PlayerMoved → 도착 칸 Arrive.</summary>
+        async Awaitable TeleportPlayer(Vector2Int pos, int hpCost)
+        {
+            var from = Player.Pos;
+            Player.Pos = pos;
+            await Presenter.PlayerTeleported(from, pos, hpCost);
+            await Events.PlayerMoved.Raise(from, pos);
+            await TriggerTile(pos, TileTrigger.Arrive);
         }
 
         /// <summary>턴 종료: 효과·반응 정산 → 전투 종료 판단 → 계속되는 전투만 손패 버림·다음 턴.</summary>

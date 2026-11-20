@@ -58,6 +58,7 @@ prompt.add_keyword,{from}: 키워드를 부여할 카드를 고르세요 ({n}/{t
 prompt.move_again,{card}: 한 번 더 이동할 칸을 고르세요 (취소하면 이동하지 않음),{card}: choose where to move again (cancel to stay)
 prompt.swap_first,교환할 첫 번째 칸을 고르세요 (취소하면 교환하지 않음),Choose the first tile to swap (cancel to skip)
 prompt.swap_second,교환할 두 번째 칸을 고르세요 (취소하면 교환하지 않음),Choose the second tile to swap (cancel to skip)
+prompt.teleport_free,{source}: 순간이동할 칸을 고르세요 (취소하면 그대로),{source}: choose a tile to teleport to (cancel to stay)
 # 카드 더미 이름: pile.<hand|draw|discard|trash>,,
 pile.hand,손패,Hand
 pile.draw,뽑을 카드 더미,Draw Pile
@@ -172,6 +173,8 @@ relic.castpuzzle.name,캐스트 퍼즐,Cast Puzzle
 relic.castpuzzle.desc,해금을 {threshold}번 할 때마다 카드를 {count}장 뽑습니다.,"Every {threshold} unlocks, draw {count} card."
 relic.suspiciousfang.name,수상한 송곳니,Suspicious Fang
 relic.suspiciousfang.desc,전투 종료 후 HP 보상이 {percent}% 증가합니다.,Post-battle HP rewards are increased by {percent}%.
+relic.bingoboard.name,빙고판,Bingo Board
+relic.bingoboard.desc,전투 시작 시 초기 위치를 선택할 수 있습니다.,"At the start of battle, you may choose your starting tile."
 # 버프 카드 (카운터·노력의 결실, 세계의 경계는 버프 문구만) — 버프 이름·설명: buff.<id>.name / buff.<id>.desc,,
 card.counter.name,카운터,Counter
 card.counter.desc,다음에 적이 내가 서 있는 타일 위에 행동하려고 하면 피해를 {buff.damage} 줍니다.,"The next time an enemy acts on the tile you stand on, deal {buff.damage} damage to it."

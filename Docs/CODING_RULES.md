@@ -136,6 +136,7 @@ public class HealEffect : Effect
 - 플레이어가 잃는 HP를 바꾸는 유물은 `IPlayerHpLossModifier`(합·곱), 죽음을 버티는 유물은 `IPlayerLethalGuard`를 구현한다. 계산 순서는 [7. 피해 계산 공식](#7-피해-계산-공식). 예: 두꺼운 패딩(`HpLossReductionRelicData`), 기계 심장(`LethalGuardRelicData`)
 - 카드 효과만 한 번 더 내려면 `ctx.ReplayCardEffects(src, card, target)` (에너지·더미 이동·재사용 이벤트 없음, 카드 이동 막힘). 예: 이온 음료(`ReplayAfterReusesRelicData`, `CardResolved` 이벤트 = 재사용까지 모두 끝난 직후)
 - 전투에서 이긴 뒤 HP를 회복하는 유물은 `BattleEnd` 이벤트에서 `ctx.HealAfterBattle(src, amount)`를 쓴다 (전투가 끝난 뒤에도 동작). 예: `Relics/Special/BattleEndHealRelicData.cs` (자가수리키트)
+- 비용 없는 순간이동은 `ctx.TeleportFree(src, pos)` (에너지·HP·턴당 순간이동 횟수를 쓰지 않음, 도착은 보통 순간이동과 같이 `PlayerMoved` + Arrive). 칸을 고르게 하려면 효과 `TeleportToChosenTileEffect` (지금 칸도 후보, 취소하면 그대로). 예: 빙고판 `Neutral/Relic_BingoBoard.asset` = 전투 시작 + 이 효과 → 첫 턴 적 예고 전에 시작 칸을 고른다
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
 
 ### 새 버프 (카드가 거는 "이번 전투 동안" 효과)

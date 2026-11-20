@@ -422,7 +422,8 @@ namespace MoveCute
             }
             RefreshEnergyStrip();
             if (languageChanged) endTurnLabel.text = T("turnEnd");
-            int turns = ctx.IsOver ? 0 : Mathf.Max(0, ctx.Config.turnLimit - ctx.Turn + 1);
+            // 첫 턴 전(Turn 0, 빙고판으로 시작 칸을 고르는 동안)에도 제한 턴을 넘겨 보이지 않게 자른다
+            int turns = ctx.IsOver ? 0 : Mathf.Clamp(ctx.Config.turnLimit - ctx.Turn + 1, 0, ctx.Config.turnLimit);
             if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit)
             {
                 shownTurns = turns; shownTurnLimit = ctx.Config.turnLimit;
