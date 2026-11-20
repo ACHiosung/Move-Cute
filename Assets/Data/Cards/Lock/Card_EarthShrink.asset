@@ -15,7 +15,7 @@ MonoBehaviour:
   id: earthshrink
   nameKey: card.earthshrink.name
   descKey: card.earthshrink.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 51c440e9ab0445cfa70ab5330c56182e, type: 3}
   moves:
   - 0
   - 2

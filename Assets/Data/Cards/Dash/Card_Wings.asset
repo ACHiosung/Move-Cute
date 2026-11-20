@@ -15,7 +15,7 @@ MonoBehaviour:
   id: wings
   nameKey: card.wings.name
   descKey: card.wings.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: df318f87fd174c3584cc1fd43da0fa3d, type: 3}
   moves:
   - 1
   - 1

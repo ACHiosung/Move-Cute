@@ -15,7 +15,7 @@ MonoBehaviour:
   id: relocate
   nameKey: card.relocate.name
   descKey: card.relocate.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 6f0477417ec148a381c89f75daddb8ca, type: 3}
   moves:
   - 3
   cost: 1

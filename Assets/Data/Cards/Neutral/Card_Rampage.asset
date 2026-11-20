@@ -15,7 +15,7 @@ MonoBehaviour:
   id: rampage
   nameKey: card.rampage.name
   descKey: card.rampage.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: d65d19206ac64442b25e0dc3fc6565f2, type: 3}
   moves:
   - 0
   - 1

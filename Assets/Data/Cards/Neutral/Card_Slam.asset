@@ -15,7 +15,7 @@ MonoBehaviour:
   id: slam
   nameKey: card.slam.name
   descKey: card.slam.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: c84d5bf65ea6408c86124cdd1abbc929, type: 3}
   moves:
   - 2
   - 2

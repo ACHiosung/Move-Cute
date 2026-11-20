@@ -15,7 +15,7 @@ MonoBehaviour:
   id: bottomdeal
   nameKey: card.bottomdeal.name
   descKey: card.bottomdeal.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 2824c6a29c064db281120a481fdace3f, type: 3}
   moves:
   - 0
   - 3

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: hammer
   nameKey: card.hammer.name
   descKey: card.hammer.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: e5d4cdc2f103448da6ab53eac2e6e7a0, type: 3}
   moves:
   - 2
   - 3

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: counter
   nameKey: card.counter.name
   descKey: card.counter.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 23702a522290413f98bda003af07f9ac, type: 3}
   moves:
   - 1
   - 1

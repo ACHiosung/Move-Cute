@@ -15,10 +15,8 @@ MonoBehaviour:
   id: sprint
   nameKey: card.sprint.name
   descKey: card.sprint.desc
-  art: {fileID: 0}
-  moves:
-  - 0
-  - 1
+  art: {fileID: 21300000, guid: 7ffc4ee4fa684ea28ee792473726848e, type: 3}
+  moves: 0000000001000000i
   cost: 1
   type: 1
   rarity: 2
@@ -29,7 +27,7 @@ MonoBehaviour:
   - rid: 3700000000000042011
   behavior:
     rid: -2
-  targetKinds: 7
+  targetKinds: -1
   references:
     version: 2
     RefIds:
