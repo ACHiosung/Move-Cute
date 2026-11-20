@@ -137,6 +137,18 @@ public class HealEffect : Effect
 - 전투에서 이긴 뒤 HP를 회복하는 유물은 `BattleEnd` 이벤트에서 `ctx.HealAfterBattle(src, amount)`를 쓴다 (전투가 끝난 뒤에도 동작). 예: `Relics/Special/BattleEndHealRelicData.cs` (자가수리키트)
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
 
+### 새 버프 (카드가 거는 "이번 전투 동안" 효과)
+버프 = **이번 전투에만 붙는 유물 + 수치**. 버프 정의는 유물 에셋(`RelicData`와 하위 클래스)을 그대로 쓰고 `Assets/Data/Buffs`에 둔다. 파일 이름은 `Buff_<Id>`, 이름·설명 키는 `buff.<id>.name` / `buff.<id>.desc`.
+
+- 카드에서는 `GrantBuffEffect`(`buff`, `stacks`, `stackable`)로 건다 → `ctx.GrantBuff`. 처음이면 버프를 만들어 `Bind`(이벤트 구독)하고, 이미 있으면 `stackable`일 때만 수치(`Relic.Stacks`)를 더한다. 걸린 버프는 `ctx.Buffs`에 있다
+- **수치가 0이 되면 버프가 사라진다** (기본). 수치는 직접 바꾸지 말고 `ctx.AddBuffStacks`로 바꾼다 → 0이면 `ctx.RemoveBuff`. 0이어도 남아야 하는 버프만 `Relic.RemoveAtZeroStacks`를 false로 재정의한다. 수치가 줄지 않는 버프는 전투가 끝날 때 사라진다
+- 사라진 버프는 `Enabled`가 꺼진다 (이벤트 구독은 남음). 그래서 하위 클래스의 반응도 유물처럼 `Enabled`부터 확인한다
+- **"이번 전투 동안 ~할 때마다 ~"**는 코드 없이 유물처럼 `trigger` + `effects`로 만든다. 예: `Buff_FruitOfEffort` (노력의 결실 = 카드 해금 시점 + `MoveTargetCardEffect` 뽑을 더미 → 손패)
+- 수치를 쓰거나 조건이 있는 버프는 유물처럼 하위 클래스를 만든다. 예: `Relics/Special/CounterBuffData.cs` (카운터: `EnemyActsOnPlayerTile` 이벤트 = 턴 종료 때 적 예고가 내 칸에서 발동하기 직전, 수치 = 남은 반격 횟수, 다 쓰면 사라짐)
+- 카드 설명문에서 버프 에셋의 값은 점으로 이어 쓴다: `{buff.damage}`
+- 규칙(이동 판정·피해 계산)을 바꾸는 버프는 이벤트로는 안 된다 — 계산하는 쪽이 "켜진 유물·버프 중 이 인터페이스를 가진 것"에 묻게 한다 (`IPlayerHpLossModifier` 방식)
+- 기존 MOVE CUTE·의욕 상실·꽃단장은 아직 상태(`Status`) 방식이다. 플레이어 버프는 아직 전투 화면에 표시되지 않는다
+
 ### 새 적
 적은 **코드로 만든다.** 적 한 종류 = `Enemies/` 아래 파일 하나. 참고용 예시: **`Enemies/GravekeeperData.cs`** (묘지기) + 에셋 `Assets/Data/Enemies/Enemy_Gravekeeper.asset`.
 

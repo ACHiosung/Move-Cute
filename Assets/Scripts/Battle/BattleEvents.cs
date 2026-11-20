@@ -21,6 +21,8 @@ namespace MoveCute
         public readonly BattleEvent<CardInstance, EffectTarget, int> CardResolved = new();
         public readonly BattleEvent<CardInstance> CardTrashed = new();             // 휴지통으로 감 (삭제 키워드·효과로 보내기 모두)
         public readonly BattleEvent<CardInstance> CardUnlocked = new();            // 해금됨 (이동·만능열쇠·유물·해금 부여 모두. SetLockState에서)
+        // 턴 종료 때 적의 예고가 플레이어가 서 있는 칸에서 발동하기 직전 (적마다 한 번, 예고 순서대로). 반응이 끝나면 적 행동이 진행된다
+        public readonly BattleEvent<Enemy> EnemyActsOnPlayerTile = new();
         public readonly BattleEvent<Vector2Int, Vector2Int> PlayerMoved = new();   // from, to
         public readonly BattleEvent<Unit, int> Damaged = new();
         public readonly BattleEvent<Obstacle> ObstacleDestroyed = new();

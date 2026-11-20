@@ -328,9 +328,16 @@ namespace MoveCute
         {
             var tile = Board.Get(pos);
             if (tile == null) return;
+            HashSet<Enemy> acted = null;
             foreach (var te in tile.Effects.Where(t => t.Trigger == trigger).ToList())
             {
                 if (IsOver) return;
+                // 턴 종료 때 적의 예고가 내가 서 있는 칸에서 발동하기 직전 (적마다 한 번): 카운터 등이 먼저 반응한 뒤 적 행동이 진행된다
+                if (trigger == TileTrigger.TurnEndStanding && pos == Player.Pos && te.Source is Enemy enemy && (acted ??= new()).Add(enemy))
+                {
+                    await Events.EnemyActsOnPlayerTile.Raise(enemy);
+                    if (IsOver) return;
+                }
                 await Presenter.TileTriggered(pos, te);
                 await te.Fire(this, pos);
             }

@@ -170,3 +170,12 @@ relic.castpuzzle.name,캐스트 퍼즐,Cast Puzzle
 relic.castpuzzle.desc,해금을 {threshold}번 할 때마다 카드를 {count}장 뽑습니다.,"Every {threshold} unlocks, draw {count} card."
 relic.suspiciousfang.name,수상한 송곳니,Suspicious Fang
 relic.suspiciousfang.desc,전투 종료 후 HP 보상이 {percent}% 증가합니다.,Post-battle HP rewards are increased by {percent}%.
+# 버프 카드 (카운터·노력의 결실) — 버프 이름·설명: buff.<id>.name / buff.<id>.desc,,
+card.counter.name,카운터,Counter
+card.counter.desc,다음에 적이 내가 서 있는 타일 위에 행동하려고 하면 피해를 {buff.damage} 줍니다.,"The next time an enemy acts on the tile you stand on, deal {buff.damage} damage to it."
+card.fruitofeffort.name,노력의 결실,Fruit of Effort
+card.fruitofeffort.desc,이번 전투 동안 카드가 해금되었을 때 뽑을 카드 더미에 있다면 패로 가져옵니다.,"This battle, when a card is unlocked while in the draw pile, put it into your hand."
+buff.counter.name,카운터,Counter
+buff.counter.desc,턴 종료 때 적이 내가 서 있는 칸에 행동하면 먼저 그 적에게 피해를 {damage} 줍니다. 반격할 때마다 횟수가 1 줄어듭니다.,"At turn end, when an enemy acts on your tile, first deal {damage} damage to it. Each counter uses 1 charge."
+buff.fruitofeffort.name,노력의 결실,Fruit of Effort
+buff.fruitofeffort.desc,이번 전투 동안 카드가 해금되었을 때 뽑을 카드 더미에 있다면 패로 가져옵니다.,"This battle, when a card is unlocked while in the draw pile, put it into your hand."

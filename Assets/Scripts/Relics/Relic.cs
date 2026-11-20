@@ -11,11 +11,23 @@ namespace MoveCute
         public readonly RelicData Data;
         public Relic(RelicData data) { Data = data; }
 
-        /// <summary>꺼져 있으면 Fire가 아무것도 하지 않는다. 효과를 읽기만 하는 유물은 읽는 쪽이 확인한다 (예: BombDamageRelic).</summary>
+        /// <summary>
+        /// 꺼져 있으면 Fire가 아무것도 하지 않는다. 효과를 읽기만 하는 유물은 읽는 쪽이 확인한다 (예: BombDamageRelic).
+        /// 사라진 버프도 꺼 둔다 (BattleContext.RemoveBuff). 그래서 Bind를 재정의한 반응도 Enabled부터 확인한다.
+        /// </summary>
         public bool Enabled = true;
 
         /// <summary>한 번 쓰고 나서 더는 발동하지 않는 상태 (기계 심장). 전투 화면이 아이콘을 흑백으로 그린다.</summary>
         public virtual bool Spent => false;
+
+        /// <summary>
+        /// 버프로 걸렸을 때의 수치 (카운터: 남은 반격 횟수). 런 유물은 쓰지 않는다. BattleContext.GrantBuff 참고.
+        /// 바꿀 때는 BattleContext.AddBuffStacks를 쓴다 (0이 되면 버프가 사라진다).
+        /// </summary>
+        public int Stacks { get; internal set; } = 1;
+
+        /// <summary>버프 수치가 0이 되면 사라지는지. 기본은 사라진다. 0이어도 남아야 하는 버프만 false로 재정의한다.</summary>
+        public virtual bool RemoveAtZeroStacks => true;
 
         public virtual void Bind(BattleContext ctx)
         {
