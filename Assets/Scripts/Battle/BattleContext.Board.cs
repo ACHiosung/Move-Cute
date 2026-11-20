@@ -8,17 +8,21 @@ namespace MoveCute
     /// <summary>상호작용 계약 — 보드 (담당: 보드/이동). 함수 이름·인자는 합의 없이 바꾸지 않는다.</summary>
     public partial class BattleContext
     {
-        /// <summary>플레이어 한 칸 이동 + Pass 타일 효과. 막혀 있으면 false (이동 안 함).</summary>
+        /// <summary>
+        /// 플레이어 한 칸 이동 + Pass 타일 효과. 막혀 있으면 false (이동 안 함).
+        /// 경계 이동이 켜져 있으면 보드 밖 대신 반대편 끝 칸으로 간다 (StepTarget). 이때도 dir 방향 한 칸 이동으로 친다.
+        /// </summary>
         public async Awaitable<bool> MovePlayer(EffectSource src, Direction dir)
         {
             if (IsOver) return false;
             if (src.Owner is CardInstance card && SkipsCardMoves(card)) return false;
-            var next = Player.Pos + dir.ToOffset();
+            var from = Player.Pos;
+            var next = StepTarget(from, dir);
             if (!Board.IsPassable(next)) return false;
 
-            var from = Player.Pos;
             Player.Pos = next;
-            await Presenter.PlayerStepped(from, next);
+            if (next != from + dir.ToOffset()) await Presenter.PlayerWrapped(from, next, dir);
+            else await Presenter.PlayerStepped(from, next);
             await TrackLockMovement(dir);
             await Events.PlayerMoved.Raise(from, next);
             await TriggerTile(next, TileTrigger.Pass);
@@ -62,11 +66,25 @@ namespace MoveCute
             var pos = Player.Pos;
             foreach (var dir in card.Moves)
             {
-                pos += dir.ToOffset();
+                pos = StepTarget(pos, dir);
                 if (!Board.IsPassable(pos)) return false;
             }
             return true;
         }
+
+        /// <summary>
+        /// from에서 dir로 한 칸 간 칸. 보드 밖이면 보통은 보드 밖 좌표를 그대로 돌려주고 (IsPassable이 false),
+        /// 경계 이동 규칙(IEdgeWrapRule, 세계의 경계)이 켜져 있으면 반대편 끝 칸을 돌려준다.
+        /// 한 칸 이동할 칸은 pos + dir.ToOffset() 대신 이것으로 구한다 (이동, 흑백 판정, 후보 칸, 경로 미리보기).
+        /// </summary>
+        public Vector2Int StepTarget(Vector2Int from, Direction dir)
+        {
+            var next = from + dir.ToOffset();
+            return !Board.InBounds(next) && WrapsAtEdge ? Board.Wrap(next) : next;
+        }
+
+        /// <summary>보드 밖으로 나가는 이동이 반대편 끝 칸으로 이어지는지 (켜진 유물·버프 중 IEdgeWrapRule이 있음).</summary>
+        public bool WrapsAtEdge => Modifiers<IEdgeWrapRule>().Any();
 
         public async Awaitable<bool> PlaceObstacle(EffectSource src, Vector2Int pos, ObstacleData data)
         {

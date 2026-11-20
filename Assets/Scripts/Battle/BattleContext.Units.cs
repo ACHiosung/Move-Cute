@@ -40,7 +40,8 @@ namespace MoveCute
 
         // ───────────── 피해 계산 공식 ─────────────
         // 최종 피해 = 내림( (기본 + 합연산) × 공격 측 곱 × 피격 측 곱 )
-        // 공격 측은 Damage에 담겨 오고, 피격 측 곱(주저 등)은 여기서 곱한다. 내림은 CalculateDamage에서 한 번만.
+        // 공격 측은 Damage에 담겨 오고(효과가 정함), 유물·버프의 공격 측 곱(IDealtDamageModifier, 세계의 경계)과
+        // 피격 측 곱(주저 등)은 여기서 곱한다. 내림은 CalculateDamage에서 한 번만.
 
         /// <summary>주저 수치 1당 받는 피해 증가량 (%).</summary>
         public const int HesitationPercentPerStack = 5;
@@ -119,13 +120,24 @@ namespace MoveCute
             return loss;
         }
 
-        /// <summary>최종 피해량. 공격 측 값 × 피격 측 곱을 계산하고 마지막에 한 번만 내림한다.</summary>
+        /// <summary>최종 피해량. 공격 측 값 × 유물·버프의 공격 측 곱 × 피격 측 곱을 계산하고 마지막에 한 번만 내림한다.</summary>
         public int CalculateDamage(EffectSource src, Unit target, Damage damage)
         {
-            decimal value = damage.Value;
+            decimal value = damage.Value * DealtDamageMultiplier(src, target);
             if (target != null) value *= TakenDamageMultiplier(target);
             if (value <= 0) return 0;
             return (int)decimal.Floor(value);
+        }
+
+        /// <summary>
+        /// 유물·버프가 정하는 공격 측 곱 (세계의 경계: 카드 피해 ×0.8). 여러 개면 서로 곱한다.
+        /// 어떤 피해에 적용할지는 각 유물·버프가 src·target으로 정한다 (IDealtDamageModifier).
+        /// </summary>
+        public decimal DealtDamageMultiplier(EffectSource src, Unit target)
+        {
+            decimal multiplier = 1m;
+            foreach (var m in Modifiers<IDealtDamageModifier>()) multiplier *= m.DealtDamageMultiplier(src, target);
+            return multiplier;
         }
 
         /// <summary>피격 측 곱. 받는 피해를 바꾸는 상태가 여러 개면 서로 곱한다.</summary>

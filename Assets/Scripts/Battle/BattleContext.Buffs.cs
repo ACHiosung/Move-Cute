@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MoveCute
@@ -63,5 +64,12 @@ namespace MoveCute
 
         /// <summary>이 에셋으로 건 버프. 없으면 null.</summary>
         public Relic GetBuff(RelicData data) => Buffs.Find(b => b.Data == data);
+
+        /// <summary>
+        /// 규칙을 바꾸는 유물·버프: 켜진 런 유물 다음 버프 순서로, 인터페이스 T를 가진 것.
+        /// 이동 판정·피해 계산처럼 이벤트로 할 수 없는 규칙은 계산하는 쪽이 이것으로 묻는다 (IEdgeWrapRule, IDealtDamageModifier).
+        /// </summary>
+        public IEnumerable<T> Modifiers<T>() where T : class =>
+            Run.Relics.Concat(Buffs).Where(r => r.Enabled).OfType<T>();
     }
 }

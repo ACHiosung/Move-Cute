@@ -34,6 +34,11 @@ namespace MoveCute
 
         // ── 보드 ──
         Awaitable PlayerStepped(Vector2Int from, Vector2Int to) => AwaitableUtil.Completed();
+        /// <summary>
+        /// 경계를 넘어 반대편 끝 칸으로 한 칸 이동한 뒤 (세계의 경계). dir = 이동 방향 (위끝에서 ↑ → 아래끝).
+        /// 따로 구현하지 않으면 PlayerStepped와 같은 연출을 쓴다.
+        /// </summary>
+        Awaitable PlayerWrapped(Vector2Int from, Vector2Int to, Direction dir) => PlayerStepped(from, to);
         Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost) => AwaitableUtil.Completed();
         Awaitable ObstaclePlaced(Obstacle obstacle) => AwaitableUtil.Completed();
         Awaitable ObstacleDestroyed(Obstacle obstacle) => AwaitableUtil.Completed();

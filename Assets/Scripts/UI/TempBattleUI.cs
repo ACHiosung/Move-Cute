@@ -210,6 +210,15 @@ namespace MoveCute
         public Awaitable PlayerStepped(Vector2Int from, Vector2Int to) =>
             playerMarker.DOMove(tiles[to].transform.position, D(0.18f)).SetEase(Ease.OutQuad).SetLink(playerMarker.gameObject).ToAwaitable();
 
+        /// <summary>경계를 넘는 한 칸 (세계의 경계): 보드를 가로질러 미끄러지지 않게 작아졌다가 반대편 칸에서 커진다.</summary>
+        public Awaitable PlayerWrapped(Vector2Int from, Vector2Int to, Direction dir) =>
+            DOTween.Sequence()
+                .Append(playerMarker.DOScale(0f, D(0.09f)))
+                .AppendCallback(() => playerMarker.position = tiles[to].transform.position)
+                .Append(playerMarker.DOScale(1f, D(0.09f)))
+                .SetLink(playerMarker.gameObject)
+                .ToAwaitable();
+
         public Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost)
         {
             RefreshAll();

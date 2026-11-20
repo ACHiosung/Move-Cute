@@ -514,14 +514,43 @@ namespace MoveCute
             var pos = ctx.Player.Pos;
             foreach (var direction in card.Moves)
             {
-                var next = pos + direction.ToOffset();
+                var next = ctx.StepTarget(pos, direction);   // 경계 이동이 켜져 있으면 반대편 끝 칸
                 if (!ctx.Board.IsPassable(next)) break;
-                previewView.AddSegment(tiles[pos].transform.position, tiles[next].transform.position);
+                AddPathSegment(pos, next, direction);
                 pos = next;
             }
             ghost.gameObject.SetActive(pos != ctx.Player.Pos);
             ghost.rectTransform.position = tiles[pos].transform.position;
             ghost.transform.SetAsFirstSibling();
+        }
+
+        /// <summary>경로 한 칸. 경계를 넘는 칸은 보드를 가로지르지 않게, 나가는 반 칸과 반대편에서 들어오는 반 칸으로 나눠 그린다.</summary>
+        void AddPathSegment(Vector2Int from, Vector2Int to, Direction direction)
+        {
+            Vector3 a = tiles[from].transform.position, b = tiles[to].transform.position;
+            if (to == from + direction.ToOffset())
+            {
+                previewView.AddSegment(a, b);
+                return;
+            }
+            var half = TileStep(direction) * 0.5f;
+            previewView.AddSegment(a, a + half);
+            previewView.AddSegment(b - half, b);
+        }
+
+        /// <summary>direction 방향으로 한 칸 갈 때의 화면 위치 차이 (보드 칸 간격).</summary>
+        Vector3 TileStep(Direction direction)
+        {
+            var origin = tiles[Vector2Int.zero].transform.position;
+            var right = tiles[Vector2Int.right].transform.position - origin;
+            var up = tiles[Vector2Int.up].transform.position - origin;
+            return direction switch
+            {
+                Direction.Left => -right,
+                Direction.Up => up,
+                Direction.Right => right,
+                _ => -up,
+            };
         }
 
 

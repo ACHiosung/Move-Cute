@@ -8,7 +8,7 @@ namespace MoveCute
     /// <summary>
     /// 원하는 방향으로 거리 distance만큼 곧게 이동하는 카드 (축지법: 거리 1, 재사용 1, 잠금).
     /// - 카드 에셋의 target은 OtherTile. 낼 때 상하좌우로 distance칸 떨어져 있고 가는 길이 모두 비어 있는 칸만 후보로 뜬다.
-    ///   후보가 없으면 흑백.
+    ///   경계 이동이 켜져 있으면 보드 밖으로 이어지는 길은 반대편 끝으로 이어진다 (ctx.StepTarget). 후보가 없으면 흑백.
     /// - 질주(Keyword_Dash)로 재사용되면 이미 고른 칸에 서 있으므로 갈 칸을 다시 고른다.
     ///   재사용 때의 선택은 취소할 수 있고, 취소하면 이동하지 않는다. 재사용 1을 기준으로 만들었다.
     /// - 에셋의 moves(화살표)는 잠금 해제 조건이다. MovePlayer는 해금된 카드가 출처인 이동을 막는데,
@@ -24,7 +24,7 @@ namespace MoveCute
         public int distance = 1;
 
         public override IEnumerable<Vector2Int> TargetTiles(BattleContext ctx) =>
-            Directions.Where(d => CanGo(ctx, d)).Select(d => ctx.Player.Pos + d.ToOffset() * distance);
+            Directions.Where(d => CanGo(ctx, d)).Select(d => Destination(ctx, d)).Where(p => p != ctx.Player.Pos).Distinct();
 
         // 잠금 카드는 흑백. 해금 상태여도 갈 칸이 없으면 흑백
         public override bool CanPlayFully(BattleContext ctx) => !IsLocked && TargetTiles(ctx).Any();
@@ -41,20 +41,32 @@ namespace MoveCute
                 if (dest == null) return;
             }
 
-            var from = ctx.Player.Pos;
-            var dirs = Directions.Where(d => from + d.ToOffset() * distance == dest && CanGo(ctx, d)).ToList();
-            if (dirs.Count != 1) return;
+            // 경계 이동으로 두 방향이 같은 칸에 닿으면 (4×4에서 거리 2 좌우 등) 앞 방향(←↑→↓ 순)으로 간다
+            var dirs = Directions.Where(d => CanGo(ctx, d) && Destination(ctx, d) == dest).ToList();
+            if (dirs.Count == 0) return;
 
             await ctx.MovePlayerAlong(new EffectSource(ctx.Player), Enumerable.Repeat(dirs[0], distance));
             await Data.effects.ExecuteAll(ctx, new EffectSource(this), EffectTarget.OfTile(ctx.Player.Pos));
+        }
+
+        /// <summary>d 방향으로 distance칸 간 칸 (경계 이동이 켜져 있으면 반대편으로 이어진다).</summary>
+        Vector2Int Destination(BattleContext ctx, Direction d)
+        {
+            var pos = ctx.Player.Pos;
+            for (int i = 0; i < distance; i++) pos = ctx.StepTarget(pos, d);
+            return pos;
         }
 
         /// <summary>d 방향으로 distance칸 가는 길이 모두 비어 있는지.</summary>
         bool CanGo(BattleContext ctx, Direction d)
         {
             if (distance <= 0) return false;
-            for (int i = 1; i <= distance; i++)
-                if (!ctx.Board.IsPassable(ctx.Player.Pos + d.ToOffset() * i)) return false;
+            var pos = ctx.Player.Pos;
+            for (int i = 0; i < distance; i++)
+            {
+                pos = ctx.StepTarget(pos, d);
+                if (!ctx.Board.IsPassable(pos)) return false;
+            }
             return true;
         }
     }

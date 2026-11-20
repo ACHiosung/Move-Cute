@@ -93,4 +93,19 @@ namespace MoveCute
         /// <summary>버티면 true와 남길 HP(1 이상)를 돌려준다. 발동 횟수 제한은 유물이 관리한다.</summary>
         bool TrySurvive(PlayerHpLossKind kind, out int leaveHp);
     }
+
+    /// <summary>
+    /// 보드 밖으로 나가는 한 칸 이동을 반대편 끝 칸으로 잇는 규칙 (세계의 경계). 켜진 유물·버프 중 하나라도 있으면 적용된다.
+    /// 다음 칸 위치는 BattleContext.StepTarget이 이 규칙을 보고 정한다.
+    /// </summary>
+    public interface IEdgeWrapRule { }
+
+    /// <summary>
+    /// 주는 피해에 곱할 배율 (세계의 경계: 카드 피해 ×0.8). BattleContext.CalculateDamage가 공격 측 곱으로 곱하고,
+    /// 소수점은 피격 측 곱(주저 등)까지 곱한 뒤 마지막에 한 번만 버린다. 어떤 피해에 적용할지는 구현이 src·target으로 정한다.
+    /// </summary>
+    public interface IDealtDamageModifier
+    {
+        decimal DealtDamageMultiplier(EffectSource src, Unit target);
+    }
 }

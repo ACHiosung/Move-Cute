@@ -82,6 +82,7 @@ BattleManager (씬 진입점, MonoBehaviour)
 - `Play` 재정의: 카드가 하는 일만 넣는다. 에너지 지불·묘지/휴지통 보내기는 `PlayCard`가 하므로 `Play`에서 하지 않는다 (질주면 `Play`가 재사용마다 다시 불린다)
 - 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
 - `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/Behaviors/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
+- 한 칸 이동할 칸은 `pos + dir.ToOffset()` 대신 **`ctx.StepTarget(pos, dir)`**로 구한다 (이동·흑백 판정·후보 칸·경로 미리보기 모두). 경계 이동(세계의 경계)이 켜져 있으면 보드 밖 대신 반대편 끝 칸을 돌려주고, 갈 수 있는지는 `Board.IsPassable`로 따로 본다. 경계를 넘은 한 칸도 그 방향 한 칸 이동으로 친다 (잠금 진행·Pass 효과 그대로, 연출은 `IBattlePresenter.PlayerWrapped`)
 - 해금된 잠금 카드는 화살표대로 움직이지 않는다 (`MovePlayer`가 해금 카드가 출처인 이동을 막는다). 이동 자체가 효과인 잠금 카드는 플레이어를 출처로 이동한다. 예: `Cards/Behaviors/DistanceMoveCard.cs` (축지법: 원하는 방향으로 거리 N 이동, 재사용 때는 다시 고르고 취소 가능, 에셋 `Lock/Card_EarthShrink.asset`)
 - public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
 - 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
@@ -146,7 +147,7 @@ public class HealEffect : Effect
 - **"이번 전투 동안 ~할 때마다 ~"**는 코드 없이 유물처럼 `trigger` + `effects`로 만든다. 예: `Buff_FruitOfEffort` (노력의 결실 = 카드 해금 시점 + `MoveTargetCardEffect` 뽑을 더미 → 손패)
 - 수치를 쓰거나 조건이 있는 버프는 유물처럼 하위 클래스를 만든다. 예: `Relics/Special/CounterBuffData.cs` (카운터: `EnemyActsOnPlayerTile` 이벤트 = 턴 종료 때 적 예고가 내 칸에서 발동하기 직전, 수치 = 남은 반격 횟수, 다 쓰면 사라짐)
 - 카드 설명문에서 버프 에셋의 값은 점으로 이어 쓴다: `{buff.damage}`
-- 규칙(이동 판정·피해 계산)을 바꾸는 버프는 이벤트로는 안 된다 — 계산하는 쪽이 "켜진 유물·버프 중 이 인터페이스를 가진 것"에 묻게 한다 (`IPlayerHpLossModifier` 방식)
+- 규칙(이동 판정·피해 계산)을 바꾸는 버프는 이벤트로는 안 된다 — 인터페이스를 구현하고, 계산하는 쪽이 `ctx.Modifiers<인터페이스>()`(켜진 런 유물 + 버프)로 묻게 한다. 예: `Relics/Special/WorldsEdgeBuffData.cs` (세계의 경계: `IEdgeWrapRule` 경계 이동 + `IDealtDamageModifier` 카드 피해 감소, `Bind`는 비워 둠)
 - 기존 MOVE CUTE·의욕 상실·꽃단장은 아직 상태(`Status`) 방식이다. 플레이어 버프는 아직 전투 화면에 표시되지 않는다
 
 ### 새 적
@@ -257,7 +258,7 @@ public async Awaitable PlayerStepped(Vector2Int from, Vector2Int to)
 ```
 
 1. **합연산**: 기본 피해에 고정 보너스를 더한다 (폭탄 피해 유물 +n 등).
-2. **공격 측 곱연산**: 공격하는 쪽 배율 (예술 폭탄 1.5^k 등).
+2. **공격 측 곱연산**: 공격하는 쪽 배율 (예술 폭탄 1.5^k 등). 유물·버프가 주는 배율은 `IDealtDamageModifier`로 만들고 `BattleContext.DealtDamageMultiplier`가 곱한다 (세계의 경계: 카드 피해 ×0.8, 어떤 피해에 적용할지는 구현이 `src`·`target`으로 정함).
 3. **피격 측 곱연산**: 맞는 쪽 상태 (주저 등). 여러 개면 서로 곱한다. `BattleContext.TakenDamageMultiplier`.
 4. **내림은 마지막에 한 번만** 한다. `BattleContext.CalculateDamage`.
 
