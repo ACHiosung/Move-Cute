@@ -15,7 +15,7 @@ MonoBehaviour:
   id: lock
   nameKey: card.lock.name
   descKey: card.lock.desc
-  art: {fileID: -5295901987261241684, guid: 79de1d174c292404986104c964509346, type: 3}
+  art: {fileID: 21300000, guid: 7f1db7ad558f48f284d7e0c7d2e4403f, type: 3}
   moves: 02000000i
   cost: 1
   type: 1

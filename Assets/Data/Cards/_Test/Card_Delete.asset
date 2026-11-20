@@ -15,7 +15,7 @@ MonoBehaviour:
   id: delete
   nameKey: card.delete.name
   descKey: card.delelte.desc
-  art: {fileID: 0}
+  art: {fileID: 21300000, guid: 831d6b0a21a04cfabb70927ecabdfec9, type: 3}
   moves: 
   cost: 0
   type: 2
