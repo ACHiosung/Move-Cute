@@ -11,7 +11,8 @@ namespace MoveCute
         public int handSize = 6;
         [Tooltip("제한 턴 수. 추후 적/전투별 데이터로 이동 가능")]
         public int turnLimit = 3;
-        public int teleportHpCost = 3;
+        [Tooltip("순간이동 HP 소모 = 최대 HP의 이 비율(%), 소수점 올림")]
+        public int teleportHpPercent = 10;
         [Tooltip("턴당 순간이동 횟수. -1 = 무제한 (미정)")]
         public int teleportLimitPerTurn = -1;
         public BattleRewardPolicy rewards = new();
@@ -107,6 +108,7 @@ namespace MoveCute
 
                 foreach (var relic in Run.Relics) relic.Bind(this);
                 foreach (var enemy in Enemies) enemy.Bind(this);
+                StartMorale = Enemies.Sum(e => e.Hp);
 
                 Log($"전투 시작: 보드 {Board.Size}x{Board.Size}, 적 {string.Join(", ", Enemies)}");
                 await Presenter.BattleStarted(this);
@@ -189,7 +191,7 @@ namespace MoveCute
                 TeleportsThisTurn++;
                 Energy--;
                 await Presenter.EnergyChanged(Energy);
-                int cost = Config.teleportHpCost;
+                int cost = TeleportHpCost;
                 Player.Hp -= cost;
                 Log($"순간이동 → {pos} (HP -{cost})");
                 if (Player.Hp <= 0) { Player.Hp = 0; await EndBattle(false); return true; }
@@ -269,6 +271,7 @@ namespace MoveCute
         {
             if (IsOver) return;
             Phase = won ? BattlePhase.Won : BattlePhase.Lost;
+            if (won) RecoverAfterBattle();
             Run.Hp = Player.Hp;
             Log(won ? $"전투 승리 (HP {Player.Hp})" : "패배");
             if (won) await PrepareConfiguredRewards();
@@ -333,6 +336,27 @@ namespace MoveCute
         {
             Logs.Add(msg);
             Debug.Log($"[Battle] {msg}");
+        }
+
+        // ════════════════════ 순간이동 비용 · 전투 후 회복 ════════════════════
+
+        /// <summary>전투 시작 시점(유물·적 Bind 직후) 적 사기 합. 전투 후 회복량 계산에 쓴다.</summary>
+        public int StartMorale { get; private set; }
+
+        /// <summary>순간이동 HP 소모: 최대 HP × teleportHpPercent%, 소수점 올림 (최대 HP 11 → 2).</summary>
+        public int TeleportHpCost => (Player.MaxHp * Config.teleportHpPercent + 99) / 100;
+
+        /// <summary>이 전투에서 깎은 적 사기 = 시작 사기 합 − 남은 사기 합 (회복된 사기는 빠진다).</summary>
+        public int MoraleRemoved => Mathf.Max(0, StartMorale - Enemies.Sum(e => e.Hp));
+
+        /// <summary>살아서 끝난 전투: 깎은 사기의 10%(내림)만큼 HP 회복, 최대 HP를 넘지 않는다.</summary>
+        void RecoverAfterBattle()
+        {
+            if (Player.Hp <= 0) return;
+            int heal = MoraleRemoved / 10;
+            int before = Player.Hp;
+            Player.Hp = Mathf.Min(Player.MaxHp, Player.Hp + heal);
+            Log($"전투 후 회복: 깎은 사기 {MoraleRemoved} → HP +{Player.Hp - before} ({before} → {Player.Hp})");
         }
     }
 }

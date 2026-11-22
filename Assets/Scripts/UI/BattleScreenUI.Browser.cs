@@ -16,9 +16,10 @@ namespace MoveCute
                 return;
             }
 
-            if (pick != null) Back();
-            if (ctx == null || (!M.CanInput && !rewardScreenActive) || pick != null) return;
-            ClearSelection();
+            // 대상 지정 중에도 더미를 볼 수 있다. 지정(빨간 테두리)과 선택한 카드는 그대로 두고 창만 연다.
+            if (ctx == null || (!M.CanInput && !rewardScreenActive && pick == null)) return;
+            if (pick == null) ClearSelection();
+            else CloseKeyword();
             viewedCards = hideOrder ? pile.OrderBy(c => c.Data.id, System.StringComparer.Ordinal)
                 .ThenBy(c => string.Join(",", c.Moves.Select(d => (int)d)), System.StringComparer.Ordinal)
                 .ThenBy(c => string.Join(",", c.Keywords.Select(k => k.ToString()).OrderBy(n => n, System.StringComparer.Ordinal)), System.StringComparer.Ordinal)

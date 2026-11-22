@@ -90,10 +90,10 @@ namespace MoveCute
             if (!descriptionPointer) descriptionPointer = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
             descriptionPointer.LeftClick = CancelFromDetails;
             InitializeKeywords();
-            backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
+            backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = ClickAway;
             playerMarker.GetComponent<Image>().raycastTarget = true;
-            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
-            BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.Config.teleportHpCost}", () => T("energy"));
+            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = ClickAway;
+            BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.TeleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
             BindTooltip(discardButton, () => T("discardHelp"), () => T("discard"));
@@ -101,9 +101,7 @@ namespace MoveCute
             BindTooltip(deckButton, () => T("deckHelp"), () => T("deck"));
             energyButton.GetComponent<BattleScreenPointer>().Hold = BeginTeleport;
             cancelButton.onClick.AddListener(Back);
-            endTurnButton.onClick.AddListener(Back);
-            endTurnButton.GetComponent<BattleScreenPointer>().LeftClick = () => { if (pick != null) Back(); };
-            energyButton.GetComponent<BattleScreenPointer>().LeftClick = () => { if (pick != null) Back(); };
+            endTurnButton.onClick.AddListener(ClickAway);
             ShowHelp();
         }
 
@@ -125,11 +123,11 @@ namespace MoveCute
 
         void BeginTeleport()
         {
-            if (pick != null) Back();
+            if (pick != null) return;   // 대상 지정 중에는 순간이동을 시작하지 않는다
             if (!M.CanInput || ctx.Energy <= 0 || modal.gameObject.activeSelf) return;
             ClearSelection();
             teleportMode = true;
-            prompt.text = $"{T("teleport")} · HP −{ctx.Config.teleportHpCost}";
+            prompt.text = $"{T("teleport")} · HP −{ctx.TeleportHpCost}";
             promptRoot.SetActive(true);
             RefreshTargets();
         }
@@ -137,7 +135,7 @@ namespace MoveCute
         void CancelFromDetails()
         {
             if (openKeyword != null || modal.gameObject.activeSelf || pick != null || selectedCard != null || teleportMode)
-                Back();
+                ClickAway();
         }
 
         void Back()
@@ -519,6 +517,18 @@ namespace MoveCute
             ghost.transform.SetAsFirstSibling();
         }
 
-
+        /// <summary>
+        /// 빈 곳·버튼 등 후보가 아닌 곳을 왼쪽 클릭했을 때. 대상 지정 중이면 지정을 유지하고 키워드 창만 닫는다.
+        /// 대상 지정 취소는 우클릭·ESC·취소 버튼(Back)으로만 한다.
+        /// </summary>
+        void ClickAway()
+        {
+            if (pick != null)
+            {
+                CloseKeyword();
+                return;
+            }
+            Back();
+        }
     }
 }
