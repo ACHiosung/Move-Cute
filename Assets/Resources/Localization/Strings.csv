@@ -181,7 +181,7 @@ card.counter.desc,다음에 적이 내가 서 있는 타일 위에 행동하려�
 card.fruitofeffort.name,노력의 결실,Fruit of Effort
 card.fruitofeffort.desc,이번 전투 동안 카드가 해금되었을 때 뽑을 카드 더미에 있다면 패로 가져옵니다.,"This battle, when a card is unlocked while in the draw pile, put it into your hand."
 buff.counter.name,카운터,Counter
-buff.counter.desc,턴 종료 때 적이 내가 서 있는 칸에 행동하면 먼저 그 적에게 피해를 {damage} 줍니다. 반격할 때마다 횟수가 1 줄어듭니다.,"At turn end, when an enemy acts on your tile, first deal {damage} damage to it. Each counter uses 1 charge."
+buff.counter.desc,턴 종료 때 적이 내가 서 있는 칸에 행동하면 먼저 그 적에게 피해를 {damage} × 수치만큼 주고 사라집니다.,"At turn end, when an enemy acts on your tile, first deal {damage} damage times the stacks to it, then this is removed."
 buff.fruitofeffort.name,노력의 결실,Fruit of Effort
 buff.fruitofeffort.desc,이번 전투 동안 카드가 해금되었을 때 뽑을 카드 더미에 있다면 패로 가져옵니다.,"This battle, when a card is unlocked while in the draw pile, put it into your hand."
 buff.worldsedge.name,세계의 경계,World's Edge

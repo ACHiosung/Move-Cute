@@ -146,7 +146,7 @@ public class HealEffect : Effect
 - **수치가 0이 되면 버프가 사라진다** (기본). 수치는 직접 바꾸지 말고 `ctx.AddBuffStacks`로 바꾼다 → 0이면 `ctx.RemoveBuff`. 0이어도 남아야 하는 버프만 `Relic.RemoveAtZeroStacks`를 false로 재정의한다. 수치가 줄지 않는 버프는 전투가 끝날 때 사라진다
 - 사라진 버프는 `Enabled`가 꺼진다 (이벤트 구독은 남음). 그래서 하위 클래스의 반응도 유물처럼 `Enabled`부터 확인한다
 - **"이번 전투 동안 ~할 때마다 ~"**는 코드 없이 유물처럼 `trigger` + `effects`로 만든다. 예: `Buff_FruitOfEffort` (노력의 결실 = 카드 해금 시점 + `MoveTargetCardEffect` 뽑을 더미 → 손패)
-- 수치를 쓰거나 조건이 있는 버프는 유물처럼 하위 클래스를 만든다. 예: `Relics/Special/CounterBuffData.cs` (카운터: `EnemyActsOnPlayerTile` 이벤트 = 턴 종료 때 적 예고가 내 칸에서 발동하기 직전, 수치 = 남은 반격 횟수, 다 쓰면 사라짐)
+- 수치를 쓰거나 조건이 있는 버프는 유물처럼 하위 클래스를 만든다. 예: `Relics/Special/CounterBuffData.cs` (카운터: `EnemyActsOnPlayerTile` 이벤트 = 턴 종료 때 적 예고가 내 칸에서 발동하기 직전, 수치 = 쌓인 카운터 수, 반격 한 번에 수치를 모두 써서 피해 × 수치를 주고 사라짐)
 - 카드 설명문에서 버프 에셋의 값은 점으로 이어 쓴다: `{buff.damage}`
 - 규칙(이동 판정·피해 계산)을 바꾸는 버프는 이벤트로는 안 된다 — 인터페이스를 구현하고, 계산하는 쪽이 `ctx.Modifiers<인터페이스>()`(켜진 런 유물 + 버프)로 묻게 한다. 예: `Relics/Special/WorldsEdgeBuffData.cs` (세계의 경계: `IEdgeWrapRule` 경계 이동 + `IDealtDamageModifier` 카드 피해 감소, `Bind`는 비워 둠)
 - 기존 MOVE CUTE·의욕 상실·꽃단장은 아직 상태(`Status`) 방식이다. 플레이어 버프는 아직 전투 화면에 표시되지 않는다
