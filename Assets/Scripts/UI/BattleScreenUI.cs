@@ -47,6 +47,11 @@ namespace MoveCute
         static readonly Color Pickable = new(0.3f, 0.8f, 0.4f);
         static readonly Color Grayed = new(0.55f, 0.55f, 0.55f);
         static readonly Color ObstacleColor = new(0.5f, 0.38f, 0.25f);
+        static readonly Key[] HandShortcutKeys =
+        {
+            Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
+            Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0
+        };
 
         BattleManager M => BattleManager.Instance;
         BattleContext ctx;
@@ -80,9 +85,36 @@ namespace MoveCute
 
         void Update()
         {
-            if (ctx != null && (Mouse.current?.rightButton.wasPressedThisFrame == true ||
-                                Keyboard.current?.escapeKey.wasPressedThisFrame == true))
+            if (ctx == null) return;
+            var keyboard = Keyboard.current;
+            if (Mouse.current?.rightButton.wasPressedThisFrame == true ||
+                keyboard?.escapeKey.wasPressedThisFrame == true)
+            {
                 Back();
+                return;
+            }
+            if (keyboard == null || rewardScreenActive || modal.gameObject.activeSelf ||
+                resultPanel.activeSelf || listPick != null) return;
+            for (int i = 0; i < HandShortcutKeys.Length; i++)
+            {
+                if (!keyboard[HandShortcutKeys[i]].wasPressedThisFrame) continue;
+                if (i >= ctx.Piles.Hand.Count) return;
+                var card = ctx.Piles.Hand[i];
+                if (selectedCard == card)
+                {
+                    CloseKeyword();
+                    Back();
+                    return;
+                }
+                if (pick != null && !pickable.Contains(card))
+                {
+                    if (selectedCard == null) return;
+                    CloseKeyword();
+                    Back();
+                }
+                OnCardClick(card);
+                return;
+            }
         }
 
         void OnDestroy() => Loc.LanguageChanged -= RefreshAll;
@@ -103,13 +135,14 @@ namespace MoveCute
                 ctx.Teleport(pos).Forget();
                 return;
             }
-            Back();
+            ClickAway();
         }
 
         void OnCardClick(CardInstance card)
         {
             if (TryPick(card)) return;
-            if (pick != null) Back();
+            if (pick != null && card == selectedCard) { CloseKeyword(); Back(); return; }   // 대상 지정 중인 카드를 다시 누르면 취소
+            if (pick != null) return;   // 대상 지정 중에는 다른 카드를 눌러도 무시한다
             if (modal.gameObject.activeSelf || !M.CanInput) return;
             teleportMode = false;
             selectedCard = card;
@@ -136,16 +169,16 @@ namespace MoveCute
         // ════════════ IPlayerInput ════════════
 
         public async Awaitable<Unit> PickUnit(IReadOnlyList<Unit> candidates, string message) =>
-            (Unit)await Pick(candidates, message);
+            (Unit)await Pick(candidates);
 
         public async Awaitable<Vector2Int?> PickTile(IReadOnlyList<Vector2Int> candidates, string message) =>
-            await Pick(candidates.Cast<object>(), message) is Vector2Int v ? v : (Vector2Int?)null;
+            await Pick(candidates.Cast<object>()) is Vector2Int v ? v : (Vector2Int?)null;
 
         public async Awaitable<CardInstance> PickCard(IReadOnlyList<CardInstance> candidates, string message) =>
-            (CardInstance)await Pick(candidates, message);
+            (CardInstance)await Pick(candidates);
 
         /// <summary>후보를 테두리로 표시하고 클릭 또는 취소를 기다린다.</summary>
-        async Awaitable<object> Pick(IEnumerable<object> candidates, string message)
+        async Awaitable<object> Pick(IEnumerable<object> candidates)
         {
             var list = candidates.ToList();
             if (list.Count == 0) return null;
@@ -154,8 +187,6 @@ namespace MoveCute
             var source = new AwaitableCompletionSource<object>();
             pick = source;
             pickable = new HashSet<object>(list);
-            prompt.text = message;
-            promptRoot.SetActive(true);
             RefreshTargets();
             return await source.Awaitable;
         }
@@ -263,15 +294,38 @@ namespace MoveCute
             return AwaitableUtil.Completed();
         }
 
+        public Awaitable PlayerHealed(int amount)
+        {
+            RefreshHud();
+            Popup(playerMarker, $"HP +{amount}", Color.green);
+            return AwaitableUtil.Completed();
+        }
+
         // ════════════ IBattlePresenter: 보드 ════════════
 
         public Awaitable PlayerStepped(Vector2Int from, Vector2Int to) =>
             playerMarker.DOMove(tiles[to].transform.position, D(0.18f)).SetEase(Ease.OutQuad).SetLink(playerMarker.gameObject).ToAwaitable();
 
+        /// <summary>경계를 넘는 한 칸 (세계의 경계): 가던 방향으로 반 칸 나가며 작아졌다가, 반대편 끝 반 칸 밖에서 들어오며 커진다.</summary>
+        public Awaitable PlayerWrapped(Vector2Int from, Vector2Int to, Direction dir)
+        {
+            var half = TileStep(dir) * 0.5f;
+            var start = tiles[from].transform.position;
+            var end = tiles[to].transform.position;
+            return DOTween.Sequence()
+                .Append(playerMarker.DOMove(start + half, D(0.09f)).SetEase(Ease.InQuad))
+                .Join(playerMarker.DOScale(0f, D(0.09f)))
+                .AppendCallback(() => playerMarker.position = end - half)
+                .Append(playerMarker.DOMove(end, D(0.09f)).SetEase(Ease.OutQuad))
+                .Join(playerMarker.DOScale(1f, D(0.09f)))
+                .SetLink(playerMarker.gameObject)
+                .ToAwaitable();
+        }
+
         public Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost)
         {
             RefreshHud();
-            Popup(playerMarker, $"HP -{hpCost}", Color.red);
+            if (hpCost > 0) Popup(playerMarker, $"HP -{hpCost}", Color.red);
             return DOTween.Sequence()
                 .Append(playerMarker.DOScale(0f, D(0.12f)))
                 .AppendCallback(() => playerMarker.position = tiles[to].transform.position)
@@ -291,6 +345,28 @@ namespace MoveCute
             RefreshTile(obstacle.Pos);
             Popup(tiles[obstacle.Pos].transform, T("destroyed"), Color.white);
             return Punch(tiles[obstacle.Pos].transform, 0.25f);
+        }
+
+        /// <summary>재배치: 두 칸을 다시 그리고 함께 튕긴다. 플레이어가 옮겨졌으면 순간이동처럼 줄었다가 새 칸에서 커진다.</summary>
+        public Awaitable TilesSwapped(Vector2Int a, Vector2Int b)
+        {
+            RefreshTile(a);
+            RefreshTile(b);
+            var sequence = DOTween.Sequence();
+            foreach (var pos in new[] { a, b })
+            {
+                var tile = tiles[pos].transform;
+                tile.DOComplete();
+                sequence.Insert(0, tile.DOPunchScale(Vector3.one * 0.15f, D(0.25f), 6));
+            }
+            if (ctx.Player.Pos == a || ctx.Player.Pos == b)
+            {
+                var to = tiles[ctx.Player.Pos].transform.position;
+                sequence.Insert(0, playerMarker.DOScale(0f, D(0.12f)));
+                sequence.InsertCallback(D(0.12f), () => playerMarker.position = to);
+                sequence.Insert(D(0.12f), playerMarker.DOScale(1f, D(0.12f)));
+            }
+            return sequence.SetLink(playerMarker.gameObject).ToAwaitable();
         }
 
         public Awaitable TileEffectAdded(Vector2Int pos, TileEffect effect)
@@ -357,7 +433,7 @@ namespace MoveCute
         public async Awaitable EnergyChanged(int energy)
         {
             // 즉시 발동하는 카드는 에너지 칸이 사라지기 전에 미리보기를 잠깐 보여준다.
-            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None or TargetType.SelfTile)
+            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None)
                 await Awaitable.WaitForSecondsAsync(0.18f);
             RefreshHud();
             bool empty = energy <= 0;
@@ -419,7 +495,7 @@ namespace MoveCute
             {
                 var view = Instantiate(enemyPrefab, enemies);
                 view.gameObject.SetActive(true);
-                view.onClick.AddListener(() => { if (!TryPick(e)) Back(); });
+                view.onClick.AddListener(() => { if (!TryPick(e)) ClickAway(); });
                 enemyViews[e] = view;
                 unitViews.Add(view, view.GetComponent<BattleEnemyView>());
                 BindEnemy(view, e);

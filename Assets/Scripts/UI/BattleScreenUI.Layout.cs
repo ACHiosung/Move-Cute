@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MoveCute
@@ -90,10 +89,15 @@ namespace MoveCute
             if (!descriptionPointer) descriptionPointer = detailDescription.gameObject.AddComponent<BattleScreenPointer>();
             descriptionPointer.LeftClick = CancelFromDetails;
             InitializeKeywords();
-            backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
+            backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = ClickAway;
             playerMarker.GetComponent<Image>().raycastTarget = true;
-            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
-            BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.Config.teleportHpCost}", () => T("energy"));
+            // 플레이어 그림이 내 칸을 덮고 있으므로, 내 칸을 고르는 중이면(SelfTile 카드) 그 칸을 고른 것으로 처리한다.
+            // 그 밖에는 빈 곳 클릭과 같다 (대상 지정 중이면 지정을 유지)
+            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = () =>
+            {
+                if (ctx == null || !TryPick(ctx.Player.Pos)) ClickAway();
+            };
+            BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.TeleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
             BindTooltip(discardButton, () => T("discardHelp"), () => T("discard"));
@@ -101,35 +105,25 @@ namespace MoveCute
             BindTooltip(deckButton, () => T("deckHelp"), () => T("deck"));
             energyButton.GetComponent<BattleScreenPointer>().Hold = BeginTeleport;
             cancelButton.onClick.AddListener(Back);
-            endTurnButton.onClick.AddListener(Back);
-            endTurnButton.GetComponent<BattleScreenPointer>().LeftClick = () => { if (pick != null) Back(); };
-            energyButton.GetComponent<BattleScreenPointer>().LeftClick = () => { if (pick != null) Back(); };
+            endTurnButton.onClick.AddListener(ClickAway);
             ShowHelp();
         }
 
         void LateUpdate()
         {
             if (ctx == null) return;
-            var mouse = Mouse.current;
-            if (openKeyword != null && mouse != null && mouse.leftButton.wasReleasedThisFrame)
-            {
-                var position = mouse.position.ReadValue();
-                if (!RectTransformUtility.RectangleContainsScreenPoint(keywordPanel, position) &&
-                    !keywordButtons.Any(button => button.gameObject.activeInHierarchy &&
-                        RectTransformUtility.RectangleContainsScreenPoint((RectTransform)button.transform, position)))
-                    CloseKeyword();
-            }
             endTurnButton.interactable = M.CanInput && !teleportMode && !modal.gameObject.activeSelf;
             if (teleportMode && !M.CanInput) { teleportMode = false; RefreshTargets(); }
+            RefreshRelicStates();
         }
 
         void BeginTeleport()
         {
-            if (pick != null) Back();
+            if (pick != null) return;   // 대상 지정 중에는 순간이동을 시작하지 않는다
             if (!M.CanInput || ctx.Energy <= 0 || modal.gameObject.activeSelf) return;
             ClearSelection();
             teleportMode = true;
-            prompt.text = $"{T("teleport")} · HP −{ctx.Config.teleportHpCost}";
+            prompt.text = $"{T("teleport")} · HP −{ctx.TeleportHpCost}";
             promptRoot.SetActive(true);
             RefreshTargets();
         }
@@ -137,7 +131,7 @@ namespace MoveCute
         void CancelFromDetails()
         {
             if (openKeyword != null || modal.gameObject.activeSelf || pick != null || selectedCard != null || teleportMode)
-                Back();
+                ClickAway();
         }
 
         void Back()
@@ -225,10 +219,15 @@ namespace MoveCute
             detailArt.sprite = ArtFor(card);
             detailArt.color = detailArt.sprite != null ? Color.white : new Color(0.37f, 0.57f, 0.76f);
             detailName.text = card.Data.DisplayName;
-            detailMeta.text = $"{T(card.Data.type.ToString())} · {T(card.Data.rarity.ToString())}";
+            detailMeta.text = "";
             detailMoves.supportRichText = true;
             detailMoves.text = CardMoveDisplay.FormatArrows(card, MoveDisplayContext);
             detailMoves.gameObject.SetActive(!card.IsUnlocked && card.Moves.Count > 0);
+            detailMoves.alignment = TextAnchor.MiddleCenter;
+            var artRect = detailArt.rectTransform;
+            detailMoves.rectTransform.pivot = new Vector2(0, 0.5f);
+            detailMoves.rectTransform.position = artRect.TransformPoint(
+                new Vector3(artRect.rect.xMax + 9f, artRect.rect.center.y));
             detailDescription.text = card.Data.Description;
             CardMoveDisplay.GetRange(card, MoveDisplayContext, out _, out int moveCount);
             if (card.IsLocked && moveCount < card.Moves.Count)
@@ -258,8 +257,7 @@ namespace MoveCute
 
         void RefreshKeywords(CardInstance card)
         {
-            var keys = card.Keywords.Select(keyword => keyword.ToString()).Distinct().ToList();
-            if (!card.Has<Keyword_Bomb>() && card.Data.Description.Contains(T("bomb"))) keys.Add("bomb");
+            var keys = BattleCardView.AddedKeywordKeys(card);
             if (openKeyword != null && !keys.Contains(openKeyword)) CloseKeyword();
             float buttonWidth = (keywordButtonsRoot.rect.width - (KeywordsPerRow - 1) * KeywordGap) / KeywordsPerRow;
             for (int i = 0; i < keys.Count; i++)
@@ -271,8 +269,9 @@ namespace MoveCute
                 label.text = T(key);
                 var rect = (RectTransform)button.transform;
                 rect.sizeDelta = new Vector2(buttonWidth, KeywordHeight);
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => ToggleKeyword(key, rect));
+                var pointer = button.GetComponent<BattleScreenPointer>();
+                pointer.Enter = () => ShowKeyword(key, rect);
+                pointer.Exit = CloseKeyword;
                 int row = i / KeywordsPerRow;
                 int rowEnd = Mathf.Min(keys.Count, (row + 1) * KeywordsPerRow);
                 rect.anchoredPosition = new Vector2(
@@ -299,6 +298,7 @@ namespace MoveCute
             image.color = Pale;
             var button = image.GetComponent<Button>();
             button.targetGraphic = image;
+            button.gameObject.AddComponent<BattleScreenPointer>();
             var label = new GameObject("Label", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
             label.transform.SetParent(button.transform, false);
             label.rectTransform.anchorMin = Vector2.zero;
@@ -324,9 +324,8 @@ namespace MoveCute
                 new Vector3(button.rect.xMax + 8, button.rect.center.y + keywordPanel.rect.height / 2));
         }
 
-        void ToggleKeyword(string key, RectTransform button)
+        void ShowKeyword(string key, RectTransform button)
         {
-            if (openKeyword == key) { CloseKeyword(); return; }
             openKeyword = key;
             keywordText.text = T(key + "Desc");
             keywordPanel.gameObject.SetActive(true);
@@ -395,6 +394,7 @@ namespace MoveCute
 
         void RefreshScreenHud()
         {
+            RefreshBattleBuffs();
             bool languageChanged = hudLanguage != Loc.Language;
             hudLanguage = Loc.Language;
             if (shownGold != ctx.Run.Gold)
@@ -417,7 +417,8 @@ namespace MoveCute
             }
             RefreshEnergyStrip();
             if (languageChanged) endTurnLabel.text = T("turnEnd");
-            int turns = ctx.IsOver ? 0 : Mathf.Max(0, ctx.Config.turnLimit - ctx.Turn + 1);
+            // 첫 턴 전(Turn 0, 빙고판으로 시작 칸을 고르는 동안)에도 제한 턴을 넘겨 보이지 않게 자른다
+            int turns = ctx.IsOver ? 0 : Mathf.Clamp(ctx.Config.turnLimit - ctx.Turn + 1, 0, ctx.Config.turnLimit);
             if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit)
             {
                 shownTurns = turns; shownTurnLimit = ctx.Config.turnLimit;
@@ -509,9 +510,9 @@ namespace MoveCute
             var pos = ctx.Player.Pos;
             foreach (var direction in card.Moves)
             {
-                var next = pos + direction.ToOffset();
+                var next = ctx.StepTarget(pos, direction);   // 경계 이동이 켜져 있으면 반대편 끝 칸
                 if (!ctx.Board.IsPassable(next)) break;
-                previewView.AddSegment(tiles[pos].transform.position, tiles[next].transform.position);
+                AddPathSegment(pos, next, direction);
                 pos = next;
             }
             ghost.gameObject.SetActive(pos != ctx.Player.Pos);
@@ -519,6 +520,47 @@ namespace MoveCute
             ghost.transform.SetAsFirstSibling();
         }
 
+        /// <summary>경로 한 칸. 경계를 넘는 칸은 보드를 가로지르지 않게, 나가는 반 칸과 반대편에서 들어오는 반 칸으로 나눠 그린다.</summary>
+        void AddPathSegment(Vector2Int from, Vector2Int to, Direction direction)
+        {
+            Vector3 a = tiles[from].transform.position, b = tiles[to].transform.position;
+            if (to == from + direction.ToOffset())
+            {
+                previewView.AddSegment(a, b);
+                return;
+            }
+            var half = TileStep(direction) * 0.5f;
+            previewView.AddSegment(a, a + half);
+            previewView.AddSegment(b - half, b);
+        }
 
+        /// <summary>direction 방향으로 한 칸 갈 때의 화면 위치 차이 (보드 칸 간격).</summary>
+        Vector3 TileStep(Direction direction)
+        {
+            var origin = tiles[Vector2Int.zero].transform.position;
+            var right = tiles[Vector2Int.right].transform.position - origin;
+            var up = tiles[Vector2Int.up].transform.position - origin;
+            return direction switch
+            {
+                Direction.Left => -right,
+                Direction.Up => up,
+                Direction.Right => right,
+                _ => -up,
+            };
+        }
+
+        /// <summary>
+        /// 빈 곳·버튼 등 후보가 아닌 곳을 왼쪽 클릭했을 때. 대상 지정 중이면 지정을 유지하고 키워드 창만 닫는다.
+        /// 대상 지정 취소는 우클릭·ESC·취소 버튼(Back)으로만 한다.
+        /// </summary>
+        void ClickAway()
+        {
+            if (pick != null)
+            {
+                CloseKeyword();
+                return;
+            }
+            Back();
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace MoveCute
         {
             if (IsOver || enemy == null) return;
             int before = enemy.Hp;
+            if (amount < 0) MoraleDealt += Mathf.Min(before, -amount);   // 깎은 사기 기록 (HP 회복 보상용, 전투 흐름)
             enemy.Hp = Mathf.Max(0, enemy.Hp + amount);
             enemy.MaxHp = Mathf.Max(enemy.MaxHp, enemy.Hp);
             Log($"{enemy} 사기 {(amount >= 0 ? "+" : "")}{amount} → {enemy.Hp}");
@@ -40,7 +41,8 @@ namespace MoveCute
 
         // ───────────── 피해 계산 공식 ─────────────
         // 최종 피해 = 내림( (기본 + 합연산) × 공격 측 곱 × 피격 측 곱 )
-        // 공격 측은 Damage에 담겨 오고, 피격 측 곱(주저 등)은 여기서 곱한다. 내림은 CalculateDamage에서 한 번만.
+        // 공격 측은 Damage에 담겨 오고(효과가 정함), 유물·버프의 공격 측 곱(IDealtDamageModifier, 세계의 경계)과
+        // 피격 측 곱(주저 등)은 여기서 곱한다. 내림은 CalculateDamage에서 한 번만.
 
         /// <summary>주저 수치 1당 받는 피해 증가량 (%).</summary>
         public const int HesitationPercentPerStack = 5;
@@ -59,6 +61,7 @@ namespace MoveCute
 
             int amount = CalculateDamage(src, target, damage);
             if (amount <= 0) return;
+            if (target is Enemy) MoraleDealt += Mathf.Min(target.Hp, amount);   // 깎은 사기 기록 (HP 회복 보상용, 전투 흐름)
             target.Hp = Mathf.Max(0, target.Hp - amount);
             Log($"{src} → {target} 피해 {amount} (남은 {target.Hp})");
             await Presenter.Damaged(target, amount);
@@ -73,20 +76,70 @@ namespace MoveCute
             if (IsOver) return;
             int amount = CalculateDamage(src, Player, damage);
             if (amount <= 0) return;
-            Player.Hp = Mathf.Max(0, Player.Hp - amount);
+            amount = LosePlayerHp(src, amount, PlayerHpLossKind.Damage);
+            if (amount <= 0) return;
             Log($"{src} → 플레이어 피해 {amount} (HP {Player.Hp})");
             await Presenter.Damaged(Player, amount);
             if (Player.Hp <= 0) { await EndBattle(false); return; }
             await Events.Damaged.Raise(Player, amount);
         }
 
-        /// <summary>최종 피해량. 공격 측 값 × 피격 측 곱을 계산하고 마지막에 한 번만 내림한다.</summary>
+        /// <summary>
+        /// 플레이어 HP 감소의 공통 경로. 피해(DamagePlayer)와 순간이동 비용(Teleport)이 모두 여기를 지난다.
+        ///   1) 유물의 합·곱(IPlayerHpLossModifier)을 따로 모은다: 잃는 양 = (양 + 합) × 곱. 장착 순서와 무관하다.
+        ///      곱으로 바뀐 양은 소수점을 버린다 (두꺼운 패딩 10%: 15 → 감소 1.5를 버려 1 → 14)
+        ///   2) 그래도 HP가 0 이하가 되면 버티기 유물(IPlayerLethalGuard)에 묻는다 (기계 심장: HP 1 남기고 생존). 하나만 발동.
+        /// HP를 바꾸고 실제로 잃은 양을 돌려준다. 연출·패배 처리는 부르는 쪽이 한다.
+        /// </summary>
+        int LosePlayerHp(EffectSource src, int amount, PlayerHpLossKind kind)
+        {
+            if (amount <= 0) return 0;
+            var relics = Run.Relics.Where(r => r.Enabled).ToList();
+
+            int add = 0;
+            decimal multiplier = 1m;
+            foreach (var m in relics.OfType<IPlayerHpLossModifier>())
+            {
+                add += m.HpLossAdd(kind);
+                multiplier *= m.HpLossMultiplier(kind);
+            }
+            int loss = Mathf.Max(0, amount + add);
+            loss = Mathf.Max(0, loss + (int)decimal.Truncate(loss * (multiplier - 1m)));   // 곱으로 바뀐 양은 0 쪽으로 버림
+            if (loss != amount) Log($"{src}: 잃는 HP {amount} → {loss} (유물)");
+
+            if (Player.Hp - loss <= 0)
+            {
+                foreach (var guard in relics.OfType<IPlayerLethalGuard>())
+                {
+                    if (!guard.TrySurvive(kind, out int leaveHp)) continue;
+                    leaveHp = Mathf.Max(1, leaveHp);
+                    loss = Mathf.Max(0, Player.Hp - leaveHp);
+                    Log($"{guard}: 치명적인 HP 감소를 버팀 (HP {leaveHp} 남김)");
+                    break;
+                }
+            }
+            Player.Hp = Mathf.Max(0, Player.Hp - loss);
+            return loss;
+        }
+
+        /// <summary>최종 피해량. 공격 측 값 × 유물·버프의 공격 측 곱 × 피격 측 곱을 계산하고 마지막에 한 번만 내림한다.</summary>
         public int CalculateDamage(EffectSource src, Unit target, Damage damage)
         {
-            decimal value = damage.Value;
+            decimal value = damage.Value * DealtDamageMultiplier(src, target);
             if (target != null) value *= TakenDamageMultiplier(target);
             if (value <= 0) return 0;
             return (int)decimal.Floor(value);
+        }
+
+        /// <summary>
+        /// 유물·버프가 정하는 공격 측 곱 (세계의 경계: 카드 피해 ×0.8). 여러 개면 서로 곱한다.
+        /// 어떤 피해에 적용할지는 각 유물·버프가 src·target으로 정한다 (IDealtDamageModifier).
+        /// </summary>
+        public decimal DealtDamageMultiplier(EffectSource src, Unit target)
+        {
+            decimal multiplier = 1m;
+            foreach (var m in Modifiers<IDealtDamageModifier>()) multiplier *= m.DealtDamageMultiplier(src, target);
+            return multiplier;
         }
 
         /// <summary>피격 측 곱. 받는 피해를 바꾸는 상태가 여러 개면 서로 곱한다.</summary>

@@ -11,7 +11,8 @@ namespace MoveCute
         public int handSize = 6;
         [Tooltip("제한 턴 수. 추후 적/전투별 데이터로 이동 가능")]
         public int turnLimit = 3;
-        public int teleportHpCost = 3;
+        [Tooltip("순간이동 HP 소모 = 최대 HP의 이 비율(%), 소수점 내림")]
+        public int teleportHpPercent = 10;
         [Tooltip("턴당 순간이동 횟수. -1 = 무제한 (미정)")]
         public int teleportLimitPerTurn = -1;
         public BattleRewardPolicy rewards = new();
@@ -155,14 +156,18 @@ namespace MoveCute
             {
                 var playCount = 1;
                 if (card.Has<Keyword_Dash>()) playCount += Mathf.Max(0, card.GetKeyword<Keyword_Dash>().maxReuseCount.Get(this));
+                int reuses = 0;
                 for (int i = 0; i < playCount; i++)
                 {
                     await Presenter.CardPlayed(card, CanFullyMove(card));
                     await card.Play(this, target);
-                    if (i > 0) await Events.CardReused.Raise(card, i);
+                    if (i > 0) { reuses = i; await Events.CardReused.Raise(card, i); }
                     if (!CanFullyMove(card)) break;
                     if (IsOver) return true;
                 }
+                // 이동·효과·재사용이 모두 끝난 뒤, 더미로 보내기 전 (이온 음료: 재사용 2번 이상이면 효과 한 번 더)
+                await Events.CardResolved.Raise(card, target, reuses);
+                if (IsOver) return true;
                 // 재사용이 모두 끝난 뒤 한 번만 보낸다. 재사용 도중에는 PlayingCard에만 있으므로
                 // 휴지통에 여러 번 들어가거나, 드로우로 묘지를 섞을 때 자기 자신을 다시 뽑지 않는다.
                 if (card.Has<Keyword_Delete>()) await TrashCard(card);
@@ -175,6 +180,30 @@ namespace MoveCute
             }
             finally { PlayingCard = null; await FinishAction(); }
         }
+
+        /// <summary>
+        /// 카드의 효과만 한 번 더 낸다 (이온 음료). 에너지 지불·더미 이동·재사용 이벤트 없이 card.Play를 다시 부른다.
+        /// 이동은 하지 않는다: 이 동안 이 카드는 해금 카드처럼 다뤄져 MovePlayer가 카드의 이동을 막고 CanFullyMove가 참이 된다.
+        /// 그래서 effects뿐 아니라 behavior(특수 카드)에 든 효과도 발동한다. 이동 자체가 효과인 카드(나 잡아봐라 등)는 아무 일도 없다.
+        /// </summary>
+        public async Awaitable ReplayCardEffects(EffectSource src, CardInstance card, EffectTarget target)
+        {
+            if (IsOver || card == null) return;
+            Log($"{src}: {card} 효과 한 번 더");
+            effectsOnlyCard = card;
+            try
+            {
+                await Presenter.CardPlayed(card, true);
+                await card.Play(this, target);
+            }
+            finally { effectsOnlyCard = null; }
+        }
+
+        /// <summary>ReplayCardEffects로 효과만 내는 중인 카드.</summary>
+        CardInstance effectsOnlyCard;
+
+        /// <summary>이 카드가 출처인 이동을 건너뛰는지: 해금 카드, 또는 효과만 다시 내는 중인 카드.</summary>
+        bool SkipsCardMoves(CardInstance card) => card.IsUnlocked || card == effectsOnlyCard;
 
         /// <summary>에너지 1과 HP를 지불하는 순간이동.</summary>
         public async Awaitable<bool> Teleport(Vector2Int pos)
@@ -189,19 +218,38 @@ namespace MoveCute
                 TeleportsThisTurn++;
                 Energy--;
                 await Presenter.EnergyChanged(Energy);
-                int cost = Config.teleportHpCost;
-                Player.Hp -= cost;
+                int cost = LosePlayerHp(EffectSource.System, TeleportHpCost, PlayerHpLossKind.Teleport);
                 Log($"순간이동 → {pos} (HP -{cost})");
-                if (Player.Hp <= 0) { Player.Hp = 0; await EndBattle(false); return true; }
+                if (Player.Hp <= 0) { await EndBattle(false); return true; }
 
-                var from = Player.Pos;
-                Player.Pos = pos;
-                await Presenter.PlayerTeleported(from, pos, cost);
-                await Events.PlayerMoved.Raise(from, pos);
-                await TriggerTile(pos, TileTrigger.Arrive);
+                await TeleportPlayer(pos, cost);
                 return true;
             }
             finally { await FinishAction(); }
+        }
+
+        /// <summary>
+        /// 비용 없는 순간이동 (빙고판: 전투 시작 때 시작 칸 고르기). 에너지·HP·이번 턴 순간이동 횟수를 쓰지 않고,
+        /// 입력 진입점이 아니라 효과가 부르는 함수라 입력을 잠그지 않는다.
+        /// 도착은 보통 순간이동과 같다: PlayerMoved 이벤트 + 도착 칸의 Arrive 효과. 잠금 진행에는 들어가지 않는다.
+        /// 막힌 칸이거나 지금 칸이면 false (아무 일도 없음).
+        /// </summary>
+        public async Awaitable<bool> TeleportFree(EffectSource src, Vector2Int pos)
+        {
+            if (IsOver || !Board.IsPassable(pos) || pos == Player.Pos) return false;
+            Log($"{src}: 순간이동 → {pos} (비용 없음)");
+            await TeleportPlayer(pos, 0);
+            return true;
+        }
+
+        /// <summary>순간이동의 도착 부분 (비용을 치른 뒤). 연출 → PlayerMoved → 도착 칸 Arrive.</summary>
+        async Awaitable TeleportPlayer(Vector2Int pos, int hpCost)
+        {
+            var from = Player.Pos;
+            Player.Pos = pos;
+            await Presenter.PlayerTeleported(from, pos, hpCost);
+            await Events.PlayerMoved.Raise(from, pos);
+            await TriggerTile(pos, TileTrigger.Arrive);
         }
 
         /// <summary>턴 종료: 효과·반응 정산 → 전투 종료 판단 → 계속되는 전투만 손패 버림·다음 턴.</summary>
@@ -297,9 +345,16 @@ namespace MoveCute
         {
             var tile = Board.Get(pos);
             if (tile == null) return;
+            HashSet<Enemy> acted = null;
             foreach (var te in tile.Effects.Where(t => t.Trigger == trigger).ToList())
             {
                 if (IsOver) return;
+                // 턴 종료 때 적의 예고가 내가 서 있는 칸에서 발동하기 직전 (적마다 한 번): 카운터 등이 먼저 반응한 뒤 적 행동이 진행된다
+                if (trigger == TileTrigger.TurnEndStanding && pos == Player.Pos && te.Source is Enemy enemy && (acted ??= new()).Add(enemy))
+                {
+                    await Events.EnemyActsOnPlayerTile.Raise(enemy);
+                    if (IsOver) return;
+                }
                 await Presenter.TileTriggered(pos, te);
                 await te.Fire(this, pos);
             }
@@ -334,5 +389,21 @@ namespace MoveCute
             Logs.Add(msg);
             Debug.Log($"[Battle] {msg}");
         }
+
+        // ════════════════════ 순간이동 비용 · 깎은 사기 ════════════════════
+
+        /// <summary>
+        /// 순간이동 HP 소모: 최대 HP × teleportHpPercent%, 소수점 내림 (최대 HP 11 → 1, 51 → 5).
+        /// 제트팩(FreeTeleportRelic)이 켜져 있으면 0. UI 표시도 이 값을 쓴다.
+        /// 유물의 감소·버티기(두꺼운 패딩·기계 심장)는 이 값이 아니라 실제로 HP를 잃을 때(LosePlayerHp) 적용된다.
+        /// </summary>
+        public int TeleportHpCost =>
+            Run.Relics.Any(r => r.Enabled && r is FreeTeleportRelic) ? 0 : Player.MaxHp * Config.teleportHpPercent / 100;
+
+        /// <summary>
+        /// 이 전투에서 적 사기를 실제로 깎은 양의 합 (피해·사기 감소 효과 모두). 적이 회복해도 줄지 않는다.
+        /// 남은 사기보다 큰 피해는 남은 만큼만 센다. ChangeMorale·DealDamage(Units.cs)에서 더한다.
+        /// </summary>
+        public int MoraleDealt { get; private set; }
     }
 }

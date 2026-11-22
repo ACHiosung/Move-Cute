@@ -16,28 +16,30 @@ MonoBehaviour:
   nameKey: card.reinforce.name
   descKey: card.reinforce.desc
   art: {fileID: 21300000, guid: ccd39f58493c462db0ee919c9ace65af, type: 3}
-  moves:
-  - 2
-  - 2
+  moves: 0200000002000000i
   cost: 1
   type: 2
   rarity: 1
-  target: 0
+  target: 2
   keywords:
   - rid: 320038321000001301
   - rid: 320038321000001302
   effects:
   - rid: 320038321000001310
-  targetKinds: 7
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 320038321000001301
       type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
-      data:
+      data: 
     - rid: 320038321000001302
       type: {class: Keyword_GunpowderKeg, ns: MoveCute, asm: Assembly-CSharp}
-      data:
+      data: 
     - rid: 320038321000001310
       type: {class: PlaceObstacleEffect, ns: MoveCute, asm: Assembly-CSharp}
       data:

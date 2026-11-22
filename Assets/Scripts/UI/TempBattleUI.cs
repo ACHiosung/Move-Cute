@@ -198,15 +198,31 @@ namespace MoveCute
             return AwaitableUtil.Completed();
         }
 
+        public Awaitable PlayerHealed(int amount)
+        {
+            RefreshAll();
+            Popup(playerMarker, $"HP +{amount}", Color.green);
+            return AwaitableUtil.Completed();
+        }
+
         // ════════════ IBattlePresenter: 보드 ════════════
 
         public Awaitable PlayerStepped(Vector2Int from, Vector2Int to) =>
             playerMarker.DOMove(tiles[to].transform.position, D(0.18f)).SetEase(Ease.OutQuad).SetLink(playerMarker.gameObject).ToAwaitable();
 
+        /// <summary>경계를 넘는 한 칸 (세계의 경계): 보드를 가로질러 미끄러지지 않게 작아졌다가 반대편 칸에서 커진다.</summary>
+        public Awaitable PlayerWrapped(Vector2Int from, Vector2Int to, Direction dir) =>
+            DOTween.Sequence()
+                .Append(playerMarker.DOScale(0f, D(0.09f)))
+                .AppendCallback(() => playerMarker.position = tiles[to].transform.position)
+                .Append(playerMarker.DOScale(1f, D(0.09f)))
+                .SetLink(playerMarker.gameObject)
+                .ToAwaitable();
+
         public Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost)
         {
             RefreshAll();
-            Popup(playerMarker, $"HP -{hpCost}", Color.red);
+            if (hpCost > 0) Popup(playerMarker, $"HP -{hpCost}", Color.red);
             return DOTween.Sequence()
                 .Append(playerMarker.DOScale(0f, D(0.12f)))
                 .AppendCallback(() => playerMarker.position = tiles[to].transform.position)
@@ -226,6 +242,22 @@ namespace MoveCute
             RefreshAll();
             Popup(tiles[obstacle.Pos].transform, "파괴", Color.white);
             return Punch(tiles[obstacle.Pos].transform, 0.25f);
+        }
+
+        /// <summary>재배치: 보드를 다시 그리고 두 칸을 튕긴다. 플레이어가 옮겨졌으면 새 칸으로 옮긴다.</summary>
+        public Awaitable TilesSwapped(Vector2Int a, Vector2Int b)
+        {
+            RefreshAll();
+            if (ctx.Player.Pos == a || ctx.Player.Pos == b)
+                playerMarker.position = tiles[ctx.Player.Pos].transform.position;
+            var sequence = DOTween.Sequence();
+            foreach (var pos in new[] { a, b })
+            {
+                var tile = tiles[pos].transform;
+                tile.DOComplete();
+                sequence.Insert(0, tile.DOPunchScale(Vector3.one * 0.15f, D(0.25f), 6));
+            }
+            return sequence.SetLink(playerMarker.gameObject).ToAwaitable();
         }
 
         public Awaitable TileEffectAdded(Vector2Int pos, TileEffect effect)

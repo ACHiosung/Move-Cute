@@ -19,6 +19,19 @@ namespace MoveCute
         readonly Stack<Button> availableHandCards = new();
         RectTransform cardPoolRoot;
         RectTransform relicList, panelSupports;
+
+        /// <summary>유물 아이콘 하나. 누적 숫자와 흑백(다 쓴 유물)은 RefreshRelicStates가 매 프레임 맞춘다.</summary>
+        sealed class RelicView
+        {
+            public Relic Relic;
+            public Image Tile, Icon;
+            public Text Name, Counter;
+            public bool ShownSpent;
+        }
+        readonly List<RelicView> relicViews = new();
+        static readonly Color RelicTile = new(0.24f, 0.24f, 0.24f);
+        static readonly Color SpentRelicTile = new(0.16f, 0.16f, 0.16f);
+        static readonly Color SpentRelicName = new(0.55f, 0.55f, 0.55f);
         Transform detailPanelRoot, playerPanelRoot;
         GameObject mouseIcon;
         Button deckButton, drawButton, discardButton, trashButton, closeBrowserButton;
@@ -30,6 +43,7 @@ namespace MoveCute
 
         void InitializeViews()
         {
+            enemies.anchoredPosition += Vector2.left * 32f;
             // One-time lookups for the root-level layout; card/target parts are serialized in each view.
             detailPanelRoot = detailName.transform.parent;
             playerPanelRoot = goldBalance.transform.parent;
@@ -51,6 +65,7 @@ namespace MoveCute
             trashText = trashButton.GetComponentInChildren<Text>(true);
             trashText.fontSize = trashText.resizeTextMaxSize = 18;
             closeBrowserButton = modal.Find("Close").GetComponent<Button>();
+            ConfigureBrowserCloseButton(closeBrowserButton);
             backgroundObject = transform.Find("Background").gameObject;
             cardPoolRoot = (RectTransform)transform.Find("Templates");
             backdropRoots = new[] { backgroundObject.transform, board.transform.parent,
@@ -82,6 +97,7 @@ namespace MoveCute
             modal.anchoredPosition += shift;
             keywordPanel.anchoredPosition += shift;
 
+            relicViews.Clear();
             if (count == 0)
             {
                 if (relicList != null) Clear(relicList);
@@ -109,7 +125,7 @@ namespace MoveCute
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
                 rect.anchoredPosition = new Vector2(i / rows, -(i % rows)) * (size + gap);
                 rect.sizeDelta = Vector2.one * size;
-                tile.color = new Color(0.24f, 0.24f, 0.24f);
+                tile.color = RelicTile;
                 var shadow = tile.gameObject.AddComponent<Shadow>();
                 shadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
                 shadow.effectDistance = new Vector2(0f, -1f);
@@ -131,9 +147,11 @@ namespace MoveCute
                     if (ReferenceEquals(hoveredInfoOwner, tile)) RestorePanel();
                 };
 
+                var view = new RelicView { Relic = relic, Tile = tile };
+                relicViews.Add(view);
                 if (data.icon != null)
                 {
-                    var icon = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    var icon = view.Icon = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
                     icon.rectTransform.SetParent(rect, false);
                     icon.rectTransform.anchorMin = Vector2.zero;
                     icon.rectTransform.anchorMax = Vector2.one;
@@ -146,15 +164,61 @@ namespace MoveCute
                 }
                 else
                 {
-                    var label = RelicLabel(rect, System.Globalization.StringInfo.GetNextTextElement(data.DisplayName),
+                    var label = view.Name = RelicLabel(rect, System.Globalization.StringInfo.GetNextTextElement(data.DisplayName),
                         Vector2.zero, Vector2.one * size);
                     label.color = Color.white;
                     label.fontStyle = FontStyle.Bold;
                 }
+                if (relic is ICountingRelic) view.Counter = RelicCounter(rect, size);
             }
             int extra = ctx.Run.Relics.Count - count;
             if (extra > 0)
                 RelicLabel(relicList, $"+{extra}", new Vector2(0, -rows * (size + gap)), new Vector2(width, size));
+            RefreshRelicStates();
+        }
+
+        /// <summary>유물 아이콘 오른쪽 아래의 누적 숫자 (채찍·독수리 깃털·캐스트 퍼즐).</summary>
+        Text RelicCounter(RectTransform tile, float size)
+        {
+            var label = new GameObject("Counter", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
+            var rect = label.rectTransform;
+            rect.SetParent(tile, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.right;
+            rect.anchoredPosition = new Vector2(-size * 0.06f, size * 0.02f);
+            rect.sizeDelta = new Vector2(size * 0.7f, size * 0.5f);
+            label.font = screenFont;
+            label.fontSize = Mathf.Max(10, Mathf.RoundToInt(size * 0.38f));
+            label.fontStyle = FontStyle.Bold;
+            label.color = Color.white;
+            label.alignment = TextAnchor.LowerRight;
+            label.raycastTarget = false;
+            var outline = label.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
+            outline.effectDistance = new Vector2(1f, -1f);
+            return label;
+        }
+
+        /// <summary>
+        /// 유물 아이콘의 누적 숫자와 흑백을 지금 상태에 맞춘다. 바뀐 것만 고친다 (LateUpdate에서 매 프레임).
+        /// 흑백: 다 쓴 유물(Relic.Spent, 기계 심장)은 아이콘에 흑백 머티리얼, 이름 글자는 회색.
+        /// </summary>
+        void RefreshRelicStates()
+        {
+            foreach (var view in relicViews)
+            {
+                if (view.Tile == null) continue;
+                if (view.Counter != null && view.Relic is ICountingRelic counting)
+                {
+                    string text = counting.DisplayValue.ToString();
+                    if (view.Counter.text != text) view.Counter.text = text;
+                }
+                bool spent = view.Relic.Spent;
+                if (spent == view.ShownSpent) continue;
+                view.ShownSpent = spent;
+                view.Tile.color = spent ? SpentRelicTile : RelicTile;
+                if (view.Icon != null) view.Icon.material = spent ? grayscaleMaterial : null;
+                if (view.Name != null) view.Name.color = spent ? SpentRelicName : Color.white;
+            }
         }
 
         Text RelicLabel(RectTransform parent, string value, Vector2 position, Vector2 size)
@@ -179,6 +243,10 @@ namespace MoveCute
             if (!cardViews.TryGetValue(button, out var view))
             {
                 view = button.GetComponent<BattleCardView>();
+                view.KeywordFont = screenFont;
+                view.KeywordName = T;
+                view.KeywordEntered = ShowKeyword;
+                view.KeywordExited = CloseKeyword;
                 cardViews.Add(button, view);
             }
             return view;

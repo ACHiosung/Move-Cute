@@ -56,14 +56,14 @@ BattleManager (씬 진입점, MonoBehaviour)
 ### 새 카드
 카드 한 종류 = `CardData` 에셋 한 개. 예시: `Assets/Data/Cards/Basic/Card_Sit.asset` (앉기: ↓, 피해 5). 기본 덱은 씬의 `BattleManager.startingDeck`에 넣는다.
 
-카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Hesitation`(주저) · `Lock`(잠금) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다. 키워드가 여러 테마에 걸치면 카드가 주로 하는 일로 고른다 (예: `PTSD`는 폭탄 키워드가 있지만 주저를 부여하므로 `Hesitation`).
+카드 에셋은 `Assets/Data/Cards` 아래 테마 폴더에 둔다: `Basic`(기본 이동) · `Bomb`(폭탄) · `Dash`(질주) · `Hesitation`(주저) · `Lock`(잠금) · `Neutral`(테마 키워드 없음) · `Trash`(휴지통) · `_Test`(테스트·예시용, 실제 덱에 넣지 않음). 맞는 폴더가 없으면 새 테마 폴더를 만든다. 키워드가 여러 테마에 걸치면 카드가 주로 하는 일로 고른다 (예: `PTSD`는 폭탄 키워드가 있지만 주저를 부여하므로 `Hesitation`).
 
 1. Project 창 `Assets/Data/Cards/<테마>`에서 우클릭 → `Create > MoveCute > Card > Basic`. 파일 이름은 `Card_<Id>`.
 2. 인스펙터 입력
    - `id`: 소문자 영문 (`sit`). `nameKey` = `card.<id>.name`, `descKey` = `card.<id>.desc`
    - `moves`: 이동 방향 (순서대로 한 칸씩). 카드에는 화살표로 표시되므로 설명문에 쓰지 않는다
    - `effects`: 드롭다운에서 효과 선택 후 값 입력. 모든 이동이 성공했을 때 발동한다
-   - `target`: 카드를 낼 때 고르는 대상. `Unit`이면 `targetKinds`로 고를 수 있는 종류를 정한다 — 기본은 전부(적·장애물·폭탄), 하나만 고르면 그 종류만 (예: 폭탄만). 후보는 `CardInstance.TargetUnits`가 만든다. 장애물을 고른 카드의 피해 효과는 장애물에 들어가고, HP가 0이 되면 부서진다 (폭탄이면 터짐)
+   - `target`: 카드를 낼 때 고르는 대상. 시트의 "적"은 `Unit`, "보드"는 `SelfTile`(내 칸) 또는 `OtherTile`(다른 칸)이다. `SelfTile`은 내 칸 하나만 후보로 띄우고 그 칸(플레이어 그림)을 눌러야 발동한다 (`BattleManager.ChooseTarget`). 카드는 누르자마자 발동하지 않으므로 `None`은 쓰지 않는다 (인스펙터에 경고가 뜬다, `Editor/CardDataEditor.cs`). `Unit`이면 `targetKinds`로 고를 수 있는 종류를 정한다 — 기본은 전부(적·장애물·폭탄), 하나만 고르면 그 종류만 (예: 폭탄만). 후보는 `CardInstance.TargetUnits`가 만든다. 장애물을 고른 카드의 피해 효과는 장애물에 들어가고, HP가 0이 되면 부서진다 (폭탄이면 터짐)
 3. `Assets/Resources/Localization/Strings.csv`에 이름·설명 줄 추가
    ```
    card.sit.name,앉기,Sit
@@ -82,6 +82,8 @@ BattleManager (씬 진입점, MonoBehaviour)
 - `Play` 재정의: 카드가 하는 일만 넣는다. 에너지 지불·묘지/휴지통 보내기는 `PlayCard`가 하므로 `Play`에서 하지 않는다 (질주면 `Play`가 재사용마다 다시 불린다)
 - 흑백 판정을 바꾸려면 `CanPlayFully` 재정의 (기본은 전체 이동 가능 여부)
 - `target`이 `OtherTile`일 때 고를 수 있는 칸을 좁히려면 `TargetTiles` 재정의 (기본은 플레이어 칸을 뺀 모든 칸). 예: `Cards/Behaviors/AnyDirectionStepCard.cs` (원하는 방향으로 한 칸 이동 — 인접한 빈 칸만 후보, 에셋 `Card_BombDefuse.asset`)
+- 한 칸 이동할 칸은 `pos + dir.ToOffset()` 대신 **`ctx.StepTarget(pos, dir)`**로 구한다 (이동·흑백 판정·후보 칸·경로 미리보기 모두). 경계 이동(세계의 경계)이 켜져 있으면 보드 밖 대신 반대편 끝 칸을 돌려주고, 갈 수 있는지는 `Board.IsPassable`로 따로 본다. 경계를 넘은 한 칸도 그 방향 한 칸 이동으로 친다 (잠금 진행·Pass 효과 그대로, 연출은 `IBattlePresenter.PlayerWrapped`)
+- 해금된 잠금 카드는 화살표대로 움직이지 않는다 (`MovePlayer`가 해금 카드가 출처인 이동을 막는다). 이동 자체가 효과인 잠금 카드는 플레이어를 출처로 이동한다. 예: `Cards/Behaviors/DistanceMoveCard.cs` (축지법: 원하는 방향으로 거리 N 이동, 재사용 때는 다시 고르고 취소 가능, 에셋 `Lock/Card_EarthShrink.asset`)
 - public 필드는 에셋의 `behavior` 아래에서 조정하고, 설명문에 `{repeat}`, `{shockwave.damage}`처럼 쓸 수 있다
 - 전투 중 상태 필드에는 `[NonSerialized]`를 붙인다. 카드 한 장마다 복사되므로 다른 카드와 공유되지 않는다. 단, 복사는 얕은 복사라 효과 같은 참조 필드는 공유된다 (효과에 상태를 두지 않는 규칙과 같음)
 - 카드는 `new CardInstance`로 만들지 않고 `cardData.CreateCard()`로 만든다 (behavior 하위 클래스로 만들어진다)
@@ -116,15 +118,38 @@ public class HealEffect : Effect
 - **피해량 계산에서 소수점이 나오면 항상 내림한다** (배율 1.5 × 피해 3 = 4.5 → 4)
 
 ### 새 유물
+유물 에셋은 `Assets/Data/Relics` 아래 카드와 같은 테마 폴더에 둔다: `Bomb`(폭탄) · `Dash`(질주·재사용) · `Hesitation`(주저) · `Lock`(잠금) · `Neutral`(테마 키워드 없음 — HP·드로우·순간이동 등) · `Trash`(휴지통·삭제) · `_Test`(테스트·예시용, 실제로 장착하지 않음). 파일 이름은 `Relic_<Id>`.
+
 - **단순한 유물** (시점 + 효과): 코드 없이 `Create > MoveCute > Relic > Basic` 에셋에서 `trigger`와 `effects`만 고른다.
+  - `trigger`: 전투 시작 · 턴 시작 · 턴 종료 · 카드 사용 · 플레이어 이동 · 마지막 턴 종료 · 카드 재사용 · 카드 삭제(휴지통으로 감) · 카드 해금
+  - 카드 시점(사용·재사용·삭제·해금)은 그 카드를 효과 대상(`target.Card`)으로 넘긴다. 예: 칭찬 스티커 = 해금 + `MoveTargetCardEffect`(버린 더미에 있으면 뽑을 더미 맨 위로)
+- **N번마다 발동하는 유물**은 `Create > MoveCute > Relic > Counting`(`CountingRelicData`)에서 `trigger`와 `threshold`를 고른다 (코드 없음). 예: 캐스트 퍼즐(해금 2번마다 1장), 독수리 깃털(재사용 5번마다 에너지 1)
 - **조건·누적 상태가 필요한 유물**: `RelicData`와 `Relic`을 함께 상속해 `Relics/Special/`에 둔다. 참고용 예시: **`Relics/Special/PedometerRelicData.cs`** (만보기: 한 턴에 N칸 이동하면 발동)
   - `RelicData` 하위 클래스는 ScriptableObject라서 **파일 하나에 하나**, 파일 이름 = 클래스 이름 (`XxxRelicData.cs`). 같은 파일에 짝이 되는 `XxxRelic`을 함께 둔다
   - `RelicData` 하위 클래스: 조정할 숫자 필드 + `CreateRelic()` 재정의. 메뉴는 `[CreateAssetMenu(menuName = "MoveCute/Relic/<이름>")]`로 `Relic` 아래에 둔다
   - `Relic` 하위 클래스: `Bind`에서 `ctx.Events` 구독, 상태 보관. Relic은 런 내내 유지되므로 전투마다 초기화할 값은 `Bind`에서 초기화
   - 발동 시 할 일은 에셋의 `effects`를 `Fire(ctx)`로 실행 → 기획자가 조정 가능
-- 트리거 `LastTurnEnd`는 제한 턴의 마지막 턴이 끝날 때, 장애물의 마지막 턴 처리(폭탄 폭발) **직전**에 발동한다. 여기서 놓은 폭탄도 같이 터진다 (예: `Assets/Data/Relics/Relic_LastTurnChainBomb.asset`)
-- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다)
+- 트리거 `LastTurnEnd`는 제한 턴의 마지막 턴이 끝날 때, 장애물의 마지막 턴 처리(폭탄 폭발) **직전**에 발동한다. 여기서 놓은 폭탄도 같이 터진다 (예: `Assets/Data/Relics/Bomb/Relic_LastTurnChainBomb.asset`)
+- 효과를 실행하지 않고 다른 효과가 찾아 읽는 유물도 있다: `Relics/Special/BombDamageRelicData.cs` (폭탄 기본 피해 +`bonus`, `BombExplosionEffect`가 `ctx.Run.Relics`에서 찾는다), `Relics/Special/FreeTeleportRelicData.cs` (제트팩: `ctx.TeleportHpCost`가 0), `Relics/Special/RewardHealingBonusRelicData.cs` (수상한 송곳니: 회복 보상 +%, 내림)
+- 누적 수치가 있는 유물은 `ICountingRelic`(`Counter`/`Threshold`)을 구현한다. 전투 화면은 아이콘 오른쪽 아래에 `DisplayValue`를 보여 준다 (기본은 쌓인 수, `CountingRelicData.showRemaining`이면 발동까지 남은 수). 디버그 창(`MoveCute > Debug > Relic Toggle`)에도 보인다. 예: 채찍(`HesitationCountRelicData`), `CountingRelicData`
+- 한 번 쓰고 끝나는 유물은 `Relic.Spent`를 재정의한다. 전투 화면이 아이콘을 흑백으로 그린다. 예: 기계 심장(`LethalGuardRelic.Used`)
+- 플레이어가 잃는 HP를 바꾸는 유물은 `IPlayerHpLossModifier`(합·곱), 죽음을 버티는 유물은 `IPlayerLethalGuard`를 구현한다. 계산 순서는 [7. 피해 계산 공식](#7-피해-계산-공식). 예: 두꺼운 패딩(`HpLossReductionRelicData`), 기계 심장(`LethalGuardRelicData`)
+- 카드 효과만 한 번 더 내려면 `ctx.ReplayCardEffects(src, card, target)` (에너지·더미 이동·재사용 이벤트 없음, 카드 이동 막힘). 예: 이온 음료(`ReplayAfterReusesRelicData`, `CardResolved` 이벤트 = 재사용까지 모두 끝난 직후)
+- 전투에서 이긴 뒤 HP를 회복하는 유물은 `BattleEnd` 이벤트에서 `ctx.HealAfterBattle(src, amount)`를 쓴다 (전투가 끝난 뒤에도 동작). 예: `Relics/Special/BattleEndHealRelicData.cs` (자가수리키트)
+- 비용 없는 순간이동은 `ctx.TeleportFree(src, pos)` (에너지·HP·턴당 순간이동 횟수를 쓰지 않음, 도착은 보통 순간이동과 같이 `PlayerMoved` + Arrive). 칸을 고르게 하려면 효과 `TeleportToChosenTileEffect` (지금 칸도 후보, 취소하면 그대로). 예: 빙고판 `Neutral/Relic_BingoBoard.asset` = 전투 시작 + 이 효과 → 첫 턴 적 예고 전에 시작 칸을 고른다
 - 장착은 씬의 `BattleManager.relics`. 이름·설명 키는 `relic.<id>.name` / `relic.<id>.desc`이고, 설명문에는 유물 에셋의 필드(`{steps}`)와 effects 안 필드(`{count}`)를 쓸 수 있다.
+
+### 새 버프 (카드가 거는 "이번 전투 동안" 효과)
+버프 = **이번 전투에만 붙는 유물 + 수치**. 버프 정의는 유물 에셋(`RelicData`와 하위 클래스)을 그대로 쓰고 `Assets/Data/Buffs`에 둔다. 파일 이름은 `Buff_<Id>`, 이름·설명 키는 `buff.<id>.name` / `buff.<id>.desc`.
+
+- 카드에서는 `GrantBuffEffect`(`buff`, `stacks`, `stackable`)로 건다 → `ctx.GrantBuff`. 처음이면 버프를 만들어 `Bind`(이벤트 구독)하고, 이미 있으면 `stackable`일 때만 수치(`Relic.Stacks`)를 더한다. 걸린 버프는 `ctx.Buffs`에 있다
+- **수치가 0이 되면 버프가 사라진다** (기본). 수치는 직접 바꾸지 말고 `ctx.AddBuffStacks`로 바꾼다 → 0이면 `ctx.RemoveBuff`. 0이어도 남아야 하는 버프만 `Relic.RemoveAtZeroStacks`를 false로 재정의한다. 수치가 줄지 않는 버프는 전투가 끝날 때 사라진다
+- 사라진 버프는 `Enabled`가 꺼진다 (이벤트 구독은 남음). 그래서 하위 클래스의 반응도 유물처럼 `Enabled`부터 확인한다
+- **"이번 전투 동안 ~할 때마다 ~"**는 코드 없이 유물처럼 `trigger` + `effects`로 만든다. 예: `Buff_FruitOfEffort` (노력의 결실 = 카드 해금 시점 + `MoveTargetCardEffect` 뽑을 더미 → 손패)
+- 수치를 쓰거나 조건이 있는 버프는 유물처럼 하위 클래스를 만든다. 예: `Relics/Special/CounterBuffData.cs` (카운터: `EnemyActsOnPlayerTile` 이벤트 = 턴 종료 때 적 예고가 내 칸에서 발동하기 직전, 수치 = 쌓인 카운터 수, 반격 한 번에 수치를 모두 써서 피해 × 수치를 주고 사라짐)
+- 카드 설명문에서 버프 에셋의 값은 점으로 이어 쓴다: `{buff.damage}`
+- 규칙(이동 판정·피해 계산)을 바꾸는 버프는 이벤트로는 안 된다 — 인터페이스를 구현하고, 계산하는 쪽이 `ctx.Modifiers<인터페이스>()`(켜진 런 유물 + 버프)로 묻게 한다. 예: `Relics/Special/WorldsEdgeBuffData.cs` (세계의 경계: `IEdgeWrapRule` 경계 이동 + `IDealtDamageModifier` 카드 피해 감소, `Bind`는 비워 둠)
+- 기존 MOVE CUTE·의욕 상실·꽃단장은 아직 상태(`Status`) 방식이다. 플레이어 버프는 아직 전투 화면에 표시되지 않는다
 
 ### 새 적
 적은 **코드로 만든다.** 적 한 종류 = `Enemies/` 아래 파일 하나. 참고용 예시: **`Enemies/GravekeeperData.cs`** (묘지기) + 에셋 `Assets/Data/Enemies/Enemy_Gravekeeper.asset`.
@@ -186,6 +211,8 @@ protected override IntentData PlanIntent(BattleContext ctx)
 
    장애물은 칸을 막고, `ShockwaveEffect` 같은 효과로 피해를 줘서 부순다. 폭탄의 폭발은 대상 유닛이 없으면 무작위 적에게 피해를 준다.
 
+   두 칸의 내용물(장애물·플레이어)을 맞바꾸려면 `ctx.SwapTiles(src, a, b)`를 쓴다 (재배치, 효과 `SwapTileContentsEffect`). 타일 효과는 칸에 남고, 플레이어가 옮겨져도 이동으로 치지 않는다 (잠금 진행·`PlayerMoved`·Pass 없이 도착 칸의 Arrive만). 연출은 `IBattlePresenter.TilesSwapped`.
+
 ### 효과 도중 플레이어 선택
 ```csharp
 var card = await ctx.ChooseCard(ctx.Piles.Hand.ToList(), "버릴 카드 선택");
@@ -232,7 +259,7 @@ public async Awaitable PlayerStepped(Vector2Int from, Vector2Int to)
 ```
 
 1. **합연산**: 기본 피해에 고정 보너스를 더한다 (폭탄 피해 유물 +n 등).
-2. **공격 측 곱연산**: 공격하는 쪽 배율 (예술 폭탄 1.5^k 등).
+2. **공격 측 곱연산**: 공격하는 쪽 배율 (예술 폭탄 1.5^k 등). 유물·버프가 주는 배율은 `IDealtDamageModifier`로 만들고 `BattleContext.DealtDamageMultiplier`가 곱한다 (세계의 경계: 카드 피해 ×0.8, 어떤 피해에 적용할지는 구현이 `src`·`target`으로 정함).
 3. **피격 측 곱연산**: 맞는 쪽 상태 (주저 등). 여러 개면 서로 곱한다. `BattleContext.TakenDamageMultiplier`.
 4. **내림은 마지막에 한 번만** 한다. `BattleContext.CalculateDamage`.
 
@@ -243,4 +270,7 @@ public async Awaitable PlayerStepped(Vector2Int from, Vector2Int to)
   ```
 - 정수 피해만 주는 효과는 지금처럼 `ctx.DealDamage(src, unit, 6)`을 써도 같은 공식을 거친다.
 - 계산은 `decimal`로 한다. `float`/`double`은 20 × 1.15 = 22.999…처럼 내림에서 1이 빠질 수 있다.
+- **플레이어가 잃는 HP**는 위 공식 다음에 `BattleContext.LosePlayerHp`를 한 번 더 지난다. 피해(`DamagePlayer`)와 순간이동 비용이 모두 이 길을 쓴다.
+  1. 유물의 합과 곱(`IPlayerHpLossModifier`)을 따로 모아 `(양 + 합) × 곱`. 장착 순서와 무관하다. 곱으로 바뀐 양은 소수점을 버린다 (두꺼운 패딩 10%: 15 → 감소 1.5를 버려 1 → 14)
+  2. 그래도 HP가 0 이하가 되면 버티기 유물(`IPlayerLethalGuard`, 기계 심장)에 마지막으로 묻는다
 - 주저 배율 = 1 + 수치 × 5% × (1 + 주저 효과 증가%). 주저 효과 증가% = 플레이어의 주저 효과 증가 버프 수치 × 20 + `HesitationEffectBonusPercent`. 턴이 지나도 줄지 않는다. 수치는 `HesitationPercentPerStack`, `HesitationBoostPercentPerStack` 상수에서 조정한다. 상태 ID는 `StatusIds.Hesitation`이고 적에게만 붙는다.

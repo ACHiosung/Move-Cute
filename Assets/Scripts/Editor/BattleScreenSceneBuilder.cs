@@ -157,6 +157,12 @@ namespace MoveCute.UIEditor
 
         static void PrepareArtwork(BattleScreenUI ui)
         {
+            ui.battleBuffIcons = new[]
+            {
+                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Cards/Art_MoveCute.png"),
+                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Cards/Art_Demotivate.png"),
+                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Cards/Art_Primp.png")
+            };
             const string folder = "Assets/Art/UI";
             Directory.CreateDirectory(folder);
             AssetDatabase.Refresh();

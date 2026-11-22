@@ -7795,6 +7795,10 @@ MonoBehaviour:
   grayscaleMaterial: {fileID: 2100000, guid: cd3291ba366f5f74881b7d983547e70e, type: 2}
   enemyDescriptionIds: []
   enemyDescriptions: []
+  battleBuffIcons:
+  - {fileID: 21300000, guid: e44518891f70472fba41659be37755d7, type: 3}
+  - {fileID: 21300000, guid: f65d62dcaf1e446a84c998fabe17ced2, type: 3}
+  - {fileID: 21300000, guid: 43a91a750f4f4a2191de14e2374e21d0, type: 3}
   rewardChest: {fileID: 7176959934547204623}
   rewardGoldButton: {fileID: 6591163608289025733}
   rewardHealButton: {fileID: 4922567211720028763}

@@ -26,7 +26,7 @@ namespace MoveCute
             var visited = new HashSet<Vector2Int> { pos };
             foreach (var dir in Moves)
             {
-                pos += dir.ToOffset();
+                pos = ctx.StepTarget(pos, dir);
                 if (!ctx.Board.IsPassable(pos) || !visited.Add(pos)) return false;
             }
             return true;

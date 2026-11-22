@@ -16,22 +16,24 @@ MonoBehaviour:
   nameKey: card.demotivate.name
   descKey: card.demotivate.desc
   art: {fileID: 21300000, guid: f65d62dcaf1e446a84c998fabe17ced2, type: 3}
-  moves:
-  - 3
-  - 3
+  moves: 0300000003000000i
   cost: 1
   type: 2
   rarity: 2
-  target: 0
+  target: 2
   keywords:
   - rid: 320038321000001801
   - rid: 320038321000001802
   effects:
   - rid: 320038321000001810
-  targetKinds: 7
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 320038321000001801
       type: {class: Keyword_Hesitation, ns: MoveCute, asm: Assembly-CSharp}
       data: 

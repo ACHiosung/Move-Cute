@@ -44,7 +44,10 @@ namespace MoveCute
         }
     }
 
-    /// <summary>대상 타일(없으면 무작위 빈 타일)에 장애물 배치.</summary>
+    /// <summary>
+    /// 대상 타일(없으면 무작위 빈 타일)에 장애물 배치.
+    /// 보드 카드(target SelfTile)의 대상 칸은 "내 칸을 눌러 사용"일 뿐 놓을 칸이 아니므로 무작위 빈 타일에 놓는다.
+    /// </summary>
     [Serializable]
     public class PlaceObstacleEffect : Effect
     {
@@ -52,7 +55,8 @@ namespace MoveCute
 
         public override async Awaitable Execute(BattleContext ctx, EffectSource src, EffectTarget target)
         {
-            var pos = target.Tile ?? ctx.Board.GetRandomEmptyTile(ctx.Player.Pos);
+            bool boardCard = src.Owner is CardInstance card && card.Data.target == TargetType.SelfTile;
+            var pos = !boardCard && target.Tile.HasValue ? target.Tile : ctx.Board.GetRandomEmptyTile(ctx.Player.Pos);
             if (pos.HasValue) await ctx.PlaceObstacle(src, pos.Value, obstacle);
         }
     }

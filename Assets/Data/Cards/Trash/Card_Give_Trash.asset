@@ -15,7 +15,7 @@ MonoBehaviour:
   id: givetrash
   nameKey: card.givetrash.name
   descKey: card.givetrash.desc
-  art: {fileID: -4329690533229498726, guid: 08c6de18c44221c43b0f4daebb3c183b, type: 3}
+  art: {fileID: 21300000, guid: 7e476181b0a5488d9774471e7f454513, type: 3}
   moves: 0300000003000000i
   cost: 0
   type: 0

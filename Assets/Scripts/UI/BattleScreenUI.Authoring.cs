@@ -125,7 +125,8 @@ namespace MoveCute
             modal.GetComponent<Image>().raycastTarget = true;
             modalTitle = TextAt("Title", modal, "", 35, 20, 800, 60, 30);
             modalTitle.color = Color.white;
-            var close = MakeButton("Close", modal, T("close"), 890, 25, 130, 50);
+            var close = MakeButton("Close", modal, "×", 0, 0, 50, 50);
+            ConfigureBrowserCloseButton(close);
             close.onClick.AddListener(() => { modal.gameObject.SetActive(false); RefreshAll(); });
             modalContent = NewRect("Cards", modal, 35, 110, 980, 740);
             var grid = modalContent.gameObject.AddComponent<GridLayoutGroup>();
