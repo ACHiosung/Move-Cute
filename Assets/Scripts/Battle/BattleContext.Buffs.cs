@@ -26,12 +26,17 @@ namespace MoveCute
             var buff = GetBuff(data);
             if (buff != null)
             {
-                if (stackable) buff.Stacks += stacks;
+                if (stackable)
+                {
+                    buff.Stacks += stacks;
+                    buff.Stackable = true;
+                }
                 Log(stackable ? $"{src}: 버프 {buff} +{stacks} → {buff.Stacks}" : $"{src}: 버프 {buff}는 이미 있음");
                 return AwaitableUtil.Completed();
             }
             buff = data.CreateRelic();
             buff.Stacks = stacks;
+            buff.Stackable = stackable;
             Buffs.Add(buff);
             buff.Bind(this);
             Log($"{src}: 버프 {buff} ({stacks})");

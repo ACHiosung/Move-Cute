@@ -26,6 +26,12 @@ namespace MoveCute
         /// </summary>
         public int Stacks { get; internal set; } = 1;
 
+        /// <summary>
+        /// 다시 걸면 수치가 쌓이는 버프인지 (GrantBuffEffect.stackable, 카운터). BattleContext.GrantBuff가 정한다.
+        /// 전투 화면은 쌓이는 버프만 아이콘에 수치를 보여 준다 (세계의 경계처럼 늘 1인 버프는 숫자를 숨김).
+        /// </summary>
+        public bool Stackable { get; internal set; }
+
         /// <summary>버프 수치가 0이 되면 사라지는지. 기본은 사라진다. 0이어도 남아야 하는 버프만 false로 재정의한다.</summary>
         public virtual bool RemoveAtZeroStacks => true;
 
