@@ -271,7 +271,6 @@ namespace MoveCute
         {
             if (IsOver) return;
             Phase = won ? BattlePhase.Won : BattlePhase.Lost;
-            if (won) RecoverAfterBattle();
             Run.Hp = Player.Hp;
             Log(won ? $"전투 승리 (HP {Player.Hp})" : "패배");
             if (won) await PrepareConfiguredRewards();
@@ -338,9 +337,9 @@ namespace MoveCute
             Debug.Log($"[Battle] {msg}");
         }
 
-        // ════════════════════ 순간이동 비용 · 전투 후 회복 ════════════════════
+        // ════════════════════ 순간이동 비용 · 깎은 사기 ════════════════════
 
-        /// <summary>전투 시작 시점(유물·적 Bind 직후) 적 사기 합. 전투 후 회복량 계산에 쓴다.</summary>
+        /// <summary>전투 시작 시점(유물·적 Bind 직후) 적 사기 합. HP 회복 보상 계산에 쓴다.</summary>
         public int StartMorale { get; private set; }
 
         /// <summary>순간이동 HP 소모: 최대 HP × teleportHpPercent%, 소수점 올림 (최대 HP 11 → 2).</summary>
@@ -348,15 +347,5 @@ namespace MoveCute
 
         /// <summary>이 전투에서 깎은 적 사기 = 시작 사기 합 − 남은 사기 합 (회복된 사기는 빠진다).</summary>
         public int MoraleRemoved => Mathf.Max(0, StartMorale - Enemies.Sum(e => e.Hp));
-
-        /// <summary>살아서 끝난 전투: 깎은 사기의 10%(내림)만큼 HP 회복, 최대 HP를 넘지 않는다.</summary>
-        void RecoverAfterBattle()
-        {
-            if (Player.Hp <= 0) return;
-            int heal = MoraleRemoved / 10;
-            int before = Player.Hp;
-            Player.Hp = Mathf.Min(Player.MaxHp, Player.Hp + heal);
-            Log($"전투 후 회복: 깎은 사기 {MoraleRemoved} → HP +{Player.Hp - before} ({before} → {Player.Hp})");
-        }
     }
 }

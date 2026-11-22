@@ -8,7 +8,8 @@ namespace MoveCute
     public sealed class BattleRewardPolicy
     {
         [Min(0)] public int gold = 10;
-        [Min(0)] public int healing = 2;
+        [Tooltip("HP 회복 보상 = 이 전투에서 깎은 적 사기의 이 비율(%), 소수점 내림. 최대 HP를 넘지 않음")]
+        [Min(0)] public int healingPercentOfMorale = 10;
         [Tooltip("Empty uses the run deck's card types. A configured pool is independent of the UI.")]
         public List<CardData> cardPool = new();
     }
@@ -43,7 +44,7 @@ namespace MoveCute
             var policy = Config.rewards ?? new BattleRewardPolicy();
             IEnumerable<CardData> pool = policy.cardPool != null && policy.cardPool.Count > 0
                 ? policy.cardPool : Run.Deck.Select(card => card.Data);
-            return PrepareRewards(pool, policy.gold, policy.healing);
+            return PrepareRewards(pool, policy.gold, MoraleRemoved * policy.healingPercentOfMorale / 100);
         }
 
         // Generated once per battle. Reopening the chest never rerolls candidates.
