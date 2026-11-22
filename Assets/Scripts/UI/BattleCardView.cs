@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,10 +14,14 @@ namespace MoveCute
         [SerializeField] RectTransform directionRoot;
         [SerializeField] GameObject targetFrame;
         const float FreeFrameThickness = 3f;
+        const int DirectionColumns = 4;
+        const float DirectionSize = 28f, DirectionGap = 2f, DirectionInset = 4f;
         static readonly Color FreeFrameColor = new Color32(255, 212, 71, 255);
         readonly List<Image> icons = new();
+        readonly List<Image> keywordIcons = new();
         readonly List<Direction> displayedMoves = new();
         GameObject freeFrame;
+        Image rarityStrip;
         CardInstance card;
         Action<CardInstance> clicked;
         Action<Button, CardInstance> entered;
@@ -25,6 +30,15 @@ namespace MoveCute
         bool hasRendered;
         Material displayedMaterial;
         public Button Button => button;
+        public Font KeywordFont;
+        public Func<string, string> KeywordName;
+        public Action<string, RectTransform> KeywordEntered;
+        public Action KeywordExited;
+
+        public static List<string> AddedKeywordKeys(CardInstance value) =>
+            value.Keywords.Where(keyword => !value.Data.keywords.Any(
+                original => original != null && original.GetType() == keyword.GetType()))
+                .Select(keyword => keyword.ToString()).Distinct().ToList();
 
         public void CaptureReferences()
         {
@@ -105,15 +119,16 @@ namespace MoveCute
                     image.preserveAspect = true;
                     icons.Add(image);
                 }
-                float size = Mathf.Min(34, 118f / Mathf.Max(1, moves.Count));
                 for (int i = 0; i < icons.Count; i++)
                 {
                     var image = icons[i];
                     image.gameObject.SetActive(i < moves.Count);
                     if (i >= moves.Count) continue;
                     image.sprite = directions[(int)moves[i]];
-                    image.rectTransform.sizeDelta = Vector2.one * size;
-                    image.rectTransform.anchoredPosition = new Vector2(4 + i * size, -4);
+                    image.rectTransform.sizeDelta = Vector2.one * DirectionSize;
+                    image.rectTransform.anchoredPosition = new Vector2(
+                        DirectionInset + i % DirectionColumns * (DirectionSize + DirectionGap),
+                        -DirectionInset - i / DirectionColumns * (DirectionSize + DirectionGap));
                 }
             }
             // 이동 배열이 같아도 유물·잠금 상태는 달라질 수 있다. 풀에서 재사용할 때 색도 복구한다.
@@ -126,6 +141,75 @@ namespace MoveCute
             }
             SetFreeFrame(showFreeFrame);
             SetTarget(selected);
+            RenderAddedKeywords();
+            RenderRarity();
+        }
+
+        void RenderRarity()
+        {
+            if (!rarityStrip)
+            {
+                rarityStrip = new GameObject("RarityStrip", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                var rect = rarityStrip.rectTransform;
+                rect.SetParent(transform, false);
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.right;
+                rect.pivot = new Vector2(0.5f, 0);
+                rect.anchoredPosition = Vector2.zero;
+                rect.sizeDelta = new Vector2(0, 4f);
+                rarityStrip.raycastTarget = false;
+            }
+            rarityStrip.gameObject.SetActive(card != null);
+            if (card == null) return;
+            rarityStrip.color = card.Data.rarity switch
+            {
+                Rarity.Common => new Color32(76, 175, 80, 255),
+                Rarity.Uncommon => new Color32(33, 150, 243, 255),
+                Rarity.Rare => new Color32(156, 39, 176, 255),
+                _ => new Color32(128, 128, 128, 255)
+            };
+        }
+
+        void RenderAddedKeywords()
+        {
+            var keys = card != null ? AddedKeywordKeys(card) : new List<string>();
+            for (int i = 0; i < keys.Count; i++)
+            {
+                if (i == keywordIcons.Count)
+                {
+                    var icon = new GameObject("AddedKeyword", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    icon.rectTransform.SetParent(transform, false);
+                    icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = icon.rectTransform.pivot = Vector2.right;
+                    icon.rectTransform.sizeDelta = Vector2.one * DirectionSize;
+                    icon.color = new Color(0.87f, 0.92f, 0.98f);
+                    var label = new GameObject("Label", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
+                    label.rectTransform.SetParent(icon.transform, false);
+                    label.rectTransform.anchorMin = Vector2.zero;
+                    label.rectTransform.anchorMax = Vector2.one;
+                    label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+                    label.fontSize = 18;
+                    label.fontStyle = FontStyle.Bold;
+                    label.alignment = TextAnchor.MiddleCenter;
+                    label.color = new Color(0.10f, 0.16f, 0.23f);
+                    label.raycastTarget = false;
+                    icon.gameObject.AddComponent<BattleScreenPointer>().Exit = () => KeywordExited?.Invoke();
+                    keywordIcons.Add(icon);
+                }
+                var image = keywordIcons[i];
+                string key = keys[i];
+                image.rectTransform.anchoredPosition = new Vector2(
+                    -DirectionInset - i % DirectionColumns * (DirectionSize + DirectionGap),
+                    DirectionInset + 8f + i / DirectionColumns * (DirectionSize + DirectionGap));
+                var text = image.GetComponentInChildren<Text>(true);
+                text.font = KeywordFont;
+                string name = KeywordName?.Invoke(key) ?? key;
+                text.text = System.Globalization.StringInfo.GetNextTextElement(name);
+                image.GetComponent<BattleScreenPointer>().Enter = () => KeywordEntered?.Invoke(key, image.rectTransform);
+                image.gameObject.SetActive(true);
+                image.transform.SetAsLastSibling();
+            }
+            for (int i = keys.Count; i < keywordIcons.Count; i++)
+                keywordIcons[i].gameObject.SetActive(false);
         }
 
         void SetFreeFrame(bool visible)

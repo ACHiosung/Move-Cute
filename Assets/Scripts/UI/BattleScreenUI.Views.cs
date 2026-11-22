@@ -30,6 +30,7 @@ namespace MoveCute
 
         void InitializeViews()
         {
+            enemies.anchoredPosition += Vector2.left * 32f;
             // One-time lookups for the root-level layout; card/target parts are serialized in each view.
             detailPanelRoot = detailName.transform.parent;
             playerPanelRoot = goldBalance.transform.parent;
@@ -51,6 +52,7 @@ namespace MoveCute
             trashText = trashButton.GetComponentInChildren<Text>(true);
             trashText.fontSize = trashText.resizeTextMaxSize = 18;
             closeBrowserButton = modal.Find("Close").GetComponent<Button>();
+            ConfigureBrowserCloseButton(closeBrowserButton);
             backgroundObject = transform.Find("Background").gameObject;
             cardPoolRoot = (RectTransform)transform.Find("Templates");
             backdropRoots = new[] { backgroundObject.transform, board.transform.parent,
@@ -179,6 +181,10 @@ namespace MoveCute
             if (!cardViews.TryGetValue(button, out var view))
             {
                 view = button.GetComponent<BattleCardView>();
+                view.KeywordFont = screenFont;
+                view.KeywordName = T;
+                view.KeywordEntered = ShowKeyword;
+                view.KeywordExited = CloseKeyword;
                 cardViews.Add(button, view);
             }
             return view;

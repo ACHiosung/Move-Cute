@@ -47,6 +47,11 @@ namespace MoveCute
         static readonly Color Pickable = new(0.3f, 0.8f, 0.4f);
         static readonly Color Grayed = new(0.55f, 0.55f, 0.55f);
         static readonly Color ObstacleColor = new(0.5f, 0.38f, 0.25f);
+        static readonly Key[] HandShortcutKeys =
+        {
+            Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
+            Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0
+        };
 
         BattleManager M => BattleManager.Instance;
         BattleContext ctx;
@@ -80,9 +85,36 @@ namespace MoveCute
 
         void Update()
         {
-            if (ctx != null && (Mouse.current?.rightButton.wasPressedThisFrame == true ||
-                                Keyboard.current?.escapeKey.wasPressedThisFrame == true))
+            if (ctx == null) return;
+            var keyboard = Keyboard.current;
+            if (Mouse.current?.rightButton.wasPressedThisFrame == true ||
+                keyboard?.escapeKey.wasPressedThisFrame == true)
+            {
                 Back();
+                return;
+            }
+            if (keyboard == null || rewardScreenActive || modal.gameObject.activeSelf ||
+                resultPanel.activeSelf || listPick != null) return;
+            for (int i = 0; i < HandShortcutKeys.Length; i++)
+            {
+                if (!keyboard[HandShortcutKeys[i]].wasPressedThisFrame) continue;
+                if (i >= ctx.Piles.Hand.Count) return;
+                var card = ctx.Piles.Hand[i];
+                if (selectedCard == card)
+                {
+                    CloseKeyword();
+                    Back();
+                    return;
+                }
+                if (pick != null && !pickable.Contains(card))
+                {
+                    if (selectedCard == null) return;
+                    CloseKeyword();
+                    Back();
+                }
+                OnCardClick(card);
+                return;
+            }
         }
 
         void OnDestroy() => Loc.LanguageChanged -= RefreshAll;
@@ -137,16 +169,16 @@ namespace MoveCute
         // ════════════ IPlayerInput ════════════
 
         public async Awaitable<Unit> PickUnit(IReadOnlyList<Unit> candidates, string message) =>
-            (Unit)await Pick(candidates, message);
+            (Unit)await Pick(candidates);
 
         public async Awaitable<Vector2Int?> PickTile(IReadOnlyList<Vector2Int> candidates, string message) =>
-            await Pick(candidates.Cast<object>(), message) is Vector2Int v ? v : (Vector2Int?)null;
+            await Pick(candidates.Cast<object>()) is Vector2Int v ? v : (Vector2Int?)null;
 
         public async Awaitable<CardInstance> PickCard(IReadOnlyList<CardInstance> candidates, string message) =>
-            (CardInstance)await Pick(candidates, message);
+            (CardInstance)await Pick(candidates);
 
         /// <summary>후보를 테두리로 표시하고 클릭 또는 취소를 기다린다.</summary>
-        async Awaitable<object> Pick(IEnumerable<object> candidates, string message)
+        async Awaitable<object> Pick(IEnumerable<object> candidates)
         {
             var list = candidates.ToList();
             if (list.Count == 0) return null;
@@ -155,8 +187,6 @@ namespace MoveCute
             var source = new AwaitableCompletionSource<object>();
             pick = source;
             pickable = new HashSet<object>(list);
-            prompt.text = message;
-            promptRoot.SetActive(true);
             RefreshTargets();
             return await source.Awaitable;
         }

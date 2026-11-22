@@ -1,4 +1,7 @@
 energy|에너지|Energy
+MoveCuteBuffDesc|이동할 때마다 무작위 적에게 주저를 {stacks} 부여합니다. 이번 전투 동안 유지됩니다.|After each move, apply {stacks} Hesitation to a random enemy. Lasts for this battle.
+DemotivationBuffDesc|적에게 주저를 부여할 때마다 부여량 × {stacks}만큼 피해를 줍니다. 이번 전투 동안 유지됩니다.|Whenever you apply Hesitation to an enemy, deal damage equal to the amount × {stacks}. Lasts for this battle.
+HesitationBoostBuffDesc|적이 보유한 주저의 효과가 {percent}% 증가합니다. 이번 전투 동안 유지됩니다.|Hesitation on enemies is {percent}% more effective. Lasts for this battle.
 relicOn|켜짐 (클릭해서 끄기)|On (click to turn off)
 relicOff|꺼짐 (클릭해서 켜기)|Off (click to turn on)
 rewards|전투 보상|Battle rewards

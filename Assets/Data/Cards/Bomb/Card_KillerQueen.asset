@@ -16,9 +16,7 @@ MonoBehaviour:
   nameKey: card.killerqueen.name
   descKey: card.killerqueen.desc
   art: {fileID: 21300000, guid: dfff5edaf7f94114b8b004d52e31a76c, type: 3}
-  moves:
-  - 1
-  - 2
+  moves: 0100000002000000i
   cost: 1
   type: 2
   rarity: 2
@@ -29,10 +27,14 @@ MonoBehaviour:
   - rid: 3200383220001110703
   effects:
   - rid: 3200383220001110711
-  targetKinds: 7
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 3200383220001110701
       type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
       data: 

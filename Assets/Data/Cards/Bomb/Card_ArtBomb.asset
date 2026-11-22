@@ -16,10 +16,7 @@ MonoBehaviour:
   nameKey: card.artbomb.name
   descKey: card.artbomb.desc
   art: {fileID: 21300000, guid: 3b1669c45d2c4c30b470ebb0e9918e44, type: 3}
-  moves:
-  - 0
-  - 1
-  - 1
+  moves: 000000000100000001000000i
   cost: 1
   type: 2
   rarity: 3
@@ -28,10 +25,14 @@ MonoBehaviour:
   - rid: 32003832200079701
   effects:
   - rid: 32003832200079711
-  targetKinds: 7
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 32003832200079701
       type: {class: Keyword_Bomb, ns: MoveCute, asm: Assembly-CSharp}
       data: 
