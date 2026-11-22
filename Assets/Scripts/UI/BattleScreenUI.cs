@@ -136,16 +136,16 @@ namespace MoveCute
         // ════════════ IPlayerInput ════════════
 
         public async Awaitable<Unit> PickUnit(IReadOnlyList<Unit> candidates, string message) =>
-            (Unit)await Pick(candidates, message);
+            (Unit)await Pick(candidates);
 
         public async Awaitable<Vector2Int?> PickTile(IReadOnlyList<Vector2Int> candidates, string message) =>
-            await Pick(candidates.Cast<object>(), message) is Vector2Int v ? v : (Vector2Int?)null;
+            await Pick(candidates.Cast<object>()) is Vector2Int v ? v : (Vector2Int?)null;
 
         public async Awaitable<CardInstance> PickCard(IReadOnlyList<CardInstance> candidates, string message) =>
-            (CardInstance)await Pick(candidates, message);
+            (CardInstance)await Pick(candidates);
 
         /// <summary>후보를 테두리로 표시하고 클릭 또는 취소를 기다린다.</summary>
-        async Awaitable<object> Pick(IEnumerable<object> candidates, string message)
+        async Awaitable<object> Pick(IEnumerable<object> candidates)
         {
             var list = candidates.ToList();
             if (list.Count == 0) return null;
@@ -154,8 +154,6 @@ namespace MoveCute
             var source = new AwaitableCompletionSource<object>();
             pick = source;
             pickable = new HashSet<object>(list);
-            prompt.text = message;
-            promptRoot.SetActive(true);
             RefreshTargets();
             return await source.Awaitable;
         }
@@ -357,7 +355,7 @@ namespace MoveCute
         public async Awaitable EnergyChanged(int energy)
         {
             // 즉시 발동하는 카드는 에너지 칸이 사라지기 전에 미리보기를 잠깐 보여준다.
-            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None or TargetType.SelfTile)
+            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target == TargetType.None)
                 await Awaitable.WaitForSecondsAsync(0.18f);
             RefreshHud();
             bool empty = energy <= 0;

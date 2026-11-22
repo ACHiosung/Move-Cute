@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace MoveCute
@@ -92,7 +91,10 @@ namespace MoveCute
             InitializeKeywords();
             backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
             playerMarker.GetComponent<Image>().raycastTarget = true;
-            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
+            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = () =>
+            {
+                if (ctx != null) OnTileClick(ctx.Player.Pos);
+            };
             BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.Config.teleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
@@ -110,15 +112,6 @@ namespace MoveCute
         void LateUpdate()
         {
             if (ctx == null) return;
-            var mouse = Mouse.current;
-            if (openKeyword != null && mouse != null && mouse.leftButton.wasReleasedThisFrame)
-            {
-                var position = mouse.position.ReadValue();
-                if (!RectTransformUtility.RectangleContainsScreenPoint(keywordPanel, position) &&
-                    !keywordButtons.Any(button => button.gameObject.activeInHierarchy &&
-                        RectTransformUtility.RectangleContainsScreenPoint((RectTransform)button.transform, position)))
-                    CloseKeyword();
-            }
             endTurnButton.interactable = M.CanInput && !teleportMode && !modal.gameObject.activeSelf;
             if (teleportMode && !M.CanInput) { teleportMode = false; RefreshTargets(); }
         }
@@ -271,8 +264,9 @@ namespace MoveCute
                 label.text = T(key);
                 var rect = (RectTransform)button.transform;
                 rect.sizeDelta = new Vector2(buttonWidth, KeywordHeight);
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => ToggleKeyword(key, rect));
+                var pointer = button.GetComponent<BattleScreenPointer>();
+                pointer.Enter = () => ShowKeyword(key, rect);
+                pointer.Exit = CloseKeyword;
                 int row = i / KeywordsPerRow;
                 int rowEnd = Mathf.Min(keys.Count, (row + 1) * KeywordsPerRow);
                 rect.anchoredPosition = new Vector2(
@@ -299,6 +293,7 @@ namespace MoveCute
             image.color = Pale;
             var button = image.GetComponent<Button>();
             button.targetGraphic = image;
+            button.gameObject.AddComponent<BattleScreenPointer>();
             var label = new GameObject("Label", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
             label.transform.SetParent(button.transform, false);
             label.rectTransform.anchorMin = Vector2.zero;
@@ -324,9 +319,8 @@ namespace MoveCute
                 new Vector3(button.rect.xMax + 8, button.rect.center.y + keywordPanel.rect.height / 2));
         }
 
-        void ToggleKeyword(string key, RectTransform button)
+        void ShowKeyword(string key, RectTransform button)
         {
-            if (openKeyword == key) { CloseKeyword(); return; }
             openKeyword = key;
             keywordText.text = T(key + "Desc");
             keywordPanel.gameObject.SetActive(true);

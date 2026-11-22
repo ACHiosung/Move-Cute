@@ -100,7 +100,8 @@ namespace MoveCute
                     return unit == null ? null : (EffectTarget?)EffectTarget.OfUnit(unit);
 
                 case TargetType.SelfTile:
-                    return EffectTarget.OfTile(ctx.Player.Pos);
+                    var selfPos = await ctx.ChooseTile(new[] { ctx.Player.Pos }, $"{card}: 현재 칸 선택");
+                    return selfPos.HasValue ? EffectTarget.OfTile(selfPos.Value) : null;
 
                 case TargetType.OtherTile:
                     var tiles = card.TargetTiles(ctx).ToList();
