@@ -52,6 +52,7 @@ namespace MoveCute
             trashText = trashButton.GetComponentInChildren<Text>(true);
             trashText.fontSize = trashText.resizeTextMaxSize = 18;
             closeBrowserButton = modal.Find("Close").GetComponent<Button>();
+            ConfigureBrowserCloseButton(closeBrowserButton);
             backgroundObject = transform.Find("Background").gameObject;
             cardPoolRoot = (RectTransform)transform.Find("Templates");
             backdropRoots = new[] { backgroundObject.transform, board.transform.parent,

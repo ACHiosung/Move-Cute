@@ -8,6 +8,42 @@ namespace MoveCute
     {
         IEnumerable<CardInstance> openPile;
 
+        void ConfigureBrowserCloseButton(Button button)
+        {
+            var rect = (RectTransform)button.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one;
+            rect.anchoredPosition = new Vector2(-12f, -12f);
+            rect.sizeDelta = new Vector2(50f, 50f);
+            button.image.color = Color.clear;
+            var label = button.GetComponentInChildren<Text>(true);
+            label.text = "×";
+            label.color = modalTitle.color;
+            label.fontSize = 32;
+            label.resizeTextForBestFit = false;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            label.rectTransform.anchorMin = Vector2.zero;
+            label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+
+            if (rect.Find("Border") != null) return;
+            Border(Vector2.zero, Vector2.right, new Vector2(0, 2));
+            Border(Vector2.up, Vector2.one, new Vector2(0, 2));
+            Border(Vector2.zero, Vector2.up, new Vector2(2, 0));
+            Border(Vector2.right, Vector2.one, new Vector2(2, 0));
+
+            void Border(Vector2 min, Vector2 max, Vector2 size)
+            {
+                var edge = new GameObject("Border", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                edge.rectTransform.SetParent(rect, false);
+                edge.rectTransform.anchorMin = min;
+                edge.rectTransform.anchorMax = max;
+                edge.rectTransform.sizeDelta = size;
+                edge.color = modalTitle.color;
+                edge.raycastTarget = false;
+            }
+        }
+
         void OpenCards(string title, IEnumerable<CardInstance> pile, bool hideOrder = false)
         {
             if (modal.gameObject.activeSelf && ReferenceEquals(openPile, pile))

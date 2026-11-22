@@ -218,10 +218,15 @@ namespace MoveCute
             detailArt.sprite = ArtFor(card);
             detailArt.color = detailArt.sprite != null ? Color.white : new Color(0.37f, 0.57f, 0.76f);
             detailName.text = card.Data.DisplayName;
-            detailMeta.text = $"{T(card.Data.type.ToString())} · {T(card.Data.rarity.ToString())}";
+            detailMeta.text = "";
             detailMoves.supportRichText = true;
             detailMoves.text = CardMoveDisplay.FormatArrows(card, MoveDisplayContext);
             detailMoves.gameObject.SetActive(!card.IsUnlocked && card.Moves.Count > 0);
+            detailMoves.alignment = TextAnchor.MiddleCenter;
+            var artRect = detailArt.rectTransform;
+            detailMoves.rectTransform.pivot = new Vector2(0, 0.5f);
+            detailMoves.rectTransform.position = artRect.TransformPoint(
+                new Vector3(artRect.rect.xMax + 9f, artRect.rect.center.y));
             detailDescription.text = card.Data.Description;
             CardMoveDisplay.GetRange(card, MoveDisplayContext, out _, out int moveCount);
             if (card.IsLocked && moveCount < card.Moves.Count)

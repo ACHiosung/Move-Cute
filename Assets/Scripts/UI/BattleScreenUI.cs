@@ -47,6 +47,11 @@ namespace MoveCute
         static readonly Color Pickable = new(0.3f, 0.8f, 0.4f);
         static readonly Color Grayed = new(0.55f, 0.55f, 0.55f);
         static readonly Color ObstacleColor = new(0.5f, 0.38f, 0.25f);
+        static readonly Key[] HandShortcutKeys =
+        {
+            Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
+            Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0
+        };
 
         BattleManager M => BattleManager.Instance;
         BattleContext ctx;
@@ -80,9 +85,25 @@ namespace MoveCute
 
         void Update()
         {
-            if (ctx != null && (Mouse.current?.rightButton.wasPressedThisFrame == true ||
-                                Keyboard.current?.escapeKey.wasPressedThisFrame == true))
+            if (ctx == null) return;
+            var keyboard = Keyboard.current;
+            if (Mouse.current?.rightButton.wasPressedThisFrame == true ||
+                keyboard?.escapeKey.wasPressedThisFrame == true)
+            {
                 Back();
+                return;
+            }
+            if (keyboard == null || rewardScreenActive || modal.gameObject.activeSelf ||
+                resultPanel.activeSelf || listPick != null) return;
+            for (int i = 0; i < HandShortcutKeys.Length; i++)
+            {
+                if (!keyboard[HandShortcutKeys[i]].wasPressedThisFrame) continue;
+                if (i >= ctx.Piles.Hand.Count) return;
+                var card = ctx.Piles.Hand[i];
+                if (pick != null && !pickable.Contains(card)) return;
+                OnCardClick(card);
+                return;
+            }
         }
 
         void OnDestroy() => Loc.LanguageChanged -= RefreshAll;
