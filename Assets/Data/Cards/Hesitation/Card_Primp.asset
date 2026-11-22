@@ -16,10 +16,7 @@ MonoBehaviour:
   nameKey: card.primp.name
   descKey: card.primp.desc
   art: {fileID: 21300000, guid: 43a91a750f4f4a2191de14e2374e21d0, type: 3}
-  moves:
-  - 3
-  - 2
-  - 1
+  moves: 030000000200000001000000i
   cost: 1
   type: 2
   rarity: 2
@@ -28,10 +25,14 @@ MonoBehaviour:
   - rid: 320038322000511201
   effects:
   - rid: 320038322000511211
-  targetKinds: 7
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 320038322000511201
       type: {class: Keyword_Hesitation, ns: MoveCute, asm: Assembly-CSharp}
       data: 

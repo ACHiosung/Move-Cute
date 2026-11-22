@@ -16,8 +16,7 @@ MonoBehaviour:
   nameKey: card.strike.name
   descKey: card.strike.desc
   art: {fileID: 21300000, guid: 2120798a920a4895a8d85855b7788321, type: 3}
-  moves:
-  - 3
+  moves: 03000000i
   cost: 1
   type: 1
   rarity: 1
@@ -27,10 +26,14 @@ MonoBehaviour:
   effects:
   - rid: 320038322000611511
   - rid: 320038322000611512
-  targetKinds: 7
+  behavior:
+    rid: -2
+  targetKinds: -1
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 320038322000611501
       type: {class: Keyword_Hesitation, ns: MoveCute, asm: Assembly-CSharp}
       data: 
