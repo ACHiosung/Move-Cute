@@ -251,8 +251,7 @@ namespace MoveCute
 
         void RefreshKeywords(CardInstance card)
         {
-            var keys = card.Keywords.Select(keyword => keyword.ToString()).Distinct().ToList();
-            if (!card.Has<Keyword_Bomb>() && card.Data.Description.Contains(T("bomb"))) keys.Add("bomb");
+            var keys = BattleCardView.AddedKeywordKeys(card);
             if (openKeyword != null && !keys.Contains(openKeyword)) CloseKeyword();
             float buttonWidth = (keywordButtonsRoot.rect.width - (KeywordsPerRow - 1) * KeywordGap) / KeywordsPerRow;
             for (int i = 0; i < keys.Count; i++)
