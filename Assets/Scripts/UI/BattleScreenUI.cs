@@ -103,13 +103,14 @@ namespace MoveCute
                 ctx.Teleport(pos).Forget();
                 return;
             }
-            Back();
+            ClickAway();
         }
 
         void OnCardClick(CardInstance card)
         {
             if (TryPick(card)) return;
-            if (pick != null) Back();
+            if (pick != null && card == selectedCard) { CloseKeyword(); Back(); return; }   // 대상 지정 중인 카드를 다시 누르면 취소
+            if (pick != null) return;   // 대상 지정 중에는 다른 카드를 눌러도 무시한다
             if (modal.gameObject.activeSelf || !M.CanInput) return;
             teleportMode = false;
             selectedCard = card;
@@ -419,7 +420,7 @@ namespace MoveCute
             {
                 var view = Instantiate(enemyPrefab, enemies);
                 view.gameObject.SetActive(true);
-                view.onClick.AddListener(() => { if (!TryPick(e)) Back(); });
+                view.onClick.AddListener(() => { if (!TryPick(e)) ClickAway(); });
                 enemyViews[e] = view;
                 unitViews.Add(view, view.GetComponent<BattleEnemyView>());
                 BindEnemy(view, e);

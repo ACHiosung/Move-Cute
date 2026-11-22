@@ -14,6 +14,7 @@ namespace MoveCute
         {
             if (IsOver || enemy == null) return;
             int before = enemy.Hp;
+            if (amount < 0) MoraleDealt += Mathf.Min(before, -amount);   // 깎은 사기 기록 (HP 회복 보상용, 전투 흐름)
             enemy.Hp = Mathf.Max(0, enemy.Hp + amount);
             enemy.MaxHp = Mathf.Max(enemy.MaxHp, enemy.Hp);
             Log($"{enemy} 사기 {(amount >= 0 ? "+" : "")}{amount} → {enemy.Hp}");
@@ -59,6 +60,7 @@ namespace MoveCute
 
             int amount = CalculateDamage(src, target, damage);
             if (amount <= 0) return;
+            if (target is Enemy) MoraleDealt += Mathf.Min(target.Hp, amount);   // 깎은 사기 기록 (HP 회복 보상용, 전투 흐름)
             target.Hp = Mathf.Max(0, target.Hp - amount);
             Log($"{src} → {target} 피해 {amount} (남은 {target.Hp})");
             await Presenter.Damaged(target, amount);

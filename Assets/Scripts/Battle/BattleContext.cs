@@ -11,7 +11,8 @@ namespace MoveCute
         public int handSize = 6;
         [Tooltip("제한 턴 수. 추후 적/전투별 데이터로 이동 가능")]
         public int turnLimit = 3;
-        public int teleportHpCost = 3;
+        [Tooltip("순간이동 HP 소모 = 최대 HP의 이 비율(%), 소수점 내림")]
+        public int teleportHpPercent = 10;
         [Tooltip("턴당 순간이동 횟수. -1 = 무제한 (미정)")]
         public int teleportLimitPerTurn = -1;
         public BattleRewardPolicy rewards = new();
@@ -189,7 +190,7 @@ namespace MoveCute
                 TeleportsThisTurn++;
                 Energy--;
                 await Presenter.EnergyChanged(Energy);
-                int cost = Config.teleportHpCost;
+                int cost = TeleportHpCost;
                 Player.Hp -= cost;
                 Log($"순간이동 → {pos} (HP -{cost})");
                 if (Player.Hp <= 0) { Player.Hp = 0; await EndBattle(false); return true; }
@@ -334,5 +335,16 @@ namespace MoveCute
             Logs.Add(msg);
             Debug.Log($"[Battle] {msg}");
         }
+
+        // ════════════════════ 순간이동 비용 · 깎은 사기 ════════════════════
+
+        /// <summary>순간이동 HP 소모: 최대 HP × teleportHpPercent%, 소수점 내림 (최대 HP 11 → 1, 51 → 5).</summary>
+        public int TeleportHpCost => Player.MaxHp * Config.teleportHpPercent / 100;
+
+        /// <summary>
+        /// 이 전투에서 적 사기를 실제로 깎은 양의 합 (피해·사기 감소 효과 모두). 적이 회복해도 줄지 않는다.
+        /// 남은 사기보다 큰 피해는 남은 만큼만 센다. ChangeMorale·DealDamage(Units.cs)에서 더한다.
+        /// </summary>
+        public int MoraleDealt { get; private set; }
     }
 }

@@ -8,7 +8,8 @@ namespace MoveCute
     public sealed class BattleRewardPolicy
     {
         [Min(0)] public int gold = 10;
-        [Min(0)] public int healing = 2;
+        [Tooltip("HP 회복 보상 = 이 전투에서 적 사기를 깎은 양(피해 누적)의 이 비율(%), 소수점 내림. 최대 HP를 넘으면 최대 HP도 늘어남")]
+        [Min(0)] public int healingPercentOfMorale = 10;
         [Tooltip("Empty uses the run deck's card types. A configured pool is independent of the UI.")]
         public List<CardData> cardPool = new();
     }
@@ -43,7 +44,7 @@ namespace MoveCute
             var policy = Config.rewards ?? new BattleRewardPolicy();
             IEnumerable<CardData> pool = policy.cardPool != null && policy.cardPool.Count > 0
                 ? policy.cardPool : Run.Deck.Select(card => card.Data);
-            return PrepareRewards(pool, policy.gold, policy.healing);
+            return PrepareRewards(pool, policy.gold, MoraleDealt * policy.healingPercentOfMorale / 100);
         }
 
         // Generated once per battle. Reopening the chest never rerolls candidates.
@@ -70,8 +71,11 @@ namespace MoveCute
         {
             if (!CanClaimReward || Rewards.HealingClaimed) return AwaitableUtil.FromResult(false);
             Rewards.HealingClaimed = true;
-            Run.Hp = Mathf.Min(Run.MaxHp, Run.Hp + Rewards.Healing);
+            // 최대 HP를 넘는 만큼은 최대 HP도 함께 늘어난다 (HP 49/50 + 2 -> 51/51)
+            Run.Hp += Rewards.Healing;
+            Run.MaxHp = Mathf.Max(Run.MaxHp, Run.Hp);
             Player.Hp = Run.Hp;
+            Player.MaxHp = Run.MaxHp;
             return AwaitableUtil.FromResult(true);
         }
 
