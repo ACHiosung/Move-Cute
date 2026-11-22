@@ -393,6 +393,7 @@ namespace MoveCute
 
         void RefreshScreenHud()
         {
+            RefreshBattleBuffs();
             bool languageChanged = hudLanguage != Loc.Language;
             hudLanguage = Loc.Language;
             if (shownGold != ctx.Run.Gold)

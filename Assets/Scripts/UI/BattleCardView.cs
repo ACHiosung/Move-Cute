@@ -21,6 +21,7 @@ namespace MoveCute
         readonly List<Image> keywordIcons = new();
         readonly List<Direction> displayedMoves = new();
         GameObject freeFrame;
+        Image rarityStrip;
         CardInstance card;
         Action<CardInstance> clicked;
         Action<Button, CardInstance> entered;
@@ -141,6 +142,32 @@ namespace MoveCute
             SetFreeFrame(showFreeFrame);
             SetTarget(selected);
             RenderAddedKeywords();
+            RenderRarity();
+        }
+
+        void RenderRarity()
+        {
+            if (!rarityStrip)
+            {
+                rarityStrip = new GameObject("RarityStrip", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                var rect = rarityStrip.rectTransform;
+                rect.SetParent(transform, false);
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.right;
+                rect.pivot = new Vector2(0.5f, 0);
+                rect.anchoredPosition = Vector2.zero;
+                rect.sizeDelta = new Vector2(0, 4f);
+                rarityStrip.raycastTarget = false;
+            }
+            rarityStrip.gameObject.SetActive(card != null);
+            if (card == null) return;
+            rarityStrip.color = card.Data.rarity switch
+            {
+                Rarity.Common => new Color32(76, 175, 80, 255),
+                Rarity.Uncommon => new Color32(33, 150, 243, 255),
+                Rarity.Rare => new Color32(156, 39, 176, 255),
+                _ => new Color32(128, 128, 128, 255)
+            };
         }
 
         void RenderAddedKeywords()
@@ -172,7 +199,7 @@ namespace MoveCute
                 string key = keys[i];
                 image.rectTransform.anchoredPosition = new Vector2(
                     -DirectionInset - i % DirectionColumns * (DirectionSize + DirectionGap),
-                    DirectionInset + i / DirectionColumns * (DirectionSize + DirectionGap));
+                    DirectionInset + 8f + i / DirectionColumns * (DirectionSize + DirectionGap));
                 var text = image.GetComponentInChildren<Text>(true);
                 text.font = KeywordFont;
                 string name = KeywordName?.Invoke(key) ?? key;
