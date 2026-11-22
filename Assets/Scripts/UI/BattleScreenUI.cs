@@ -100,7 +100,18 @@ namespace MoveCute
                 if (!keyboard[HandShortcutKeys[i]].wasPressedThisFrame) continue;
                 if (i >= ctx.Piles.Hand.Count) return;
                 var card = ctx.Piles.Hand[i];
-                if (pick != null && !pickable.Contains(card)) return;
+                if (selectedCard == card)
+                {
+                    CloseKeyword();
+                    Back();
+                    return;
+                }
+                if (pick != null && !pickable.Contains(card))
+                {
+                    if (selectedCard == null) return;
+                    CloseKeyword();
+                    Back();
+                }
                 OnCardClick(card);
                 return;
             }
@@ -376,7 +387,7 @@ namespace MoveCute
         public async Awaitable EnergyChanged(int energy)
         {
             // 즉시 발동하는 카드는 에너지 칸이 사라지기 전에 미리보기를 잠깐 보여준다.
-            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target == TargetType.None)
+            if (!ctx.CanAct && shownEnergy > energy && energyPreviewCard?.Data.target is TargetType.None or TargetType.SelfTile)
                 await Awaitable.WaitForSecondsAsync(0.18f);
             RefreshHud();
             bool empty = energy <= 0;

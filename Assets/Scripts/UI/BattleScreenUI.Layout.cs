@@ -91,10 +91,7 @@ namespace MoveCute
             InitializeKeywords();
             backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
             playerMarker.GetComponent<Image>().raycastTarget = true;
-            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = () =>
-            {
-                if (ctx != null) OnTileClick(ctx.Player.Pos);
-            };
+            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = Back;
             BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.Config.teleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
