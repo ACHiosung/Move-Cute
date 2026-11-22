@@ -24,6 +24,11 @@ namespace MoveCute
         public Tile Get(Vector2Int p) => InBounds(p) ? tiles[p.x, p.y] : null;
         public bool IsPassable(Vector2Int p) => InBounds(p) && tiles[p.x, p.y].Passable;
 
+        /// <summary>보드 밖 좌표를 반대편으로 감은 좌표 (경계 이동: 위끝 너머 → 아래끝). 보드 안 좌표는 그대로.</summary>
+        public Vector2Int Wrap(Vector2Int p) => new(Mod(p.x), Mod(p.y));
+
+        int Mod(int v) => (v % Size + Size) % Size;
+
         public IEnumerable<Tile> AllTiles()
         {
             foreach (var t in tiles) yield return t;

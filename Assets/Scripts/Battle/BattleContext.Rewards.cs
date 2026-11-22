@@ -54,9 +54,19 @@ namespace MoveCute
             {
                 var candidates = pool.Where(c => c != null).Distinct().ToList();
                 Rng.Shuffle(candidates);
-                Rewards = new BattleRewards(gold, healing, candidates.Take(3).ToList());
+                Rewards = new BattleRewards(gold, RewardHealingWithRelics(healing), candidates.Take(3).ToList());
             }
             return AwaitableUtil.Completed();
+        }
+
+        /// <summary>회복 보상에 켜진 유물의 증가 %를 더해 곱한다 (수상한 송곳니 +10%). 소수점 내림.</summary>
+        int RewardHealingWithRelics(int healing)
+        {
+            int percent = Run.Relics.Where(r => r.Enabled).OfType<RewardHealingBonusRelic>().Sum(r => r.Percent);
+            if (percent <= 0 || healing <= 0) return healing;
+            int boosted = (int)decimal.Floor(healing * (1m + percent / 100m));
+            Log($"회복 보상 {healing} → {boosted} (유물 +{percent}%)");
+            return boosted;
         }
 
         public Awaitable<bool> ClaimRewardGold()
@@ -65,6 +75,21 @@ namespace MoveCute
             Rewards.GoldClaimed = true;
             Run.Gold += Rewards.Gold;
             return AwaitableUtil.FromResult(true);
+        }
+
+        /// <summary>
+        /// 이긴 전투가 끝난 뒤 런 HP 회복 (자가수리키트 등 유물). 최대 HP를 넘지 않는다.
+        /// 전투가 끝난 뒤(BattleEnd 이벤트)에 부르는 함수라 IsOver여도 동작한다. 진 전투에서는 아무것도 하지 않는다.
+        /// </summary>
+        public async Awaitable HealAfterBattle(EffectSource src, int amount)
+        {
+            if (Phase != BattlePhase.Won || amount <= 0) return;
+            int before = Run.Hp;
+            Run.Hp = Mathf.Min(Run.MaxHp, Run.Hp + amount);
+            Player.Hp = Run.Hp;
+            int healed = Run.Hp - before;
+            Log($"{src}: HP {healed} 회복 (HP {Run.Hp})");
+            if (healed > 0) await Presenter.PlayerHealed(healed);
         }
 
         public Awaitable<bool> ClaimRewardHealing()

@@ -29,12 +29,21 @@ namespace MoveCute
         /// <summary>amount = 실제 변화량 (음수 가능).</summary>
         Awaitable MoraleChanged(Enemy enemy, int amount) => AwaitableUtil.Completed();
         Awaitable StatusAdded(Unit target, string statusId, int stacks) => AwaitableUtil.Completed();
+        /// <summary>플레이어 HP가 회복된 뒤 (전투 후 회복 유물 등). amount = 실제 회복량.</summary>
+        Awaitable PlayerHealed(int amount) => AwaitableUtil.Completed();
 
         // ── 보드 ──
         Awaitable PlayerStepped(Vector2Int from, Vector2Int to) => AwaitableUtil.Completed();
+        /// <summary>
+        /// 경계를 넘어 반대편 끝 칸으로 한 칸 이동한 뒤 (세계의 경계). dir = 이동 방향 (위끝에서 ↑ → 아래끝).
+        /// 따로 구현하지 않으면 PlayerStepped와 같은 연출을 쓴다.
+        /// </summary>
+        Awaitable PlayerWrapped(Vector2Int from, Vector2Int to, Direction dir) => PlayerStepped(from, to);
         Awaitable PlayerTeleported(Vector2Int from, Vector2Int to, int hpCost) => AwaitableUtil.Completed();
         Awaitable ObstaclePlaced(Obstacle obstacle) => AwaitableUtil.Completed();
         Awaitable ObstacleDestroyed(Obstacle obstacle) => AwaitableUtil.Completed();
+        /// <summary>두 칸의 내용물(장애물·플레이어)이 맞바뀐 뒤 (재배치). 플레이어가 옮겨졌으면 ctx.Player.Pos가 새 칸이다.</summary>
+        Awaitable TilesSwapped(Vector2Int a, Vector2Int b) => AwaitableUtil.Completed();
         Awaitable TileEffectAdded(Vector2Int pos, TileEffect effect) => AwaitableUtil.Completed();
         Awaitable TileEffectRemoved(Vector2Int pos, TileEffect effect) => AwaitableUtil.Completed();
         /// <summary>타일 효과 발동 직전.</summary>

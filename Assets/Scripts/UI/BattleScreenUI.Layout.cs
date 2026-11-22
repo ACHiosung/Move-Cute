@@ -91,7 +91,12 @@ namespace MoveCute
             InitializeKeywords();
             backgroundObject.AddComponent<BattleScreenPointer>().LeftClick = ClickAway;
             playerMarker.GetComponent<Image>().raycastTarget = true;
-            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = ClickAway;
+            // 플레이어 그림이 내 칸을 덮고 있으므로, 내 칸을 고르는 중이면(SelfTile 카드) 그 칸을 고른 것으로 처리한다.
+            // 그 밖에는 빈 곳 클릭과 같다 (대상 지정 중이면 지정을 유지)
+            playerMarker.gameObject.AddComponent<BattleScreenPointer>().LeftClick = () =>
+            {
+                if (ctx == null || !TryPick(ctx.Player.Pos)) ClickAway();
+            };
             BindTooltip(energyButton, () => $"{T("energyHelp")}\nHP −{ctx?.TeleportHpCost}", () => T("energy"));
             BindTooltip(endTurnButton, () => T("turnHelp"), () => T("turnEnd"));
             BindTooltip(drawButton, () => T("drawHelp"), () => T("draw"));
@@ -109,6 +114,7 @@ namespace MoveCute
             if (ctx == null) return;
             endTurnButton.interactable = M.CanInput && !teleportMode && !modal.gameObject.activeSelf;
             if (teleportMode && !M.CanInput) { teleportMode = false; RefreshTargets(); }
+            RefreshRelicStates();
         }
 
         void BeginTeleport()
@@ -411,7 +417,8 @@ namespace MoveCute
             }
             RefreshEnergyStrip();
             if (languageChanged) endTurnLabel.text = T("turnEnd");
-            int turns = ctx.IsOver ? 0 : Mathf.Max(0, ctx.Config.turnLimit - ctx.Turn + 1);
+            // 첫 턴 전(Turn 0, 빙고판으로 시작 칸을 고르는 동안)에도 제한 턴을 넘겨 보이지 않게 자른다
+            int turns = ctx.IsOver ? 0 : Mathf.Clamp(ctx.Config.turnLimit - ctx.Turn + 1, 0, ctx.Config.turnLimit);
             if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit)
             {
                 shownTurns = turns; shownTurnLimit = ctx.Config.turnLimit;
@@ -503,14 +510,43 @@ namespace MoveCute
             var pos = ctx.Player.Pos;
             foreach (var direction in card.Moves)
             {
-                var next = pos + direction.ToOffset();
+                var next = ctx.StepTarget(pos, direction);   // 경계 이동이 켜져 있으면 반대편 끝 칸
                 if (!ctx.Board.IsPassable(next)) break;
-                previewView.AddSegment(tiles[pos].transform.position, tiles[next].transform.position);
+                AddPathSegment(pos, next, direction);
                 pos = next;
             }
             ghost.gameObject.SetActive(pos != ctx.Player.Pos);
             ghost.rectTransform.position = tiles[pos].transform.position;
             ghost.transform.SetAsFirstSibling();
+        }
+
+        /// <summary>경로 한 칸. 경계를 넘는 칸은 보드를 가로지르지 않게, 나가는 반 칸과 반대편에서 들어오는 반 칸으로 나눠 그린다.</summary>
+        void AddPathSegment(Vector2Int from, Vector2Int to, Direction direction)
+        {
+            Vector3 a = tiles[from].transform.position, b = tiles[to].transform.position;
+            if (to == from + direction.ToOffset())
+            {
+                previewView.AddSegment(a, b);
+                return;
+            }
+            var half = TileStep(direction) * 0.5f;
+            previewView.AddSegment(a, a + half);
+            previewView.AddSegment(b - half, b);
+        }
+
+        /// <summary>direction 방향으로 한 칸 갈 때의 화면 위치 차이 (보드 칸 간격).</summary>
+        Vector3 TileStep(Direction direction)
+        {
+            var origin = tiles[Vector2Int.zero].transform.position;
+            var right = tiles[Vector2Int.right].transform.position - origin;
+            var up = tiles[Vector2Int.up].transform.position - origin;
+            return direction switch
+            {
+                Direction.Left => -right,
+                Direction.Up => up,
+                Direction.Right => right,
+                _ => -up,
+            };
         }
 
         /// <summary>

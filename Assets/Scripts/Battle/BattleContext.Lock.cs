@@ -44,6 +44,8 @@ namespace MoveCute
             if (added || stateChanged || keyword.isUnlocked) lockMovements.Remove(card);
             card.IsGrayed = card.IsLocked || !card.CanPlayFully(this);
             if (changed) await Presenter.CardChanged(card);
+            // 해금이 모두 지나가는 곳이라 여기서 한 번만 알린다 (잠금 키워드가 없던 카드에 해금을 붙여도 해금으로 본다)
+            if (keyword.isUnlocked && !wasUnlocked) await Events.CardUnlocked.Raise(card);
         }
 
         // MovePlayer 성공 시에만 호출한다. HP를 소모하는 Teleport는 이 경로를 지나지 않는다.
@@ -106,7 +108,7 @@ namespace MoveCute
             if (!card.IsLocked || count == 0) return;
             // 꺼진 유물(Relic.Enabled, TempRelicBar)은 읽는 쪽에서 뺀다
             long first = Run.Relics.OfType<IgnoreFirstLockMovesRelic>().Where(r => r.Enabled).Sum(r => (long)r.MoveCount);
-            long last = Run.Relics.OfType<IgnoreLastLockMovesRelic>().Where(r => r.Enabled).Sum(r => (long)r.MoveCount);
+            long last = Run.Relics.OfType<IgnoreLastLockMovesRelic>().Where(r => r.Enabled && r.AppliesTo(card)).Sum(r => (long)r.MoveCount);
             start = (int)System.Math.Min(first, card.Moves.Count);
             int endSkip = (int)System.Math.Min(last, card.Moves.Count - start);
             count = card.Moves.Count - start - endSkip;
@@ -128,7 +130,7 @@ namespace MoveCute
             // 원래 이동이 없는 카드의 기존 동작은 유물의 유효한 생략 효과가 있을 때만 바꾼다.
             bool hasReduction = Run.Relics.Any(r => r.Enabled && (
                 r is IgnoreFirstLockMovesRelic first && first.MoveCount > 0 ||
-                r is IgnoreLastLockMovesRelic last && last.MoveCount > 0));
+                r is IgnoreLastLockMovesRelic last && last.MoveCount > 0 && last.AppliesTo(card)));
             if (!hasReduction) return false;
             GetLockMoveRange(card, out _, out int count);
             return count == 0;

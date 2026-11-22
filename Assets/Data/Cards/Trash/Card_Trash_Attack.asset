@@ -15,7 +15,7 @@ MonoBehaviour:
   id: trashattack
   nameKey: card.trashattack.name
   descKey: card.trashattack.desc
-  art: {fileID: -1681116437095671938, guid: 959885f279828c64288c9de68499293e, type: 3}
+  art: {fileID: 21300000, guid: 4c67ab734d7a427393882c52a83f2dc7, type: 3}
   moves: 0100000002000000i
   cost: 1
   type: 0

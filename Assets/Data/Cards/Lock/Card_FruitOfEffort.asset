@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f498bdd2704f5048a21d6089bcea9f7, type: 3}
+  m_Name: Card_FruitOfEffort
+  m_EditorClassIdentifier: Assembly-CSharp::MoveCute.CardData
+  id: fruitofeffort
+  nameKey: card.fruitofeffort.name
+  descKey: card.fruitofeffort.desc
+  art: {fileID: 21300000, guid: 6cb04abfc81c469195412dcfb71d07f2, type: 3}
+  moves:
+  - 1
+  - 1
+  cost: 1
+  type: 2
+  rarity: 1
+  target: 2
+  keywords:
+  - rid: 3700000000000049001
+  effects:
+  - rid: 3700000000000049011
+  behavior:
+    rid: -2
+  targetKinds: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3700000000000049001
+      type: {class: Keyword_Delete, ns: MoveCute, asm: Assembly-CSharp}
+      data: 
+    - rid: 3700000000000049011
+      type: {class: GrantBuffEffect, ns: MoveCute, asm: Assembly-CSharp}
+      data:
+        buff: {fileID: 11400000, guid: 02686766d69d0c0ce2d9f8a6382b31c4, type: 2}
+        stacks: 1
+        stackable: 0

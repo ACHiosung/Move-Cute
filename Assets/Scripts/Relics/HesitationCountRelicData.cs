@@ -17,12 +17,13 @@ namespace MoveCute
         public override Relic CreateRelic() => new HesitationCountRelic(this);
     }
 
-    public class HesitationCountRelic : Relic
+    public class HesitationCountRelic : Relic, ICountingRelic
     {
         readonly HesitationCountRelicData data;
 
         /// <summary>지금까지 쌓인 주저 (0 ~ threshold-1). 유물 아이콘 숫자 표시에 쓸 수 있다.</summary>
         public int Counter { get; private set; }
+        public int Threshold => data.threshold;
 
         public HesitationCountRelic(HesitationCountRelicData data) : base(data) { this.data = data; }
 

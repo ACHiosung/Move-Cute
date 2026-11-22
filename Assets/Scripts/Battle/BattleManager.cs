@@ -100,7 +100,9 @@ namespace MoveCute
                     return unit == null ? null : (EffectTarget?)EffectTarget.OfUnit(unit);
 
                 case TargetType.SelfTile:
-                    return EffectTarget.OfTile(ctx.Player.Pos);
+                    // 보드 카드는 누르자마자 발동하지 않는다. 내 칸 하나만 후보로 띄우고 눌러서 확정한다
+                    var selfPos = await ctx.ChooseTile(new[] { ctx.Player.Pos }, $"{card}: 내 칸을 눌러 사용");
+                    return selfPos.HasValue ? EffectTarget.OfTile(selfPos.Value) : null;
 
                 case TargetType.OtherTile:
                     var tiles = card.TargetTiles(ctx).ToList();
