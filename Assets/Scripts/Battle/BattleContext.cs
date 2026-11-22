@@ -11,7 +11,7 @@ namespace MoveCute
         public int handSize = 6;
         [Tooltip("제한 턴 수. 추후 적/전투별 데이터로 이동 가능")]
         public int turnLimit = 3;
-        [Tooltip("순간이동 HP 소모 = 최대 HP의 이 비율(%), 소수점 올림")]
+        [Tooltip("순간이동 HP 소모 = 최대 HP의 이 비율(%), 소수점 내림")]
         public int teleportHpPercent = 10;
         [Tooltip("턴당 순간이동 횟수. -1 = 무제한 (미정)")]
         public int teleportLimitPerTurn = -1;
@@ -108,7 +108,6 @@ namespace MoveCute
 
                 foreach (var relic in Run.Relics) relic.Bind(this);
                 foreach (var enemy in Enemies) enemy.Bind(this);
-                StartMorale = Enemies.Sum(e => e.Hp);
 
                 Log($"전투 시작: 보드 {Board.Size}x{Board.Size}, 적 {string.Join(", ", Enemies)}");
                 await Presenter.BattleStarted(this);
@@ -339,13 +338,13 @@ namespace MoveCute
 
         // ════════════════════ 순간이동 비용 · 깎은 사기 ════════════════════
 
-        /// <summary>전투 시작 시점(유물·적 Bind 직후) 적 사기 합. HP 회복 보상 계산에 쓴다.</summary>
-        public int StartMorale { get; private set; }
+        /// <summary>순간이동 HP 소모: 최대 HP × teleportHpPercent%, 소수점 내림 (최대 HP 11 → 1, 51 → 5).</summary>
+        public int TeleportHpCost => Player.MaxHp * Config.teleportHpPercent / 100;
 
-        /// <summary>순간이동 HP 소모: 최대 HP × teleportHpPercent%, 소수점 올림 (최대 HP 11 → 2).</summary>
-        public int TeleportHpCost => (Player.MaxHp * Config.teleportHpPercent + 99) / 100;
-
-        /// <summary>이 전투에서 깎은 적 사기 = 시작 사기 합 − 남은 사기 합 (회복된 사기는 빠진다).</summary>
-        public int MoraleRemoved => Mathf.Max(0, StartMorale - Enemies.Sum(e => e.Hp));
+        /// <summary>
+        /// 이 전투에서 적 사기를 실제로 깎은 양의 합 (피해·사기 감소 효과 모두). 적이 회복해도 줄지 않는다.
+        /// 남은 사기보다 큰 피해는 남은 만큼만 센다. ChangeMorale·DealDamage(Units.cs)에서 더한다.
+        /// </summary>
+        public int MoraleDealt { get; private set; }
     }
 }
