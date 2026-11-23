@@ -27,6 +27,8 @@ namespace MoveCute
             public Image Tile, Icon;
             public Text Name, Counter;
             public bool ShownSpent;
+            public CanvasGroup Fade;
+            public bool ShownEnabled;   // 켜기·끄기는 아이콘 클릭 말고 에디터 창(유물 켜기·끄기, Testing Tools)에서도 바뀐다
         }
         readonly List<RelicView> relicViews = new();
         static readonly Color RelicTile = new(0.24f, 0.24f, 0.24f);
@@ -147,7 +149,7 @@ namespace MoveCute
                     if (ReferenceEquals(hoveredInfoOwner, tile)) RestorePanel();
                 };
 
-                var view = new RelicView { Relic = relic, Tile = tile };
+                var view = new RelicView { Relic = relic, Tile = tile, Fade = fade, ShownEnabled = relic.Enabled };
                 relicViews.Add(view);
                 if (data.icon != null)
                 {
@@ -204,9 +206,17 @@ namespace MoveCute
         /// </summary>
         void RefreshRelicStates()
         {
+            bool enabledChanged = false;
             foreach (var view in relicViews)
             {
                 if (view.Tile == null) continue;
+                if (view.Relic.Enabled != view.ShownEnabled)
+                {
+                    view.ShownEnabled = view.Relic.Enabled;
+                    if (view.Fade != null) view.Fade.alpha = view.ShownEnabled ? 1f : 0.35f;
+                    if (ReferenceEquals(hoveredInfoOwner, view.Tile)) RestorePanel();
+                    enabledChanged = true;
+                }
                 if (view.Counter != null && view.Relic is ICountingRelic counting)
                 {
                     string text = counting.DisplayValue.ToString();
@@ -219,6 +229,7 @@ namespace MoveCute
                 if (view.Icon != null) view.Icon.material = spent ? grayscaleMaterial : null;
                 if (view.Name != null) view.Name.color = spent ? SpentRelicName : Color.white;
             }
+            if (enabledChanged) foreach (var card in cards.Keys) RefreshCard(card);   // 유물이 바꾸는 카드 수치(피해 등) 다시 표시
         }
 
         Text RelicLabel(RectTransform parent, string value, Vector2 position, Vector2 size)
