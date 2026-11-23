@@ -51,17 +51,8 @@ namespace MoveCute
             Debug.Log($"[Run] 시드 {Run.Seed}");
             if (startingDeck.Count == 0) Debug.LogError("BattleManager.startingDeck가 비어 있습니다. 카드 에셋을 넣어 주세요.", this);
             foreach (var c in startingDeck.Where(c => c != null)) Run.Deck.Add(c.CreateCard());
-            if (BattleTestOptions.AllRelicsOff && BattleTestOptions.FindAllRelics != null)
-            {
-                // [테스트] 모든 유물을 꺼진 상태로. 전투 화면의 유물 아이콘이나 유물 켜기·끄기 창에서 켠다
-                foreach (var data in BattleTestOptions.FindAllRelics())
-                {
-                    var relic = data.CreateRelic();
-                    relic.Enabled = false;
-                    Run.Relics.Add(relic);
-                }
-            }
-            else foreach (var r in relics.Where(r => r != null)) Run.Relics.Add(r.CreateRelic());
+            foreach (var r in relics.Where(r => r != null)) Run.Relics.Add(r.CreateRelic());
+            BattleTestOptions.OnNewRun(Run);   // [TestingTools] 덱 프리셋·모든 유물 넣기
         }
 
         public Awaitable StartBattle()
@@ -149,7 +140,7 @@ namespace MoveCute
 
             GUILayout.BeginArea(new Rect(10, 10, 560, Screen.height - 20), GUI.skin.box);
 
-            GUILayout.Label($"턴 {ctx.Turn}/{(BattleTestOptions.InfiniteTurns ? "∞" : ctx.Config.turnLimit.ToString())}   에너지 {ctx.Energy}/{ctx.MaxEnergy}   " +
+            GUILayout.Label($"턴 {ctx.Turn}/{ctx.Config.turnLimit}   에너지 {ctx.Energy}/{ctx.MaxEnergy}   " +
                             $"HP {ctx.Player.Hp}/{ctx.Player.MaxHp}   [{ctx.Phase}]");
             foreach (var en in ctx.Enemies)
                 GUILayout.Label($"{en}: 사기 {en.Hp}  {string.Join(" ", en.Statuses)}");

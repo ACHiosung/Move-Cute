@@ -104,8 +104,8 @@ namespace MoveCute
                 Player.Pos = Board.Center;   // TODO: 4x4는 첫 패 전에 중앙 4칸 중 선택
 
                 foreach (var card in Run.Deck) Piles.Draw.Add(card.Clone());
-                if (BattleTestOptions.OrderedDraw) Piles.Draw.Reverse();   // [테스트] 덱 순서대로 뽑기 (뒤에서부터 뽑으므로 뒤집는다)
-                else Piles.Shuffle(Piles.Draw);
+                if (BattleTestOptions.OrderedDraw) Piles.Draw.Reverse(); else   // [TestingTools] 덱 순서대로 뽑기 (뒤에서부터 뽑으므로 뒤집는다)
+                Piles.Shuffle(Piles.Draw);
 
                 foreach (var relic in Run.Relics) relic.Bind(this);
                 foreach (var enemy in Enemies) enemy.Bind(this);
@@ -217,7 +217,8 @@ namespace MoveCute
             try
             {
                 TeleportsThisTurn++;
-                if (!BattleTestOptions.InfiniteEnergy) Energy--;   // [테스트] 에너지 무한
+                if (!BattleTestOptions.InfiniteEnergy)   // [TestingTools] 에너지 무한
+                Energy--;
                 await Presenter.EnergyChanged(Energy);
                 int cost = LosePlayerHp(EffectSource.System, TeleportHpCost, PlayerHpLossKind.Teleport);
                 Log($"순간이동 → {pos} (HP -{cost})");
@@ -260,7 +261,8 @@ namespace MoveCute
             Phase = BattlePhase.Resolving;
             try
             {
-                bool lastTurn = Turn >= Config.turnLimit && !BattleTestOptions.InfiniteTurns;   // [테스트] 턴 수 무한
+                bool lastTurn = Turn >= Config.turnLimit;
+                if (BattleTestOptions.InfiniteTurns) lastTurn = false;   // [TestingTools] 턴 수 무한
 
                 // 1. 턴 종료 효과 정산
                 await TriggerTile(Player.Pos, TileTrigger.TurnEndStanding);
@@ -406,14 +408,5 @@ namespace MoveCute
         /// 남은 사기보다 큰 피해는 남은 만큼만 센다. ChangeMorale·DealDamage(Units.cs)에서 더한다.
         /// </summary>
         public int MoraleDealt { get; private set; }
-
-        /// <summary>[테스트] 플레이 중 켠 테스트 옵션을 지금 상태에 반영한다 (에너지 무한: 최대 에너지로 채움). TestingToolsWindow가 부른다.</summary>
-        public async Awaitable ApplyTestOptions()
-        {
-            if (IsOver || !BattleTestOptions.InfiniteEnergy || Energy >= MaxEnergy) return;
-            Energy = MaxEnergy;
-            RefreshPlayable();
-            await Presenter.EnergyChanged(Energy);
-        }
     }
 }

@@ -60,7 +60,7 @@ namespace MoveCute
         public async Awaitable SpendEnergy(int n)
         {
             if (IsOver || n <= 0) return;
-            if (BattleTestOptions.InfiniteEnergy) return;   // [테스트] 에너지 무한
+            if (BattleTestOptions.InfiniteEnergy) return;   // [TestingTools] 에너지 무한
             Energy -= n;
             await Presenter.EnergyChanged(Energy);
         }
