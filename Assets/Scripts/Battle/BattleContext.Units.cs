@@ -15,7 +15,8 @@ namespace MoveCute
             if (IsOver || enemy == null) return;
             int before = enemy.Hp;
             if (amount < 0) MoraleDealt += Mathf.Min(before, -amount);   // 깎은 사기 기록 (HP 회복 보상용, 전투 흐름)
-            enemy.Hp = Mathf.Max(0, enemy.Hp + amount);
+            if (amount >= 0 || !BattleTestOptions.InfiniteEnemyMorale)   // [테스트] 적 사기 무한
+                enemy.Hp = Mathf.Max(0, enemy.Hp + amount);
             enemy.MaxHp = Mathf.Max(enemy.MaxHp, enemy.Hp);
             Log($"{enemy} 사기 {(amount >= 0 ? "+" : "")}{amount} → {enemy.Hp}");
             await Presenter.MoraleChanged(enemy, enemy.Hp - before);
@@ -62,7 +63,8 @@ namespace MoveCute
             int amount = CalculateDamage(src, target, damage);
             if (amount <= 0) return;
             if (target is Enemy) MoraleDealt += Mathf.Min(target.Hp, amount);   // 깎은 사기 기록 (HP 회복 보상용, 전투 흐름)
-            target.Hp = Mathf.Max(0, target.Hp - amount);
+            if (!(target is Enemy && BattleTestOptions.InfiniteEnemyMorale))   // [테스트] 적 사기 무한
+                target.Hp = Mathf.Max(0, target.Hp - amount);
             Log($"{src} → {target} 피해 {amount} (남은 {target.Hp})");
             await Presenter.Damaged(target, amount);
             await Events.Damaged.Raise(target, amount);
@@ -106,6 +108,7 @@ namespace MoveCute
             int loss = Mathf.Max(0, amount + add);
             loss = Mathf.Max(0, loss + (int)decimal.Truncate(loss * (multiplier - 1m)));   // 곱으로 바뀐 양은 0 쪽으로 버림
             if (loss != amount) Log($"{src}: 잃는 HP {amount} → {loss} (유물)");
+            if (BattleTestOptions.InfinitePlayerHp) return loss;   // [테스트] 내 HP 무한 (버티기 유물도 쓰지 않음)
 
             if (Player.Hp - loss <= 0)
             {

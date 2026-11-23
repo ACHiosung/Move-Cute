@@ -419,10 +419,11 @@ namespace MoveCute
             if (languageChanged) endTurnLabel.text = T("turnEnd");
             // 첫 턴 전(Turn 0, 빙고판으로 시작 칸을 고르는 동안)에도 제한 턴을 넘겨 보이지 않게 자른다
             int turns = ctx.IsOver ? 0 : Mathf.Clamp(ctx.Config.turnLimit - ctx.Turn + 1, 0, ctx.Config.turnLimit);
+            if (BattleTestOptions.InfiniteTurns) turns = -1;   // [테스트] 턴 수 무한은 ∞로 표시
             if (shownTurns != turns || shownTurnLimit != ctx.Config.turnLimit)
             {
                 shownTurns = turns; shownTurnLimit = ctx.Config.turnLimit;
-                turnsText.text = $"{turns} / {ctx.Config.turnLimit}";
+                turnsText.text = turns < 0 ? "∞" : $"{turns} / {ctx.Config.turnLimit}";
             }
             if (shownDraw != ctx.Piles.Draw.Count || languageChanged)
             {
