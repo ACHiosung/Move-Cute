@@ -79,16 +79,26 @@ namespace MoveCute
 
         void ShowRelics()
         {
-            const int rows = 10, capacity = rows * 2;
+            // 모든 유물을 보여 준다. 10개까지 1열, 20개까지 반 크기 2열(한 열 10개).
+            // 그보다 많으면 2열로 아래까지 늘리고, 높이가 모자라면 열을 늘리며 아이콘을 줄인다.
+            const int baseRows = 10;
             const float gap = 4f;
-            int count = Mathf.Min(ctx.Run.Relics.Count, capacity);
+            int count = ctx.Run.Relics.Count;
             var playerPanel = (RectTransform)playerPanelRoot;
             var detailPanel = (RectTransform)detailPanelRoot;
             var boardFrame = (RectTransform)board.transform.parent;
             float height = playerPanel.anchoredPosition.y - detailPanel.anchoredPosition.y + detailPanel.rect.height;
-            float size = (height - (rows - 1) * gap) / rows;
-            if (count > rows) size *= 0.5f;
-            float width = count > rows ? 2 * size + gap : size;
+            float baseSize = (height - (baseRows - 1) * gap) / baseRows;
+            int columns = count > baseRows ? 2 : 1;
+            float size = baseSize / columns;
+            int rows = Mathf.Max(baseRows, Mathf.CeilToInt(count / (float)columns));
+            while (columns < count && rows * (size + gap) - gap > height)
+            {
+                columns++;
+                size = baseSize / columns;
+                rows = Mathf.Max(baseRows, Mathf.CeilToInt(count / (float)columns));
+            }
+            float width = columns * size + (columns - 1) * gap;
             float available = boardFrame.anchoredPosition.x - playerPanel.rect.width;
             float outerGap = count == 0 ? available / 2 : (available - width) / 3;
             float panelX = count == 0 ? outerGap : 2 * outerGap + width;
@@ -173,9 +183,6 @@ namespace MoveCute
                 }
                 if (relic is ICountingRelic) view.Counter = RelicCounter(rect, size);
             }
-            int extra = ctx.Run.Relics.Count - count;
-            if (extra > 0)
-                RelicLabel(relicList, $"+{extra}", new Vector2(0, -rows * (size + gap)), new Vector2(width, size));
             RefreshRelicStates();
         }
 
