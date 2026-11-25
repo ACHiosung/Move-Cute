@@ -16,8 +16,8 @@ namespace MoveCute
         public BattleConfig config = new();
         [Tooltip("런 시작 덱. 같은 카드를 여러 장 넣으려면 여러 번 넣는다")]
         public List<CardData> startingDeck = new();
-        [Tooltip("전투할 적 에셋 (Assets/Data/Enemies)")]
-        public EnemyData enemy;
+        [Tooltip("전투 순서대로 나올 적 에셋 (Assets/Data/Enemies). 이길 때마다 다음 적, 목록 끝이면 마지막 적을 반복한다")]
+        public List<EnemyData> enemies = new();
         public List<RelicData> relics = new();
         [Tooltip("런 시드. 0 = 매 런 무작위. 같은 값이면 셔플·적 행동·무작위 대상이 재현된다 (시드는 런 시작 때 콘솔에 찍힌다)")]
         public int seed;
@@ -66,11 +66,19 @@ namespace MoveCute
             if (input != null && i == null)
                 Debug.LogError($"{input.name}: IPlayerInput을 구현하지 않았습니다. 디버그 GUI로 선택합니다.", input);
 
-            if (enemy == null)
+            if (enemies.Count == 0)
             {
-                Debug.LogError("BattleManager.enemy가 비어 있습니다. 적 에셋을 넣어 주세요.", this);
+                Debug.LogError("BattleManager.enemies가 비어 있습니다. 적 에셋을 넣어 주세요.", this);
                 return AwaitableUtil.Completed();
             }
+            int index = Math.Min(Run.BattlesWon, enemies.Count - 1);   // 목록 끝이면 마지막 적 반복
+            var enemy = enemies[index];
+            if (enemy == null)
+            {
+                Debug.LogError($"BattleManager.enemies[{index}]가 비어 있습니다. 적 에셋을 넣어 주세요.", this);
+                return AwaitableUtil.Completed();
+            }
+            Debug.Log($"[Run] 전투 {Run.BattlesWon + 1}: {enemy.name} (enemies[{index}])");
             Ctx = new BattleContext(Run, config, new[] { enemy }, p, i ?? DebugInput);
             return Ctx.StartBattle();
         }

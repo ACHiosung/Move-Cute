@@ -16,6 +16,8 @@ namespace MoveCute
         public int MaxEnergy = 4;
         public int Gold;
         public int Act = 1;   // 1막 3x3, 2막 4x4, 3막 5x5
+        /// <summary>이 런에서 이긴 전투 수. 다음 전투의 적은 BattleManager.enemies[BattlesWon] (목록 끝이면 마지막 적).</summary>
+        public int BattlesWon;
 
         public readonly List<CardInstance> Deck = new();
         public readonly List<Relic> Relics = new();

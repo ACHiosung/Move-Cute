@@ -318,6 +318,7 @@ namespace MoveCute
             if (IsOver) return;
             Phase = won ? BattlePhase.Won : BattlePhase.Lost;
             Run.Hp = Player.Hp;
+            if (won) Run.BattlesWon++;
             Log(won ? $"전투 승리 (HP {Player.Hp})" : "패배");
             if (won) await PrepareConfiguredRewards();
             await Presenter.BattleEnded(won);
